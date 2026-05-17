@@ -1,0 +1,260 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CivicPlatform\Modules\Threads\Repository;
+
+use CivicPlatform\Repositories\BaseRepository;
+
+/**
+ * Repository for consultation thread records.
+ *
+ * Handles civic_threads database operations only. Workflow orchestration,
+ * response processing, and rendering belong in services/controllers/templates.
+ */
+class ThreadRepository extends BaseRepository
+{
+    /**
+     * Columns accepted when creating threads.
+     *
+     * @var array<string, string>
+     */
+    private array $insertFormats = [
+        'title' => '%s',
+        'description' => '%s',
+        'is_public' => '%d',
+        'created_by' => '%d',
+        'start_date' => '%s',
+        'end_date' => '%s',
+        'status' => '%s',
+        'created_at' => '%s',
+        'updated_at' => '%s',
+    ];
+
+    /**
+     * @param \wpdb $wpdb WordPress database adapter.
+     */
+    public function __construct(\wpdb $wpdb)
+    {
+        parent::__construct($wpdb, 'civic_threads');
+    }
+
+    /**
+     * Create a consultation thread.
+     *
+     * @param array<string, mixed> $data Thread data keyed by civic_threads columns.
+     * @return int Inserted thread ID, or 0 on failure.
+     */
+    public function create(array $data): int
+    {
+        $insertData = $this->filterDataByFormats($data, $this->insertFormats);
+
+        if (empty($insertData['title'])) {
+            return 0;
+        }
+
+        $now = current_time('mysql');
+
+        if (!isset($insertData['created_at'])) {
+            $insertData['created_at'] = $now;
+        }
+
+        if (!isset($insertData['updated_at'])) {
+            $insertData['updated_at'] = $now;
+        }
+
+        $inserted = $this->wpdb->insert(
+            $this->table,
+            $insertData,
+            $this->getFormatsForData($insertData, $this->insertFormats)
+        );
+
+        if (false === $inserted) {
+            return 0;
+        }
+
+        return (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Find a thread by ID.
+     *
+     * @param int $id Thread ID.
+     * @return array<string, mixed>|null Thread row or null when not found.
+     */
+    public function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE id = %d LIMIT 1",
+                [$id]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Get a paginated thread listing.
+     *
+     * Supported args: page, per_page, status, is_public, created_by, orderby,
+     * order.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPaginated(array $args = []): array
+    {
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildThreadFilters($args);
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'created_at', 'DESC');
+
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Get public threads.
+     *
+     * Public listing is limited to records with is_public = 1. If no status is
+     * supplied, active threads are returned by default.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicThreads(array $args = []): array
+    {
+        $args['is_public'] = 1;
+
+        if (!isset($args['status']) || '' === trim((string) $args['status'])) {
+            $args['status'] = 'active';
+        }
+
+        return $this->getPaginated($args);
+    }
+
+    /**
+     * Update the workflow status of a thread.
+     *
+     * @param int $id Thread ID.
+     * @param string $status New status.
+     * @return bool True when the update succeeds.
+     */
+    public function updateStatus(int $id, string $status): bool
+    {
+        if ($id <= 0 || '' === trim($status)) {
+            return false;
+        }
+
+        $updated = $this->wpdb->update(
+            $this->table,
+            [
+                'status' => trim($status),
+                'updated_at' => current_time('mysql'),
+            ],
+            ['id' => $id],
+            ['%s', '%s'],
+            ['%d']
+        );
+
+        return false !== $updated;
+    }
+
+    /**
+     * Build supported thread filters.
+     *
+     * @param array<string, mixed> $args Query arguments.
+     * @return array{sql: array<int, string>, values: array<int, mixed>}
+     */
+    private function buildThreadFilters(array $args): array
+    {
+        return $this->buildFilterClause(
+            $args,
+            [
+                'status' => ['column' => 'status', 'format' => '%s'],
+                'is_public' => ['column' => 'is_public', 'format' => '%d'],
+                'created_by' => ['column' => 'created_by', 'format' => '%d'],
+            ]
+        );
+    }
+
+    /**
+     * Execute a paginated thread query.
+     *
+     * @param array<int, string> $whereSql Where SQL fragments.
+     * @param array<int, mixed> $whereValues Prepared statement values.
+     * @param string $order Order clause.
+     * @param array{page: int, per_page: int, offset: int} $pagination Pagination data.
+     * @return array<string, mixed>
+     */
+    private function getPagedResults(array $whereSql, array $whereValues, string $order, array $pagination): array
+    {
+        $whereClause = $this->buildWhereSql($whereSql);
+
+        $totalSql = "SELECT COUNT(*) FROM {$this->table}{$whereClause}";
+        $total = (int) $this->wpdb->get_var($this->prepare($totalSql, $whereValues));
+
+        $queryValues = array_merge($whereValues, [$pagination['per_page'], $pagination['offset']]);
+        $itemsSql = "SELECT * FROM {$this->table}{$whereClause} ORDER BY {$order} LIMIT %d OFFSET %d";
+        $items = $this->wpdb->get_results($this->prepare($itemsSql, $queryValues), ARRAY_A);
+
+        return array_merge(
+            ['items' => is_array($items) ? $items : []],
+            $this->buildPaginationMeta($total, $pagination)
+        );
+    }
+
+    /**
+     * Keep only fields supported by a format map.
+     *
+     * @param array<string, mixed> $data Raw data.
+     * @param array<string, string> $formats Format map keyed by column.
+     * @return array<string, mixed>
+     */
+    private function filterDataByFormats(array $data, array $formats): array
+    {
+        return array_intersect_key($data, $formats);
+    }
+
+    /**
+     * Get wpdb formats matching data column order.
+     *
+     * @param array<string, mixed> $data Filtered data.
+     * @param array<string, string> $formats Format map keyed by column.
+     * @return array<int, string>
+     */
+    private function getFormatsForData(array $data, array $formats): array
+    {
+        $dataFormats = [];
+
+        foreach (array_keys($data) as $column) {
+            $dataFormats[] = $formats[$column];
+        }
+
+        return $dataFormats;
+    }
+
+    /**
+     * Get safe columns accepted for ordering.
+     *
+     * @return array<int, string>
+     */
+    private function getAllowedOrderColumns(): array
+    {
+        return [
+            'id',
+            'title',
+            'is_public',
+            'created_by',
+            'start_date',
+            'end_date',
+            'status',
+            'created_at',
+            'updated_at',
+        ];
+    }
+}

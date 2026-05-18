@@ -573,3 +573,47 @@ Prefer:
 * unnecessary abstraction,
 * enterprise patterns,
 * excessive framework behavior.
+
+## Frontend Form Request Naming
+
+All frontend forms must namespace request fields using module-specific array structures.
+
+Examples:
+
+civic_rep[name]
+civic_rep[email]
+
+civic_thread[name]
+civic_thread[response]
+
+civic_event[name]
+civic_event[registration_data]
+
+Avoid using raw field names directly in frontend requests, such as:
+- name
+- email
+- category
+- year
+- p
+- page
+- author
+
+Reason:
+WordPress internally reserves several request variable names for query parsing and routing. Using raw field names may cause:
+- unexpected 404 errors
+- query conflicts
+- permalink routing issues
+- unpredictable frontend behavior
+
+Controllers should access request data through structured arrays.
+
+Example:
+
+$_POST['civic_rep']['name'] ?? ''
+
+This convention improves:
+- request isolation
+- frontend scalability
+- validation consistency
+- future extensibility
+- WordPress compatibility

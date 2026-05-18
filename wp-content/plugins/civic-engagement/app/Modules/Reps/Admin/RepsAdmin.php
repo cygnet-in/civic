@@ -23,6 +23,11 @@ class RepsAdmin
     private const MENU_SLUG = 'civic-platform';
 
     /**
+     * Detail page slug.
+     */
+    private const DETAIL_SLUG = 'civic-rep-view';
+
+    /**
      * Representations list page.
      *
      * @var RepsListPage
@@ -30,11 +35,20 @@ class RepsAdmin
     private RepsListPage $listPage;
 
     /**
-     * @param RepsListPage $listPage Representations list page.
+     * Representation detail page.
+     *
+     * @var RepDetailPage
      */
-    public function __construct(RepsListPage $listPage)
+    private RepDetailPage $detailPage;
+
+    /**
+     * @param RepsListPage $listPage Representations list page.
+     * @param RepDetailPage $detailPage Representation detail page.
+     */
+    public function __construct(RepsListPage $listPage, RepDetailPage $detailPage)
     {
         $this->listPage = $listPage;
+        $this->detailPage = $detailPage;
     }
 
     /**
@@ -72,6 +86,15 @@ class RepsAdmin
             self::MENU_SLUG,
             [$this, 'renderRepresentationsPage']
         );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            __('View Representation', 'civic-engagement'),
+            __('View Representation', 'civic-engagement'),
+            self::CAPABILITY,
+            self::DETAIL_SLUG,
+            [$this, 'renderRepresentationDetailPage']
+        );
     }
 
     /**
@@ -86,5 +109,19 @@ class RepsAdmin
         }
 
         $this->listPage->render();
+    }
+
+    /**
+     * Render the Representation detail admin page.
+     *
+     * @return void
+     */
+    public function renderRepresentationDetailPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->detailPage->render();
     }
 }

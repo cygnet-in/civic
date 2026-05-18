@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Reps;
 
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
+use CivicPlatform\Modules\Reps\Admin\RepDetailPage;
 use CivicPlatform\Modules\Reps\Admin\RepsAdmin;
 use CivicPlatform\Modules\Reps\Admin\RepsListPage;
 use CivicPlatform\Modules\Reps\Frontend\RepFormController;
@@ -48,7 +49,7 @@ class RepsModule
         $shortcodes = new RepsShortcodes($this->createFormController());
         $shortcodes->register();
 
-        $admin = new RepsAdmin($this->createListPage());
+        $admin = new RepsAdmin($this->createListPage(), $this->createDetailPage());
         $admin->register();
     }
 
@@ -73,11 +74,37 @@ class RepsModule
     }
 
     /**
+     * Create the representation admin detail page.
+     *
+     * @return RepDetailPage
+     */
+    private function createDetailPage(): RepDetailPage
+    {
+        $services = $this->createRepWorkflowServices();
+
+        return new RepDetailPage(
+            $services['reps'],
+            $services['contacts'],
+            $services['activities']
+        );
+    }
+
+    /**
      * Create the representation workflow service.
      *
      * @return RepService
      */
     private function createRepService(): RepService
+    {
+        return $this->createRepWorkflowServices()['reps'];
+    }
+
+    /**
+     * Create shared Reps workflow services.
+     *
+     * @return array{reps: RepService, contacts: ContactService, activities: ActivityService}
+     */
+    private function createRepWorkflowServices(): array
     {
         $repRepository = new RepRepository($this->wpdb);
         $contactRepository = new ContactRepository($this->wpdb);
@@ -86,6 +113,10 @@ class RepsModule
         $contactService = new ContactService($contactRepository);
         $activityService = new ActivityService($activityRepository);
 
-        return new RepService($repRepository, $contactService, $activityService);
+        return [
+            'reps' => new RepService($repRepository, $contactService, $activityService),
+            'contacts' => $contactService,
+            'activities' => $activityService,
+        ];
     }
 }

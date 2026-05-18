@@ -9,6 +9,7 @@
 
 declare(strict_types=1);
 
+use CivicPlatform\Core\Capabilities;
 use CivicPlatform\Modules\Reps\RepsModule;
 
 if (!defined('ABSPATH')) {
@@ -39,6 +40,14 @@ spl_autoload_register(
     }
 );
 
+register_activation_hook(
+    __FILE__,
+    static function (): void {
+        $capabilities = new Capabilities();
+        $capabilities->register();
+    }
+);
+
 add_action(
     'plugins_loaded',
     static function (): void {
@@ -50,5 +59,7 @@ add_action(
 
         $repsModule = new RepsModule($wpdb);
         $repsModule->register();
+        $capabilities = new Capabilities();
+        $capabilities->register();
     }
 );

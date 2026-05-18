@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Reps;
 
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
+use CivicPlatform\Modules\Reps\Admin\RepsAdmin;
+use CivicPlatform\Modules\Reps\Admin\RepsListPage;
 use CivicPlatform\Modules\Reps\Frontend\RepFormController;
 use CivicPlatform\Modules\Reps\Frontend\RepsShortcodes;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
@@ -45,6 +47,9 @@ class RepsModule
     {
         $shortcodes = new RepsShortcodes($this->createFormController());
         $shortcodes->register();
+
+        $admin = new RepsAdmin($this->createListPage());
+        $admin->register();
     }
 
     /**
@@ -55,6 +60,16 @@ class RepsModule
     private function createFormController(): RepFormController
     {
         return new RepFormController($this->createRepService());
+    }
+
+    /**
+     * Create the representations admin list page.
+     *
+     * @return RepsListPage
+     */
+    private function createListPage(): RepsListPage
+    {
+        return new RepsListPage(new RepRepository($this->wpdb));
     }
 
     /**

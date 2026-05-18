@@ -242,22 +242,30 @@ All exports must:
 - avoid unrestricted data exposure
 - remain admin-only operations
 
-# Activity Logging
+# Contact Activity Tracking
 
-Major operational actions should create activity entries where appropriate.
+The activity system tracks civic participation activities associated with contacts.
 
 Examples:
 
 - rep submission
-- event registration
 - consultation response
-- schedule creation
+- event registration
 
-Activity logging is intended for:
+The activity table is intended for:
 
-- audit visibility
-- operational tracking
+- contact participation history
+- civic interaction tracking
 - relationship inspection
+- operational visibility
+
+Administrative or system-level actions are not part of this module.
+
+Examples not tracked here:
+
+- consultation creation
+- schedule publishing
+- admin configuration changes
 
 # Future Expansion Notes
 

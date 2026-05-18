@@ -105,7 +105,10 @@ CREATE TABLE `wp_civic_threads` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
     `title` VARCHAR(255) NOT NULL,
+    `slug` VARCHAR(255) NOT NULL,
+    `summary` VARCHAR(500) NULL,
     `description` LONGTEXT NULL,
+    `response_enabled` TINYINT(1) NOT NULL DEFAULT 1,
 
     `is_public` TINYINT(1) NOT NULL DEFAULT 0,
 

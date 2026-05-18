@@ -10,7 +10,9 @@
 declare(strict_types=1);
 
 use CivicPlatform\Core\Capabilities;
+use CivicPlatform\Modules\Activities\ActivitiesModule;
 use CivicPlatform\Modules\Reps\RepsModule;
+use CivicPlatform\Modules\Threads\ThreadsModule;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -59,6 +61,13 @@ add_action(
 
         $repsModule = new RepsModule($wpdb);
         $repsModule->register();
+
+        $activitiesModule = new ActivitiesModule($wpdb);
+        $activitiesModule->register();
+
+        $threadsModule = new ThreadsModule($wpdb);
+        $threadsModule->register();
+
         $capabilities = new Capabilities();
         $capabilities->register();
     }

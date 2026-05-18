@@ -192,18 +192,21 @@ Stores consultation thread definitions.
 
 ## Fields
 
-| Field       | Purpose            |
-| ----------- | ------------------ |
-| id          | thread ID          |
-| title       | thread title       |
-| description | thread description |
-| is_public   | visibility         |
-| created_by  | admin user         |
-| start_date  | start date         |
-| end_date    | end date           |
-| status      | active/closed      |
-| created_at  | created timestamp  |
-| updated_at  | updated timestamp  |
+| Field            | Purpose             |
+| -----------      | ------------------  |
+| id               | thread ID           |
+| title            | thread title        |
+| slug             | Future routing      |
+| summary          | Listing Preview     |
+| description      | thread description  |
+| response_enabled | allow participation |
+| is_public        | visibility          |
+| created_by       | admin user          |
+| start_date       | start date          |
+| end_date         | end date            |
+| status           | active/closed       |
+| created_at       | created timestamp   |
+| updated_at       | updated timestamp   |
 
 ---
 

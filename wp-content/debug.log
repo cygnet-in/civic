@@ -5,3 +5,18 @@
 [18-May-2026 17:24:14 UTC] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in E:\htdocs\civic\wp-includes\functions.php on line 2196
 [18-May-2026 17:24:22 UTC] PHP Deprecated:  strpos(): Passing null to parameter #1 ($haystack) of type string is deprecated in E:\htdocs\civic\wp-includes\functions.php on line 7374
 [18-May-2026 17:24:22 UTC] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in E:\htdocs\civic\wp-includes\functions.php on line 2196
+[18-May-2026 17:56:31 UTC] WordPress database error Cannot add or update a child row: a foreign key constraint fails (`civic`.`wp_civic_activities`, CONSTRAINT `fk_activity_contact` FOREIGN KEY (`contact_id`) REFERENCES `wp_civic_contacts` (`id`)) for query INSERT INTO `wp_civic_activities` (`contact_id`, `activity_type`, `related_id`, `summary`, `created_at`) VALUES (0, 'manual', 1, 'Consultation created: Test thread', '2026-05-18 17:56:31') made by do_action('civic-platform_page_civic-threads'), WP_Hook->do_action, WP_Hook->apply_filters, CivicPlatform\Modules\Threads\Admin\ThreadsAdmin->renderCreatePage, CivicPlatform\Modules\Threads\Admin\ThreadCreatePage->render, CivicPlatform\Modules\Threads\Admin\ThreadCreatePage->processSubmission, CivicPlatform\Modules\Activities\Repository\ActivityRepository->create
+[18-May-2026 18:01:32 UTC] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function CivicPlatform\Modules\Threads\Admin\ThreadCreatePage::__construct(), 1 passed in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 49 and exactly 2 expected in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Admin\ThreadCreatePage.php:56
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(49): CivicPlatform\Modules\Threads\Admin\ThreadCreatePage->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(38): CivicPlatform\Modules\Threads\ThreadsModule->createCreatePage()
+#2 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#4 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#5 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#6 E:\htdocs\civic\wp-settings.php(593): do_action('plugins_loaded')
+#7 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Admin\ThreadCreatePage.php on line 56

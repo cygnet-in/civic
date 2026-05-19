@@ -59,14 +59,11 @@ class ActivityRepository extends BaseRepository
         $insertData = $this->filterDataByFormats($data, $this->insertFormats);
 
         if (
-            empty($insertData['activity_type'])
+            empty($insertData['contact_id'])
+            || empty($insertData['activity_type'])
             || !$this->isSupportedActivityType((string) $insertData['activity_type'])
         ) {
             return 0;
-        }
-
-        if (!isset($insertData['contact_id'])) {
-            $insertData['contact_id'] = 0;
         }
 
         if (!isset($insertData['created_at'])) {

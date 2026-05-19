@@ -20,3 +20,27 @@ Stack trace:
 #9 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
 #10 {main}
   thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Admin\ThreadCreatePage.php on line 56
+[19-May-2026 03:47:52 UTC] Automatic updates starting...
+[19-May-2026 03:47:53 UTC]   Automatic plugin updates starting...
+[19-May-2026 03:47:53 UTC]   Automatic plugin updates complete.
+[19-May-2026 03:47:54 UTC] Automatic updates complete.
+[19-May-2026 03:48:18 UTC] WordPress database error Unknown column 'slug' in 'field list' for query INSERT INTO `wp_civic_threads` (`title`, `slug`, `summary`, `description`, `response_enabled`, `is_public`, `created_by`, `status`, `created_at`, `updated_at`) VALUES ('Road Block', 'road-block', 'sdsdgsgsdg', 'sgsdgsdgsdgsdgsdgdsggsgs', 1, 0, 3, 'draft', '2026-05-19 03:48:18', '2026-05-19 03:48:18') made by do_action('civic-platform_page_civic-threads'), WP_Hook->do_action, WP_Hook->apply_filters, CivicPlatform\Modules\Threads\Admin\ThreadsAdmin->renderCreatePage, CivicPlatform\Modules\Threads\Admin\ThreadCreatePage->render, CivicPlatform\Modules\Threads\Admin\ThreadCreatePage->processSubmission, CivicPlatform\Modules\Threads\Repository\ThreadRepository->create
+[19-May-2026 04:17:38 UTC] PHP Deprecated:  strpos(): Passing null to parameter #1 ($haystack) of type string is deprecated in E:\htdocs\civic\wp-includes\functions.php on line 7374
+[19-May-2026 04:17:38 UTC] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in E:\htdocs\civic\wp-includes\functions.php on line 2196
+[19-May-2026 15:05:15 UTC] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function CivicPlatform\Modules\Threads\Frontend\ThreadsListShortcode::__construct(), 1 passed in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 50 and exactly 2 expected in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadsListShortcode.php:36
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(50): CivicPlatform\Modules\Threads\Frontend\ThreadsListShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(593): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadsListShortcode.php on line 36
+[19-May-2026 15:06:45 UTC] Automatic updates starting...
+[19-May-2026 15:06:46 UTC]   Automatic plugin updates starting...
+[19-May-2026 15:06:46 UTC]   Automatic plugin updates complete.
+[19-May-2026 15:06:47 UTC] Automatic updates complete.

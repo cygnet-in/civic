@@ -7,27 +7,27 @@ namespace CivicPlatform\Modules\Threads\Admin;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 
 /**
- * Renders and processes the consultation creation admin page.
+ * Renders and processes the consultation edit admin page.
  *
- * Request handling and presentation live here. Thread persistence is delegated
- * to the repository.
+ * This page handles request sanitization and presentation only. Thread updates
+ * are delegated to ThreadRepository.
  */
-class ThreadCreatePage
+class ThreadEditPage
 {
     /**
-     * Required capability for creating threads.
+     * Required capability for editing threads.
      */
     private const CAPABILITY = 'manage_civic_threads';
 
     /**
      * Form action value.
      */
-    private const ACTION = 'civic_thread_create';
+    private const ACTION = 'civic_thread_edit';
 
     /**
-     * Nonce action.
+     * Nonce action prefix.
      */
-    private const NONCE_ACTION = 'civic_thread_create';
+    private const NONCE_ACTION = 'civic_thread_edit_';
 
     /**
      * Nonce field name.
@@ -50,7 +50,7 @@ class ThreadCreatePage
     }
 
     /**
-     * Render and process the thread creation page.
+     * Render and process the thread edit page.
      *
      * @return void
      */
@@ -60,45 +60,62 @@ class ThreadCreatePage
             wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
         }
 
-        $response = $this->processSubmission();
-        $values = $response['values'];
+        $threadId = $this->threadId();
+        $thread = $this->threads->findById($threadId);
 
         echo '<div class="wrap">';
-        echo '<h1>' . esc_html__('Create Consultation', 'civic-engagement') . '</h1>';
+        echo '<h1>' . esc_html__('Edit Consultation', 'civic-engagement') . '</h1>';
+        echo '<p><a href="' . esc_url($this->listUrl()) . '">' . esc_html__('Back to Threads', 'civic-engagement') . '</a></p>';
+
+        if (!is_array($thread)) {
+            $this->renderNotFound();
+            echo '</div>';
+
+            return;
+        }
+
+        $response = $this->processSubmission($threadId);
+        $thread = $this->threads->findById($threadId) ?: $thread;
+        $values = !empty($response['submitted']) && empty($response['success'])
+            ? $response['values']
+            : $this->valuesFromThread($thread);
+
         $this->renderMessage($response);
-        $this->renderForm($values, $response['errors']);
+        $this->renderForm($threadId, $thread, $values, $response['errors']);
         echo '</div>';
     }
 
     /**
-     * Process a submitted thread creation request.
+     * Process a submitted edit request.
      *
+     * @param int $threadId Thread ID.
      * @return array<string, mixed> Form response.
      */
-    private function processSubmission(): array
+    private function processSubmission(int $threadId): array
     {
         if (!$this->isSubmission()) {
-            return $this->buildResponse(false, false, null, $this->defaultValues(), [], null);
-        }
-
-        if (!$this->hasValidNonce()) {
-            return $this->buildResponse(true, false, 'Security check failed. Please try again.', $this->defaultValues(), [], 'invalid_nonce');
+            return $this->buildResponse(false, false, null, [], [], null);
         }
 
         $values = $this->sanitizeRequestValues();
+
+        if (!$this->hasValidNonce($threadId)) {
+            return $this->buildResponse(true, false, 'Security check failed. Please try again.', $values, [], 'invalid_nonce');
+        }
+
         $errors = $this->validateValues($values);
 
         if (!empty($errors)) {
             return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
         }
 
-        $threadId = $this->threads->create($this->buildThreadData($values));
+        $updated = $this->threads->update($threadId, $this->buildThreadData($values));
 
-        if ($threadId <= 0) {
-            return $this->buildResponse(true, false, 'The consultation could not be created.', $values, [], 'thread_create_failed');
+        if (!$updated) {
+            return $this->buildResponse(true, false, 'The consultation could not be updated.', $values, [], 'thread_update_failed');
         }
 
-        return $this->buildResponse(true, true, 'Consultation created successfully.', $this->defaultValues(), [], null);
+        return $this->buildResponse(true, true, 'Consultation updated successfully.', [], [], null);
     }
 
     /**
@@ -121,26 +138,46 @@ class ThreadCreatePage
     }
 
     /**
-     * Render the consultation creation form.
+     * Render the edit form.
      *
+     * @param int $threadId Thread ID.
+     * @param array<string, mixed> $thread Thread row.
      * @param array<string, mixed> $values Form values.
      * @param array<string, string> $errors Validation errors.
      * @return void
      */
-    private function renderForm(array $values, array $errors): void
+    private function renderForm(int $threadId, array $thread, array $values, array $errors): void
     {
         echo '<form method="post">';
-        wp_nonce_field(self::NONCE_ACTION, self::NONCE_FIELD);
+        wp_nonce_field(self::NONCE_ACTION . $threadId, self::NONCE_FIELD);
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
+        $this->renderReadOnlyRow(__('Slug', 'civic-engagement'), (string) ($thread['slug'] ?? ''));
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
-        $this->renderTextarea('content', __('Content', 'civic-engagement'), $values, $errors, 8);
+        $this->renderTextarea('description', __('Description', 'civic-engagement'), $values, $errors, 8);
         $this->renderStatusSelect($values, $errors);
         $this->renderResponseEnabledField($values);
+        $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
+        $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
         echo '</tbody></table>';
-        submit_button(__('Create Consultation', 'civic-engagement'));
+        submit_button(__('Update Consultation', 'civic-engagement'));
         echo '</form>';
+    }
+
+    /**
+     * Render a read-only row.
+     *
+     * @param string $label Row label.
+     * @param string $value Row value.
+     * @return void
+     */
+    private function renderReadOnlyRow(string $label, string $value): void
+    {
+        echo '<tr>';
+        echo '<th scope="row">' . esc_html($label) . '</th>';
+        echo '<td><code>' . esc_html($value) . '</code></td>';
+        echo '</tr>';
     }
 
     /**
@@ -243,7 +280,7 @@ class ThreadCreatePage
     }
 
     /**
-     * Check whether the current request is a thread create submission.
+     * Check whether the current request is a thread edit submission.
      *
      * @return bool True when submitted.
      */
@@ -267,9 +304,10 @@ class ThreadCreatePage
     /**
      * Validate the submitted nonce.
      *
+     * @param int $threadId Thread ID.
      * @return bool True when nonce is valid.
      */
-    private function hasValidNonce(): bool
+    private function hasValidNonce(int $threadId): bool
     {
         if (!isset($_POST[self::NONCE_FIELD])) {
             return false;
@@ -283,7 +321,7 @@ class ThreadCreatePage
 
         $nonce = sanitize_text_field((string) $nonce);
 
-        return '' !== $nonce && (bool) wp_verify_nonce($nonce, self::NONCE_ACTION);
+        return '' !== $nonce && (bool) wp_verify_nonce($nonce, self::NONCE_ACTION . $threadId);
     }
 
     /**
@@ -298,9 +336,11 @@ class ThreadCreatePage
         return [
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
-            'content' => sanitize_textarea_field($this->requestValue($data, 'content')),
+            'description' => sanitize_textarea_field($this->requestValue($data, 'description')),
             'status' => sanitize_text_field($this->requestValue($data, 'status')),
             'response_enabled' => !empty($data['response_enabled']) ? 1 : 0,
+            'start_date' => sanitize_text_field($this->requestValue($data, 'start_date')),
+            'end_date' => sanitize_text_field($this->requestValue($data, 'end_date')),
         ];
     }
 
@@ -358,7 +398,7 @@ class ThreadCreatePage
     }
 
     /**
-     * Build repository data for civic_threads.
+     * Build repository update data for civic_threads.
      *
      * @param array<string, mixed> $values Sanitized values.
      * @return array<string, mixed> Thread data.
@@ -367,54 +407,98 @@ class ThreadCreatePage
     {
         return [
             'title' => $values['title'],
-            'slug' => $this->buildSlug((string) $values['title']),
             'summary' => $values['summary'],
-            'description' => $values['content'],
+            'description' => $values['description'],
             'response_enabled' => $values['response_enabled'],
             'is_public' => 'published' === $values['status'] ? 1 : 0,
-            'created_by' => get_current_user_id(),
+            'start_date' => $values['start_date'],
+            'end_date' => $values['end_date'],
             'status' => $values['status'],
         ];
     }
 
     /**
-     * Build a URL-friendly slug from the title.
+     * Map a thread row to form values.
      *
-     * @param string $title Thread title.
-     * @return string Thread slug.
+     * @param array<string, mixed> $thread Thread row.
+     * @return array<string, mixed>
      */
-    private function buildSlug(string $title): string
+    private function valuesFromThread(array $thread): array
     {
-        $slug = sanitize_title($title);
-
-        if ('' !== $slug) {
-            return $slug;
-        }
-
-        return 'consultation-' . time();
+        return [
+            'title' => (string) ($thread['title'] ?? ''),
+            'summary' => (string) ($thread['summary'] ?? ''),
+            'description' => (string) ($thread['description'] ?? ''),
+            'status' => (string) ($thread['status'] ?? 'draft'),
+            'response_enabled' => !empty($thread['response_enabled']) ? 1 : 0,
+            'start_date' => $this->dateFormValue($thread['start_date'] ?? null),
+            'end_date' => $this->dateFormValue($thread['end_date'] ?? null),
+        ];
     }
 
     /**
-     * Return default form values.
+     * Normalize optional date values for form display.
      *
-     * @return array<string, mixed>
+     * @param mixed $value Raw date value.
+     * @return string Form value.
      */
-    private function defaultValues(): array
+    private function dateFormValue($value): string
     {
-        return [
-            'title' => '',
-            'summary' => '',
-            'content' => '',
-            'status' => 'draft',
-            'response_enabled' => 1,
-        ];
+        if (null === $value || '' === trim((string) $value) || '0000-00-00 00:00:00' === $value) {
+            return '';
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Get sanitized requested thread ID.
+     *
+     * @return int Thread ID.
+     */
+    private function threadId(): int
+    {
+        if (!isset($_GET['thread_id'])) {
+            return 0;
+        }
+
+        $threadId = wp_unslash($_GET['thread_id']);
+
+        if (is_array($threadId) || is_object($threadId)) {
+            return 0;
+        }
+
+        return absint($threadId);
+    }
+
+    /**
+     * Render an admin error when the thread cannot be found.
+     *
+     * @return void
+     */
+    private function renderNotFound(): void
+    {
+        echo '<div class="notice notice-error"><p>' . esc_html__('Thread not found.', 'civic-engagement') . '</p></div>';
+    }
+
+    /**
+     * Build the list page URL.
+     *
+     * @return string List URL.
+     */
+    private function listUrl(): string
+    {
+        return add_query_arg(
+            ['page' => 'civic-threads'],
+            admin_url('admin.php')
+        );
     }
 
     /**
      * Build a consistent form response.
      *
      * @param bool $submitted Whether a submission was received.
-     * @param bool $success Whether creation succeeded.
+     * @param bool $success Whether update succeeded.
      * @param string|null $message User-facing message.
      * @param array<string, mixed> $values Form values.
      * @param array<string, string> $errors Validation errors.

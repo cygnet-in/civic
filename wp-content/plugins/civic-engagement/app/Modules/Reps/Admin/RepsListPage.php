@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Reps\Admin;
 
+use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
 
 /**
@@ -32,11 +33,20 @@ class RepsListPage
     private RepRepository $reps;
 
     /**
-     * @param RepRepository $reps Reps repository.
+     * Date helper.
+     *
+     * @var DateHelper
      */
-    public function __construct(RepRepository $reps)
+    private DateHelper $dates;
+
+    /**
+     * @param RepRepository $reps Reps repository.
+     * @param DateHelper $dates Date helper.
+     */
+    public function __construct(RepRepository $reps, DateHelper $dates)
     {
         $this->reps = $reps;
+        $this->dates = $dates;
     }
 
     /**
@@ -151,7 +161,7 @@ class RepsListPage
         echo '<td>' . esc_html((string) ($item['name_snapshot'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['email_snapshot'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['status'] ?? '')) . '</td>';
-        echo '<td>' . esc_html((string) ($item['created_at'] ?? '')) . '</td>';
+        echo '<td>' . esc_html($this->dates->formatDateTime($item['created_at'] ?? null)) . '</td>';
         echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a></td>';
         echo '</tr>';
     }

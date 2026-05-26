@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Reps\Admin;
 
+use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\RepService;
@@ -43,18 +44,28 @@ class RepDetailPage
     private ActivityService $activities;
 
     /**
+     * Date helper.
+     *
+     * @var DateHelper
+     */
+    private DateHelper $dates;
+
+    /**
      * @param RepService $reps Reps service.
      * @param ContactService $contacts Contact service.
      * @param ActivityService $activities Activity service.
+     * @param DateHelper $dates Date helper.
      */
     public function __construct(
         RepService $reps,
         ContactService $contacts,
-        ActivityService $activities
+        ActivityService $activities,
+        DateHelper $dates
     ) {
         $this->reps = $reps;
         $this->contacts = $contacts;
         $this->activities = $activities;
+        $this->dates = $dates;
     }
 
     /**
@@ -107,7 +118,7 @@ class RepDetailPage
         $this->renderDetailRow(__('Subject', 'civic-engagement'), (string) ($rep['title'] ?? ''));
         $this->renderDetailRow(__('Message', 'civic-engagement'), (string) ($rep['details'] ?? ''));
         $this->renderDetailRow(__('Status', 'civic-engagement'), (string) ($rep['status'] ?? ''));
-        $this->renderDetailRow(__('Created At', 'civic-engagement'), (string) ($rep['created_at'] ?? ''));
+        $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($rep['created_at'] ?? null));
         echo '</tbody></table>';
     }
 
@@ -182,7 +193,7 @@ class RepDetailPage
             echo '<td>' . esc_html((string) ($activity['id'] ?? '')) . '</td>';
             echo '<td>' . esc_html((string) ($activity['activity_type'] ?? '')) . '</td>';
             echo '<td>' . esc_html((string) ($activity['summary'] ?? '')) . '</td>';
-            echo '<td>' . esc_html((string) ($activity['created_at'] ?? '')) . '</td>';
+            echo '<td>' . esc_html($this->dates->formatDateTime($activity['created_at'] ?? null)) . '</td>';
             echo '</tr>';
         }
 

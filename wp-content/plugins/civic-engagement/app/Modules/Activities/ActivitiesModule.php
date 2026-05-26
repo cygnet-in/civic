@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Activities;
 
+use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Activities\Admin\ActivitiesAdmin;
 use CivicPlatform\Modules\Activities\Admin\ActivitiesListPage;
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
@@ -49,6 +50,6 @@ class ActivitiesModule
      */
     private function createListPage(): ActivitiesListPage
     {
-        return new ActivitiesListPage(new ActivityRepository($this->wpdb));
+        return new ActivitiesListPage(new ActivityRepository($this->wpdb), new DateHelper());
     }
 }

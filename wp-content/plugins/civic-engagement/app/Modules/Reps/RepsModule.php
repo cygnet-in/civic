@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Reps;
 
+use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
 use CivicPlatform\Modules\Reps\Admin\RepDetailPage;
 use CivicPlatform\Modules\Reps\Admin\RepsAdmin;
@@ -70,7 +71,7 @@ class RepsModule
      */
     private function createListPage(): RepsListPage
     {
-        return new RepsListPage(new RepRepository($this->wpdb));
+        return new RepsListPage(new RepRepository($this->wpdb), new DateHelper());
     }
 
     /**
@@ -85,7 +86,8 @@ class RepsModule
         return new RepDetailPage(
             $services['reps'],
             $services['contacts'],
-            $services['activities']
+            $services['activities'],
+            new DateHelper()
         );
     }
 

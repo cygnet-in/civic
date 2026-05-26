@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Activities\Admin;
 
+use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
 
 /**
@@ -32,11 +33,20 @@ class ActivitiesListPage
     private ActivityRepository $activities;
 
     /**
-     * @param ActivityRepository $activities Activity repository.
+     * Date helper.
+     *
+     * @var DateHelper
      */
-    public function __construct(ActivityRepository $activities)
+    private DateHelper $dates;
+
+    /**
+     * @param ActivityRepository $activities Activity repository.
+     * @param DateHelper $dates Date helper.
+     */
+    public function __construct(ActivityRepository $activities, DateHelper $dates)
     {
         $this->activities = $activities;
+        $this->dates = $dates;
     }
 
     /**
@@ -114,7 +124,7 @@ class ActivitiesListPage
         echo '<td>' . esc_html((string) ($item['activity_type'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['summary'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['related_id'] ?? '')) . '</td>';
-        echo '<td>' . esc_html((string) ($item['created_at'] ?? '')) . '</td>';
+        echo '<td>' . esc_html($this->dates->formatDateTime($item['created_at'] ?? null)) . '</td>';
         echo '</tr>';
     }
 

@@ -57,9 +57,20 @@ class ThreadsListShortcode
      */
     public function render($atts = []): string
     {
-        unset($atts);
+        if (!is_array($atts)) {
+            $atts = [];
+        }
+
+        $atts = shortcode_atts(
+            [
+                'detail_page_id' => 0,
+            ],
+            $atts,
+            'civic_threads'
+        );
 
         $page = $this->currentPage();
+        $detailPageId = absint($atts['detail_page_id']);
         $result = $this->threads->getPublicThreads(
             [
                 'page' => $page,
@@ -80,7 +91,7 @@ class ThreadsListShortcode
         }
 
         foreach ($items as $thread) {
-            $this->renderThread($thread);
+            $this->renderThread($thread, $detailPageId);
         }
 
         $this->renderPagination($page, $totalPages);
@@ -94,9 +105,10 @@ class ThreadsListShortcode
      * Render a single consultation summary.
      *
      * @param array<string, mixed> $thread Thread row.
+     * @param int $detailPageId Detail page ID.
      * @return void
      */
-    private function renderThread(array $thread): void
+    private function renderThread(array $thread, int $detailPageId): void
     {
         $threadId = isset($thread['id']) ? (int) $thread['id'] : 0;
 
@@ -110,7 +122,7 @@ class ThreadsListShortcode
         echo '<p class="civic-threads__date">' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</p>';
 
         echo '<p class="civic-threads__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl($threadId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
+        echo '<a href="' . esc_url($this->readMoreUrl($threadId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
         echo '</article>';
     }
@@ -119,14 +131,36 @@ class ThreadsListShortcode
      * Build a placeholder read-more URL.
      *
      * @param int $threadId Thread ID.
+     * @param int $detailPageId Detail page ID.
      * @return string Read-more URL.
      */
-    private function readMoreUrl(int $threadId): string
+    private function readMoreUrl(int $threadId, int $detailPageId): string
     {
         return add_query_arg(
             ['thread_id' => $threadId],
-            get_permalink()
+            $this->detailBaseUrl($detailPageId)
         );
+    }
+
+    /**
+     * Resolve the detail page base URL.
+     *
+     * @param int $detailPageId Detail page ID.
+     * @return string Detail base URL or current page fallback.
+     */
+    private function detailBaseUrl(int $detailPageId): string
+    {
+        if ($detailPageId > 0) {
+            $permalink = get_permalink($detailPageId);
+
+            if (is_string($permalink) && '' !== $permalink) {
+                return $permalink;
+            }
+        }
+
+        $fallback = get_permalink();
+
+        return is_string($fallback) ? $fallback : '';
     }
 
     /**

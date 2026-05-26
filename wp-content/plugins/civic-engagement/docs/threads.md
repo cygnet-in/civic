@@ -77,3 +77,24 @@ Admin can:
 * threaded discussions,
 * moderation queue,
 * advanced public visibility control.
+
+---
+
+## Public Consultation URLs
+
+Consultations support public shareable URLs.
+
+Examples:
+
+- /housing
+- /dub
+- /community-meeting
+
+The admin workflow should:
+
+- suggest slug values from titles
+- allow manual slug editing
+- validate slug uniqueness
+- preserve stable public URLs after creation where possible
+
+Slug validation and uniqueness are managed centrally through SlugService.

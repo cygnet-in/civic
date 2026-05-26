@@ -109,8 +109,6 @@ Supported types:
 * rep
 * thread_response
 * event_registration
-* schedule
-* manual
 
 ---
 
@@ -192,21 +190,21 @@ Stores consultation thread definitions.
 
 ## Fields
 
-| Field            | Purpose             |
-| -----------      | ------------------  |
-| id               | thread ID           |
-| title            | thread title        |
-| slug             | Future routing      |
-| summary          | Listing Preview     |
-| description      | thread description  |
-| response_enabled | allow participation |
-| is_public        | visibility          |
-| created_by       | admin user          |
-| start_date       | start date          |
-| end_date         | end date            |
-| status           | active/closed       |
-| created_at       | created timestamp   |
-| updated_at       | updated timestamp   |
+| Field            | Purpose                                      |
+| -----------      | ------------------                           |
+| id               | thread ID                                    |
+| title            | thread title                                 |
+| slug             | public shareable consultation URL identifier |
+| summary          | Listing Preview                              |
+| description      | thread description                           |
+| response_enabled | allow participation                          |
+| is_public        | visibility                                   |
+| created_by       | admin user                                   |
+| start_date       | start date                                   |
+| end_date         | end date                                     |
+| status           | draft/published/closed                       |
+| created_at       | created timestamp                            |
+| updated_at       | updated timestamp                            |
 
 ---
 
@@ -302,18 +300,19 @@ Stores event definitions.
 
 ## Fields
 
-| Field       | Purpose       |
-| ----------- | ------------- |
-| id          | event ID      |
-| title       | event title   |
-| description | details       |
-| location    | location      |
-| start_date  | start         |
-| end_date    | end           |
-| is_public   | visibility    |
-| status      | active/closed |
-| created_at  | timestamp     |
-| updated_at  | timestamp     |
+| Field       | Purpose                                      |
+| ----------- | -------------                                |
+| id          | event ID                                     |
+| title       | event title                                  |
+| slug        | public shareable consultation URL identifier |
+| description | details                                      |
+| location    | location                                     |
+| start_date  | start                                        |
+| end_date    | end                                          |
+| is_public   | visibility                                   |
+| status      | active/closed                                |
+| created_at  | timestamp                                    |
+| updated_at  | timestamp                                    |
 
 ---
 
@@ -470,3 +469,26 @@ Possible future additions:
 * Use pagination for listings.
 * Avoid large unindexed searches.
 * Prefer explicit relationships over serialized structures.
+
+---
+
+## Slug Rules
+
+Public civic entities may use editable slugs for public-facing shareable URLs.
+
+Examples:
+
+- /housing
+- /dub
+- /transport-plan
+
+Rules:
+
+- slugs must be globally unique across public civic entities
+- slugs are editable by administrators
+- slugs are initially suggested from titles
+- slugs should be lowercase
+- spaces and special characters should be normalized
+- frontend validation may assist users
+- SlugService is the authoritative layer for uniqueness enforcement
+- repositories must not assume local/module-only slug uniqueness

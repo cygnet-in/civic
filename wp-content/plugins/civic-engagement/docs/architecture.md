@@ -144,8 +144,6 @@ Supported activity types:
 * rep
 * thread
 * event
-* schedule
-* manual
 
 ---
 

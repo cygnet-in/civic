@@ -218,6 +218,7 @@ CREATE TABLE `wp_civic_events` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
     `title` VARCHAR(255) NOT NULL,
+    `slug` VARCHAR(255) NOT NULL,
     `description` LONGTEXT NULL,
 
     `location` VARCHAR(500) NULL,

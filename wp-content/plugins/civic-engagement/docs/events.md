@@ -65,3 +65,24 @@ Admin can:
 * ticketing,
 * payment gateway,
 * automated reminders.
+
+---
+
+## Public Event URLs
+
+Consultations are intended to support public shareable URLs.
+
+Examples:
+
+- /housing
+- /dub
+- /transport-plan
+
+The admin workflow should:
+
+- suggest slug values from titles
+- allow manual slug editing
+- validate slug uniqueness
+- preserve stable public URLs after creation where possible
+
+Slug uniqueness must always be enforced in the repository layer.

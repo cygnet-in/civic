@@ -6,18 +6,19 @@ The project uses a shortcode-based frontend rendering strategy.
 
 WordPress pages are used for:
 
-* SEO,
-* menus,
-* content management,
-* page hierarchy.
+* SEO
+* menus
+* content management
+* page hierarchy
 
 Operational functionality is injected using shortcodes.
 
 This approach keeps:
 
-* frontend workflows modular,
-* templates reusable,
-* and module ownership clear.
+* frontend workflows modular
+* templates reusable
+* module ownership clear
+* routing flexible
 
 ---
 
@@ -25,27 +26,23 @@ This approach keeps:
 
 * Each major module should expose its own shortcode(s).
 * Shortcodes should remain lightweight.
-* Rendering should happen through templates.
+* Rendering should happen through templates or dedicated frontend handlers.
 * Business logic should NOT exist inside templates.
 * Controllers/services should handle processing before rendering.
+* Shortcodes should prefer repository/service layers instead of direct database access.
 
 ---
 
 # Shortcode Naming Rules
 
-Use:
-
-```text
-civic_
-```
-
-prefix for all shortcodes.
+Use the `civic_` prefix for all shortcodes.
 
 Examples:
 
-* civic_rep_form
-* civic_thread_list
-* civic_event_registration
+* `civic_rep_form`
+* `civic_threads`
+* `civic_thread_detail`
+* `civic_events`
 
 Avoid:
 
@@ -58,9 +55,10 @@ Avoid:
 
 Shortcodes should:
 
-* call controllers/services,
-* load templates using output buffering,
-* avoid inline HTML generation inside methods.
+* call frontend handlers/services
+* load templates using output buffering where appropriate
+* avoid large inline HTML generation inside shortcode methods
+* avoid direct SQL queries
 
 Example:
 
@@ -78,93 +76,132 @@ return ob_get_clean();
 
 Pages should be created normally in WordPress.
 
-Example:
-
-| Page            | Shortcode               |
-| --------------- | ----------------------- |
-| Submit Rep      | [civic_rep_form]        |
-| Public Threads  | [civic_thread_list]     |
-| Public Schedule | [civic_schedule_list]   |
-| Admin Dashboard | [civic_admin_dashboard] |
+| Page | Shortcode |
+|---|---|
+| Submit Representation | `[civic_rep_form]` |
+| Public Consultations | `[civic_threads]` |
+| Consultation Detail | `[civic_thread_detail]` |
+| Public Events | `[civic_events]` |
+| Public Schedule | `[civic_schedule_list]` |
 
 This allows:
 
-* editable page content,
-* SEO flexibility,
-* menu flexibility,
-* layout customization.
+* editable page content
+* SEO flexibility
+* menu flexibility
+* layout customization
 
 ---
 
-# Recommended Shortcodes
+# Frontend Routing Strategy
+
+Public-facing civic entities may support slug-based URLs.
+
+Examples:
+
+* `/housing`
+* `/dub`
+* `/community-plan`
+
+Slug-based routing is intended for:
+
+* consultations
+* events
+* future public civic entities
+
+Current implementation may temporarily use:
+
+* `?slug=housing`
+
+before introducing full WordPress rewrite/permalink routing.
+
+---
+
+# Slug Rules
+
+* Public slugs are globally unique across civic entities.
+* Slugs are editable by administrators.
+* Slugs are initially suggested from titles.
+* Slug validation may use lightweight AJAX checks.
+* `SlugService` is responsible for uniqueness validation.
+* Repository layer must not assume local/module-only slug uniqueness.
+* Slugs should remain stable after publication where possible.
+
+---
+
+# Current Implemented Shortcodes
 
 ## Reps Module
 
-```text
-[civic_rep_form]
-```
+### `[civic_rep_form]`
 
-Optional future:
+Purpose:
+
+* public representation submission form
+
+---
+
+## Threads Module
+
+### `[civic_threads]`
+
+Purpose:
+
+* frontend consultation listing
+
+Supports attributes:
+
+* `detail_page_id="42"`
+
+Example:
 
 ```text
-[civic_rep_list]
-[civic_rep_detail]
+[civic_threads detail_page_id="42"]
 ```
 
 ---
 
-# Threads Module
+### `[civic_thread_detail]`
 
-```text
-[civic_thread_list]
-[civic_thread_response id="5"]
-```
+Purpose:
 
-Optional future:
+* frontend consultation detail display
 
-```text
-[civic_thread_detail id="5"]
-```
+Supports:
 
----
+* `thread_id` query parameter
+* `slug` query parameter
 
-# Events Module
+Examples:
 
-```text
-[civic_event_list]
-[civic_event_registration id="10"]
-```
-
-Optional future:
-
-```text
-[civic_event_detail id="10"]
-```
+* `/consultation-detail/?thread_id=12`
+* `/consultation-detail/?slug=housing`
 
 ---
 
-# Schedule Module
+# Planned / Future Shortcodes
 
-```text
-[civic_schedule_list]
-```
+## Events Module
 
-Optional future:
-
-```text
-[civic_schedule_detail id="5"]
-```
+* `[civic_events]`
+* `[civic_event_detail]`
+* `[civic_event_registration]`
 
 ---
 
-# Admin Module
+## Schedule Module
 
-```text
-[civic_admin_dashboard]
-[civic_contact_list]
-[civic_rep_admin]
-[civic_thread_admin]
-```
+* `[civic_schedule_list]`
+* `[civic_schedule_detail]`
+
+---
+
+## Frontend Admin Module
+
+* `[civic_admin_dashboard]`
+* `[civic_contact_list]`
+* `[civic_rep_admin]`
+* `[civic_thread_admin]`
 
 ---
 
@@ -172,19 +209,23 @@ Optional future:
 
 Use shortcode attributes for:
 
-* IDs,
-* filtering,
-* display behavior.
+* page references
+* filtering
+* display behavior
+* pagination limits
+* frontend behavior configuration
 
 Examples:
 
 ```text
-[civic_event_registration id="10"]
+[civic_threads detail_page_id="42"]
 
 [civic_schedule_list type="public"]
 
-[civic_thread_response id="5"]
+[civic_events limit="10"]
 ```
+
+Avoid excessive shortcode complexity.
 
 ---
 
@@ -192,9 +233,9 @@ Examples:
 
 Templates should:
 
-* remain presentation-focused,
-* avoid direct database queries,
-* avoid workflow/business logic.
+* remain presentation-focused
+* avoid direct database queries
+* avoid business/workflow logic
 
 Templates belong inside module folders.
 
@@ -202,7 +243,70 @@ Example:
 
 ```text
 Modules/Reps/Templates/
+Modules/Threads/Templates/
 ```
+
+---
+
+# Frontend Pagination Rules
+
+Frontend public listings should support lightweight pagination.
+
+Prefer:
+
+* query parameter pagination
+* lightweight indexed queries
+
+Avoid:
+
+* complex AJAX pagination
+* infinite scroll
+* heavy frontend frameworks
+
+Example:
+
+* `?thread_page=2`
+
+---
+
+# Frontend Form Request Rules
+
+All frontend forms must namespace request fields using module-specific request arrays.
+
+Examples:
+
+```text
+civic_rep[name]
+civic_rep[email]
+
+civic_thread[name]
+civic_thread[response]
+
+civic_event[name]
+civic_event[registration_data]
+```
+
+Avoid raw field names directly in frontend requests.
+
+Avoid:
+
+* `name`
+* `email`
+* `category`
+* `year`
+* `page`
+* `author`
+
+Reason:
+
+WordPress internally reserves several request variable names for query parsing and routing.
+
+Using raw field names may cause:
+
+* unexpected 404 errors
+* query conflicts
+* permalink routing issues
+* unpredictable frontend behavior
 
 ---
 
@@ -212,10 +316,15 @@ Possible future support:
 
 * Gutenberg blocks
 * template overrides
-* custom routing
+* rewrite/permalink routing
 * frontend widgets
+* SEO enhancements
+* public sharing tools
 
-Current pilot version intentionally uses:
+The current pilot version intentionally uses:
 
 * lightweight shortcode architecture
-  for simplicity and maintainability.
+* simple routing
+* modular frontend rendering
+
+for maintainability and operational clarity.

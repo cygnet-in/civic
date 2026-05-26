@@ -248,8 +248,6 @@ Supported activity types:
 * rep
 * thread_response
 * event_registration
-* schedule
-* manual
 
 ---
 
@@ -573,6 +571,25 @@ Prefer:
 * unnecessary abstraction,
 * enterprise patterns,
 * excessive framework behavior.
+
+---
+
+## Slug Handling Conventions
+
+Public-facing modules may use editable slugs for stable shareable URLs.
+
+Rules:
+
+- slugs should be sanitized using WordPress-compatible methods
+- slugs should be lowercase
+- spaces and special characters should be normalized
+- slugs should remain stable after publication where possible
+- frontend validation may assist users
+- SlugService is responsible for global uniqueness enforcement
+- repositories should not independently enforce public slug uniqueness
+- frontend validation must never be treated as authoritative
+
+---
 
 ## Frontend Form Request Naming
 

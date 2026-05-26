@@ -246,3 +246,19 @@ over:
 * excessive abstraction,
 * enterprise architectural patterns,
 * or unnecessary framework behavior.
+
+---
+
+# Slug based URLs
+
+Public-facing civic entities may support stable editable slug-based URLs for external sharing.
+
+Examples:
+
+- /housing
+- /dub
+- /community-plan
+
+Public slugs are globally unique across modules.
+
+Slug validation and uniqueness enforcement belong to SlugService.

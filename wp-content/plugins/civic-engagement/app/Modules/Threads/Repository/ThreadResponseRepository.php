@@ -84,6 +84,56 @@ class ThreadResponseRepository extends BaseRepository
     }
 
     /**
+     * Find a thread response by ID.
+     *
+     * @param int $id Response ID.
+     * @return array<string, mixed>|null Response row or null when not found.
+     */
+    public function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE id = %d LIMIT 1",
+                [$id]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Update public visibility for a response.
+     *
+     * Response content is intentionally immutable; moderation only controls
+     * whether a response can be displayed publicly.
+     *
+     * @param int $id Response ID.
+     * @param bool $isPublic Whether the response should be public.
+     * @return bool True when the update succeeded.
+     */
+    public function updatePublicVisibility(int $id, bool $isPublic): bool
+    {
+        if ($id <= 0) {
+            return false;
+        }
+
+        $updated = $this->wpdb->update(
+            $this->table,
+            ['is_public' => $isPublic ? 1 : 0],
+            ['id' => $id],
+            ['%d'],
+            ['%d']
+        );
+
+        return false !== $updated;
+    }
+
+    /**
      * Get paginated responses for a thread.
      *
      * Supported args: page, per_page, is_public, contact_id, orderby, order.

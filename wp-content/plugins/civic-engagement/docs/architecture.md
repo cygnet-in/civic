@@ -226,3 +226,30 @@ Possible future additions:
 * Advanced CRM features
 * Advanced reporting/analytics
 * Workflow automation
+
+---
+
+# Shared Civic Reference Data
+
+The platform may use shared civic reference datasets across modules.
+
+Examples include:
+
+- electoral areas
+- civic categories
+- consultation metadata
+- future geographic structures
+
+Reference datasets are intended to remain lightweight during early platform stages.
+
+The initial implementation prioritizes:
+
+- workflow stability
+- repository abstraction
+- operational simplicity
+
+over:
+
+- complex management interfaces
+- GIS systems
+- hierarchical geography engines

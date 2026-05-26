@@ -591,6 +591,27 @@ Rules:
 
 ---
 
+## Shared Civic Reference Data
+
+Certain civic datasets may operate as shared reference tables across modules.
+
+Examples:
+
+- electoral areas
+- event categories
+- civic classifications
+- future district/grouping structures
+
+Rules:
+
+- shared civic data should use repository access
+- workflows should avoid hardcoded static arrays
+- administrative CRUD systems may be postponed during pilot stages
+- manually populated reference tables are acceptable during early stabilization phases
+- repository/service abstraction should still be preserved for future extensibility
+
+---
+
 ## Frontend Form Request Naming
 
 All frontend forms must namespace request fields using module-specific array structures.

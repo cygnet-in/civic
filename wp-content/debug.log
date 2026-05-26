@@ -50,3 +50,51 @@ Stack trace:
 [26-May-2026 14:43:31 UTC]   Automatic theme updates starting...
 [26-May-2026 14:43:31 UTC]   Automatic theme updates complete.
 [26-May-2026 14:43:31 UTC] Automatic updates complete.
+[26-May-2026 15:39:17 UTC] Automatic updates starting...
+[26-May-2026 15:39:17 UTC]   Automatic theme updates starting...
+[26-May-2026 15:39:17 UTC]   Automatic theme updates complete.
+[26-May-2026 15:39:17 UTC] Automatic updates complete.
+[26-May-2026 16:12:13 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function CivicPlatform\Modules\Threads\Responses\Frontend\submit_button() in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Responses\Frontend\ThreadResponseForm.php:81
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php(132): CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm->render(Array)
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php(86): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->renderResponsesSection(Array)
+#2 E:\htdocs\civic\wp-includes\shortcodes.php(434): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->render(NULL, '', 'civic_thread_de...')
+#3 [internal function]: do_shortcode_tag(Array)
+#4 E:\htdocs\civic\wp-includes\shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(civic_...', 'do_shortcode_ta...', '[civic_thread_d...')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): do_shortcode('[civic_thread_d...')
+#6 E:\htdocs\civic\wp-includes\plugin.php(205): WP_Hook->apply_filters('[civic_thread_d...', Array)
+#7 E:\htdocs\civic\wp-includes\blocks\post-content.php(50): apply_filters('the_content', '<!-- wp:shortco...')
+#8 E:\htdocs\civic\wp-includes\class-wp-block.php(596): render_block_core_post_content(Array, '<!-- wp:shortco...', Object(WP_Block))
+#9 E:\htdocs\civic\wp-includes\class-wp-block.php(576): WP_Block->render()
+#10 E:\htdocs\civic\wp-includes\class-wp-block.php(576): WP_Block->render()
+#11 E:\htdocs\civic\wp-includes\blocks.php(2438): WP_Block->render()
+#12 E:\htdocs\civic\wp-includes\blocks.php(2521): render_block(Array)
+#13 E:\htdocs\civic\wp-includes\block-template.php(291): do_blocks('<!-- wp:templat...')
+#14 E:\htdocs\civic\wp-includes\template-canvas.php(12): get_the_block_template_html()
+#15 E:\htdocs\civic\wp-includes\template-loader.php(132): include('E:\\htdocs\\civic...')
+#16 E:\htdocs\civic\wp-blog-header.php(19): require_once('E:\\htdocs\\civic...')
+#17 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#18 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Responses\Frontend\ThreadResponseForm.php on line 81
+[26-May-2026 16:12:23 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function CivicPlatform\Modules\Threads\Responses\Frontend\submit_button() in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Responses\Frontend\ThreadResponseForm.php:81
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php(132): CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm->render(Array)
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php(86): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->renderResponsesSection(Array)
+#2 E:\htdocs\civic\wp-includes\shortcodes.php(434): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->render(NULL, '', 'civic_thread_de...')
+#3 [internal function]: do_shortcode_tag(Array)
+#4 E:\htdocs\civic\wp-includes\shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(civic_...', 'do_shortcode_ta...', '[civic_thread_d...')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): do_shortcode('[civic_thread_d...')
+#6 E:\htdocs\civic\wp-includes\plugin.php(205): WP_Hook->apply_filters('[civic_thread_d...', Array)
+#7 E:\htdocs\civic\wp-includes\blocks\post-content.php(50): apply_filters('the_content', '<!-- wp:shortco...')
+#8 E:\htdocs\civic\wp-includes\class-wp-block.php(596): render_block_core_post_content(Array, '<!-- wp:shortco...', Object(WP_Block))
+#9 E:\htdocs\civic\wp-includes\class-wp-block.php(576): WP_Block->render()
+#10 E:\htdocs\civic\wp-includes\class-wp-block.php(576): WP_Block->render()
+#11 E:\htdocs\civic\wp-includes\blocks.php(2438): WP_Block->render()
+#12 E:\htdocs\civic\wp-includes\blocks.php(2521): render_block(Array)
+#13 E:\htdocs\civic\wp-includes\block-template.php(291): do_blocks('<!-- wp:templat...')
+#14 E:\htdocs\civic\wp-includes\template-canvas.php(12): get_the_block_template_html()
+#15 E:\htdocs\civic\wp-includes\template-loader.php(132): include('E:\\htdocs\\civic...')
+#16 E:\htdocs\civic\wp-blog-header.php(19): require_once('E:\\htdocs\\civic...')
+#17 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#18 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Responses\Frontend\ThreadResponseForm.php on line 81

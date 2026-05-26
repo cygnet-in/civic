@@ -492,3 +492,58 @@ Rules:
 - frontend validation may assist users
 - SlugService is the authoritative layer for uniqueness enforcement
 - repositories must not assume local/module-only slug uniqueness
+
+---
+
+# Electoral Areas
+
+The platform may use a shared electoral area reference table for civic workflows.
+
+Initial implementation uses:
+
+```text
+wp_civic_electoral_areas
+```
+
+This table is intended to support:
+
+- representations
+- consultation responses
+- event participation
+- future civic reporting workflows
+
+The initial pilot implementation uses manually managed database records.
+
+Administrative CRUD management for electoral areas is intentionally postponed until workflow requirements stabilize.
+
+---
+
+## Suggested Fields
+
+| Field | Purpose |
+|---|---|
+| id | primary key |
+| name | public display name |
+| slug | optional future routing identifier |
+| is_active | operational visibility |
+
+---
+
+## Architectural Notes
+
+Electoral areas are treated as shared civic reference data.
+
+Application code should:
+
+- use repository/service lookup
+- avoid hardcoded PHP arrays
+- preserve snapshot values where operationally required
+
+The pilot implementation intentionally avoids:
+
+- hierarchy management
+- geographic mapping
+- GIS integration
+- constituency nesting
+- admin CRUD interfaces
+- import/export systems

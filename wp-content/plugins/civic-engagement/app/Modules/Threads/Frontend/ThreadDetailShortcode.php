@@ -6,12 +6,14 @@ namespace CivicPlatform\Modules\Threads\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
+use CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm;
 
 /**
  * Registers and renders the public consultation detail shortcode.
  *
- * Rendering remains frontend-focused and read-only. Response submission and
- * response listing are intentionally left for future workflow classes.
+ * Rendering remains frontend-focused. Response submission is delegated to the
+ * response form handler.
  */
 class ThreadDetailShortcode
 {
@@ -23,6 +25,13 @@ class ThreadDetailShortcode
     private ThreadRepository $threads;
 
     /**
+     * Thread response repository.
+     *
+     * @var ThreadResponseRepository
+     */
+    private ThreadResponseRepository $responses;
+
+    /**
      * Date helper.
      *
      * @var DateHelper
@@ -30,13 +39,28 @@ class ThreadDetailShortcode
     private DateHelper $dates;
 
     /**
-     * @param ThreadRepository $threads Thread repository.
-     * @param DateHelper $dates Date helper.
+     * Thread response form handler.
+     *
+     * @var ThreadResponseForm
      */
-    public function __construct(ThreadRepository $threads, DateHelper $dates)
-    {
+    private ThreadResponseForm $responseForm;
+
+    /**
+     * @param ThreadRepository $threads Thread repository.
+     * @param ThreadResponseRepository $responses Thread response repository.
+     * @param DateHelper $dates Date helper.
+     * @param ThreadResponseForm $responseForm Thread response form handler.
+     */
+    public function __construct(
+        ThreadRepository $threads,
+        ThreadResponseRepository $responses,
+        DateHelper $dates,
+        ThreadResponseForm $responseForm
+    ) {
         $this->threads = $threads;
+        $this->responses = $responses;
         $this->dates = $dates;
+        $this->responseForm = $responseForm;
     }
 
     /**
@@ -72,8 +96,10 @@ class ThreadDetailShortcode
             return (string) ob_get_clean();
         }
 
-        $this->renderThread($thread);
-        $this->renderResponsesPlaceholder($thread);
+        $publicResponses = $this->publicResponses((int) ($thread['id'] ?? 0));
+        $this->renderThread($thread, $publicResponses);
+        $this->renderResponseFormSection($thread);
+        $this->renderPublicResponsesSection($publicResponses['items']);
 
         echo '</div>';
 
@@ -84,9 +110,10 @@ class ThreadDetailShortcode
      * Render consultation content.
      *
      * @param array<string, mixed> $thread Thread row.
+     * @param array<string, mixed> $publicResponses Public response result.
      * @return void
      */
-    private function renderThread(array $thread): void
+    private function renderThread(array $thread, array $publicResponses): void
     {
         echo '<article class="civic-thread-detail__content">';
         echo '<h1 class="civic-thread-detail__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h1>';
@@ -104,27 +131,96 @@ class ThreadDetailShortcode
         $this->renderMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
         $this->renderMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
         echo '</dl>';
+        $this->renderActionLinks($thread, $publicResponses);
         echo '</article>';
     }
 
     /**
-     * Render a future responses placeholder.
+     * Render lightweight action links for responding and viewing responses.
+     *
+     * @param array<string, mixed> $thread Thread row.
+     * @param array<string, mixed> $publicResponses Public response result.
+     * @return void
+     */
+    private function renderActionLinks(array $thread, array $publicResponses): void
+    {
+        $total = isset($publicResponses['total']) ? (int) $publicResponses['total'] : 0;
+
+        if (empty($thread['response_enabled']) && $total <= 0) {
+            return;
+        }
+
+        echo '<p class="civic-thread-detail__actions">';
+
+        if (!empty($thread['response_enabled'])) {
+            echo '<a href="#civic-thread-response-form">' . esc_html__('Respond to this Consultation', 'civic-engagement') . '</a>';
+        }
+
+        if ($total > 0) {
+            if (!empty($thread['response_enabled'])) {
+                echo ' | ';
+            }
+
+            echo '<a href="#civic-thread-public-responses">' . esc_html(sprintf(__('View Responses (%d)', 'civic-engagement'), $total)) . '</a>';
+        }
+
+        echo '</p>';
+    }
+
+    /**
+     * Render the response form section.
      *
      * @param array<string, mixed> $thread Thread row.
      * @return void
      */
-    private function renderResponsesPlaceholder(array $thread): void
+    private function renderResponseFormSection(array $thread): void
     {
-        echo '<section class="civic-thread-detail__responses">';
-        echo '<h2>' . esc_html__('Responses', 'civic-engagement') . '</h2>';
+        echo '<section id="civic-thread-response-form" class="civic-thread-detail__response-form">';
 
         if (!empty($thread['response_enabled'])) {
-            echo '<p>' . esc_html__('Response submission will be available here.', 'civic-engagement') . '</p>';
+            echo $this->responseForm->render($thread);
         } else {
             echo '<p>' . esc_html__('Responses are currently closed for this consultation.', 'civic-engagement') . '</p>';
         }
 
         echo '</section>';
+    }
+
+    /**
+     * Render public consultation responses.
+     *
+     * @param array<int, array<string, mixed>> $responses Public response rows.
+     * @return void
+     */
+    private function renderPublicResponsesSection(array $responses): void
+    {
+        if (empty($responses)) {
+            return;
+        }
+
+        echo '<section id="civic-thread-public-responses" class="civic-thread-detail__public-responses">';
+        echo '<h2>' . esc_html__('Public Responses', 'civic-engagement') . '</h2>';
+
+        foreach ($responses as $response) {
+            $this->renderPublicResponse($response);
+        }
+
+        echo '</section>';
+    }
+
+    /**
+     * Render a single public response.
+     *
+     * @param array<string, mixed> $response Public response row.
+     * @return void
+     */
+    private function renderPublicResponse(array $response): void
+    {
+        echo '<article class="civic-thread-response">';
+        echo '<h3 class="civic-thread-response__name">' . esc_html((string) ($response['name_snapshot'] ?? '')) . '</h3>';
+        echo '<p class="civic-thread-response__date">' . esc_html($this->dates->formatDate((string) ($response['created_at'] ?? ''))) . '</p>';
+        echo '<div class="civic-thread-response__text">' . wpautop(esc_html($this->responseText($response['response_data'] ?? ''))) . '</div>';
+        echo '</article>';
     }
 
     /**
@@ -138,6 +234,59 @@ class ThreadDetailShortcode
     {
         echo '<dt>' . esc_html($label) . '</dt>';
         echo '<dd>' . esc_html($value) . '</dd>';
+    }
+
+    /**
+     * Get public responses for the current consultation.
+     *
+     * @param int $threadId Thread ID.
+     * @return array{items: array<int, array<string, mixed>>, total: int}
+     */
+    private function publicResponses(int $threadId): array
+    {
+        if ($threadId <= 0) {
+            return ['items' => [], 'total' => 0];
+        }
+
+        $result = $this->responses->getPublicResponses(
+            [
+                'thread_id' => $threadId,
+                'page' => 1,
+                'per_page' => 50,
+                'orderby' => 'created_at',
+                'order' => 'DESC',
+            ]
+        );
+
+        return [
+            'items' => isset($result['items']) && is_array($result['items']) ? $result['items'] : [],
+            'total' => isset($result['total']) ? (int) $result['total'] : 0,
+        ];
+    }
+
+    /**
+     * Extract the public response text from stored JSON.
+     *
+     * @param mixed $responseData Stored response_data value.
+     * @return string Response text.
+     */
+    private function responseText($responseData): string
+    {
+        if (is_array($responseData) && isset($responseData['response_text'])) {
+            return (string) $responseData['response_text'];
+        }
+
+        if (is_array($responseData) || is_object($responseData)) {
+            return '';
+        }
+
+        $decoded = json_decode((string) $responseData, true);
+
+        if (is_array($decoded) && isset($decoded['response_text'])) {
+            return (string) $decoded['response_text'];
+        }
+
+        return '';
     }
 
     /**

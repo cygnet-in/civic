@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Threads\Admin;
 
+use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponseDetailPage;
+use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponsesListPage;
+
 /**
  * Registers admin pages for the Threads module.
  */
@@ -40,11 +43,35 @@ class ThreadsAdmin
     private const EDIT_SLUG = 'civic-thread-edit';
 
     /**
+     * Thread responses list page slug.
+     */
+    private const RESPONSES_SLUG = 'civic-thread-responses';
+
+    /**
+     * Thread response detail page slug.
+     */
+    private const RESPONSE_DETAIL_SLUG = 'civic-thread-response-view';
+
+    /**
      * Thread listing page.
      *
      * @var ThreadsListPage
      */
     private ThreadsListPage $listPage;
+
+    /**
+     * Thread responses listing page.
+     *
+     * @var ThreadResponsesListPage
+     */
+    private ThreadResponsesListPage $responsesListPage;
+
+    /**
+     * Thread response detail page.
+     *
+     * @var ThreadResponseDetailPage
+     */
+    private ThreadResponseDetailPage $responseDetailPage;
 
     /**
      * Thread detail page.
@@ -69,17 +96,23 @@ class ThreadsAdmin
 
     /**
      * @param ThreadsListPage $listPage Thread listing page.
+     * @param ThreadResponsesListPage $responsesListPage Thread responses listing page.
+     * @param ThreadResponseDetailPage $responseDetailPage Thread response detail page.
      * @param ThreadDetailPage $detailPage Thread detail page.
      * @param ThreadEditPage $editPage Thread edit page.
      * @param ThreadCreatePage $createPage Thread creation page.
      */
     public function __construct(
         ThreadsListPage $listPage,
+        ThreadResponsesListPage $responsesListPage,
+        ThreadResponseDetailPage $responseDetailPage,
         ThreadDetailPage $detailPage,
         ThreadEditPage $editPage,
         ThreadCreatePage $createPage
     ) {
         $this->listPage = $listPage;
+        $this->responsesListPage = $responsesListPage;
+        $this->responseDetailPage = $responseDetailPage;
         $this->detailPage = $detailPage;
         $this->editPage = $editPage;
         $this->createPage = $createPage;
@@ -122,11 +155,29 @@ class ThreadsAdmin
 
         add_submenu_page(
             self::PARENT_SLUG,
+            __('Consultation Responses', 'civic-engagement'),
+            __('Thread Responses', 'civic-engagement'),
+            self::CAPABILITY,
+            self::RESPONSES_SLUG,
+            [$this, 'renderResponsesPage']
+        );
+
+        add_submenu_page(
+            self::PARENT_SLUG,
             __('View Thread', 'civic-engagement'),
             __('View Thread', 'civic-engagement'),
             self::CAPABILITY,
             self::DETAIL_SLUG,
             [$this, 'renderDetailPage']
+        );
+
+        add_submenu_page(
+            self::PARENT_SLUG,
+            __('View Response', 'civic-engagement'),
+            __('View Response', 'civic-engagement'),
+            self::CAPABILITY,
+            self::RESPONSE_DETAIL_SLUG,
+            [$this, 'renderResponseDetailPage']
         );
 
         add_submenu_page(
@@ -165,6 +216,34 @@ class ThreadsAdmin
         }
 
         $this->createPage->render();
+    }
+
+    /**
+     * Render the thread responses listing admin page.
+     *
+     * @return void
+     */
+    public function renderResponsesPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->responsesListPage->render();
+    }
+
+    /**
+     * Render the thread response detail admin page.
+     *
+     * @return void
+     */
+    public function renderResponseDetailPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->responseDetailPage->render();
     }
 
     /**

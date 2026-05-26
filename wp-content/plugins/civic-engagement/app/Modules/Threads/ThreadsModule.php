@@ -13,6 +13,15 @@ use CivicPlatform\Modules\Threads\Admin\ThreadsListPage;
 use CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode;
 use CivicPlatform\Modules\Threads\Frontend\ThreadsListShortcode;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
+use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponseDetailPage;
+use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponsesListPage;
+use CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm;
+use CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService;
+use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
+use CivicPlatform\Modules\Users\Repository\ContactRepository;
+use CivicPlatform\Services\ActivityService;
+use CivicPlatform\Services\ContactService;
 
 /**
  * Bootstraps the Threads module.
@@ -43,6 +52,8 @@ class ThreadsModule
     {
         $admin = new ThreadsAdmin(
             $this->createListPage(),
+            $this->createResponsesListPage(),
+            $this->createResponseDetailPage(),
             $this->createDetailPage(),
             $this->createEditPage(),
             $this->createCreatePage()
@@ -52,7 +63,12 @@ class ThreadsModule
         $shortcode = new ThreadsListShortcode(new ThreadRepository($this->wpdb), new DateHelper());
         $shortcode->register();
 
-        $detailShortcode = new ThreadDetailShortcode(new ThreadRepository($this->wpdb), new DateHelper());
+        $detailShortcode = new ThreadDetailShortcode(
+            new ThreadRepository($this->wpdb),
+            new ThreadResponseRepository($this->wpdb),
+            new DateHelper(),
+            new ThreadResponseForm($this->createThreadResponseService())
+        );
         $detailShortcode->register();
     }
 
@@ -64,6 +80,34 @@ class ThreadsModule
     private function createListPage(): ThreadsListPage
     {
         return new ThreadsListPage(new ThreadRepository($this->wpdb), new DateHelper());
+    }
+
+    /**
+     * Create the thread responses listing page.
+     *
+     * @return ThreadResponsesListPage
+     */
+    private function createResponsesListPage(): ThreadResponsesListPage
+    {
+        return new ThreadResponsesListPage(
+            new ThreadResponseRepository($this->wpdb),
+            new ThreadRepository($this->wpdb),
+            new DateHelper()
+        );
+    }
+
+    /**
+     * Create the thread response detail page.
+     *
+     * @return ThreadResponseDetailPage
+     */
+    private function createResponseDetailPage(): ThreadResponseDetailPage
+    {
+        return new ThreadResponseDetailPage(
+            new ThreadResponseRepository($this->wpdb),
+            new ThreadRepository($this->wpdb),
+            new DateHelper()
+        );
     }
 
     /**
@@ -95,6 +139,21 @@ class ThreadsModule
     {
         return new ThreadCreatePage(
             new ThreadRepository($this->wpdb)
+        );
+    }
+
+    /**
+     * Create the public thread response submission service.
+     *
+     * @return ThreadResponseService
+     */
+    private function createThreadResponseService(): ThreadResponseService
+    {
+        return new ThreadResponseService(
+            new ThreadResponseRepository($this->wpdb),
+            new ThreadRepository($this->wpdb),
+            new ContactService(new ContactRepository($this->wpdb)),
+            new ActivityService(new ActivityRepository($this->wpdb))
         );
     }
 }

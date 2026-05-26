@@ -98,3 +98,13 @@ The admin workflow should:
 - preserve stable public URLs after creation where possible
 
 Slug validation and uniqueness are managed centrally through SlugService.
+
+---
+
+## Consultation Responses
+
+Consultation responses may optionally capture electoral area information.
+
+Electoral area values should originate from shared civic reference data where possible.
+
+The initial implementation may use manually managed electoral area records while preserving repository abstraction for future extensibility.

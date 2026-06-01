@@ -75,6 +75,7 @@ class ThreadFieldsListPage
             return;
         }
 
+        $this->renderStatusNotice();
         echo '<p><a class="button button-primary" href="' . esc_url($this->addUrl($threadId)) . '">' . esc_html__('Add Field', 'civic-engagement') . '</a></p>';
         $this->renderTable($this->fields->findByThreadId($threadId), $threadId);
 
@@ -168,6 +169,24 @@ class ThreadFieldsListPage
     }
 
     /**
+     * Render create/update success notices from redirect query flags.
+     *
+     * @return void
+     */
+    private function renderStatusNotice(): void
+    {
+        if ($this->queryFlag('created')) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Field created successfully.', 'civic-engagement') . '</p></div>';
+
+            return;
+        }
+
+        if ($this->queryFlag('updated')) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Field updated successfully.', 'civic-engagement') . '</p></div>';
+        }
+    }
+
+    /**
      * Convert truthy values to a display label.
      *
      * @param mixed $value Raw value.
@@ -247,5 +266,26 @@ class ThreadFieldsListPage
         }
 
         return absint($threadId);
+    }
+
+    /**
+     * Read a sanitized boolean query flag.
+     *
+     * @param string $key Query key.
+     * @return bool True when the flag is set to 1.
+     */
+    private function queryFlag(string $key): bool
+    {
+        if (!isset($_GET[$key])) {
+            return false;
+        }
+
+        $value = wp_unslash($_GET[$key]);
+
+        if (is_array($value) || is_object($value)) {
+            return false;
+        }
+
+        return 1 === absint($value);
     }
 }

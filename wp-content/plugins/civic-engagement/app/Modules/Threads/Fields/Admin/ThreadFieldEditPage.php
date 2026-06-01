@@ -152,16 +152,20 @@ class ThreadFieldEditPage
         if ($fieldId > 0) {
             $updated = $this->fields->update($fieldId, $this->fieldData($values, false));
 
-            return $updated
-                ? $this->notice('success', __('Field updated.', 'civic-engagement'))
-                : $this->notice('error', __('Field could not be updated.', 'civic-engagement'));
+            if ($updated) {
+                $this->redirectToFields($threadId, 'updated');
+            }
+
+            return $this->notice('error', __('Field could not be updated.', 'civic-engagement'));
         }
 
         $created = $this->fields->create($this->fieldData($values, true));
 
-        return $created > 0
-            ? $this->notice('success', __('Field created.', 'civic-engagement'))
-            : $this->notice('error', __('Field could not be created.', 'civic-engagement'));
+        if ($created > 0) {
+            $this->redirectToFields($threadId, 'created');
+        }
+
+        return $this->notice('error', __('Field could not be created.', 'civic-engagement'));
     }
 
     /**
@@ -552,6 +556,39 @@ class ThreadFieldEditPage
             ],
             admin_url('admin.php')
         );
+    }
+
+    /**
+     * Redirect to the field listing page after successful save.
+     *
+     * @param int $threadId Thread ID.
+     * @param string $status Status query flag.
+     * @return void
+     */
+    private function redirectToFields(int $threadId, string $status): void
+    {
+        $args = [
+            'page' => 'civic-thread-fields',
+            'thread_id' => $threadId,
+        ];
+
+        if ('created' === $status) {
+            $args['created'] = 1;
+        }
+
+        if ('updated' === $status) {
+            $args['updated'] = 1;
+        }
+
+        $url = add_query_arg($args, admin_url('admin.php'));
+        
+        if (!headers_sent()) {
+            wp_safe_redirect($url);
+            exit;
+        }
+
+        echo '<script>window.location.href = ' . wp_json_encode($url) . ';</script>';
+        exit;
     }
 
     /**

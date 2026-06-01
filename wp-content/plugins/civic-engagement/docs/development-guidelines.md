@@ -655,3 +655,11 @@ This convention improves:
 - validation consistency
 - future extensibility
 - WordPress compatibility
+
+---
+
+## Admin Screen Principle
+
+Current wp-admin pages are operational implementations used to validate workflows and business rules.
+
+Repositories, services, validation rules and permissions must remain independent of wp-admin rendering so they can be reused by future frontend administration screens.

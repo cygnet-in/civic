@@ -22,9 +22,7 @@ class ThreadFieldRepository extends BaseRepository
     private array $fieldTypes = [
         'text',
         'textarea',
-        'dropdown',
-        'radio',
-        'checkbox',
+        'select',
     ];
 
     /**
@@ -35,6 +33,7 @@ class ThreadFieldRepository extends BaseRepository
     private array $insertFormats = [
         'thread_id' => '%d',
         'field_label' => '%s',
+        'field_key' => '%s',
         'field_type' => '%s',
         'field_options' => '%s',
         'sort_order' => '%d',
@@ -49,6 +48,7 @@ class ThreadFieldRepository extends BaseRepository
      */
     private array $updateFormats = [
         'field_label' => '%s',
+        'field_key' => '%s',
         'field_type' => '%s',
         'field_options' => '%s',
         'sort_order' => '%d',
@@ -76,6 +76,7 @@ class ThreadFieldRepository extends BaseRepository
         if (
             empty($insertData['thread_id'])
             || empty($insertData['field_label'])
+            || empty($insertData['field_key'])
             || empty($insertData['field_type'])
             || !$this->isSupportedFieldType((string) $insertData['field_type'])
         ) {
@@ -105,6 +106,29 @@ class ThreadFieldRepository extends BaseRepository
         }
 
         return (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Find a dynamic thread field by ID.
+     *
+     * @param int $id Field ID.
+     * @return array<string, mixed>|null Field row or null when not found.
+     */
+    public function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE id = %d LIMIT 1",
+                [$id]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
     }
 
     /**

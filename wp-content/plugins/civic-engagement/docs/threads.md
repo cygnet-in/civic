@@ -108,3 +108,19 @@ Consultation responses may optionally capture electoral area information.
 Electoral area values should originate from shared civic reference data where possible.
 
 The initial implementation may use manually managed electoral area records while preserving repository abstraction for future extensibility.
+
+---
+
+## Consultation Custom Fields
+
+Consultations may define additional response fields.
+
+Supported field types (initial version):
+
+- text
+- textarea
+- select
+
+Field definitions belong to the consultation.
+
+Submitted values are stored within response_data and become immutable after submission.

@@ -166,7 +166,7 @@ class ThreadsListPage
         echo '<td>' . esc_html(!empty($item['response_enabled']) ? __('Enabled', 'civic-engagement') : __('Disabled', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html($this->userDisplayName($item['created_by'] ?? 0)) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['created_at'] ?? null)) . '</td>';
-        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->responsesUrl($id)) . '">' . esc_html__('Responses', 'civic-engagement') . '</a></td>';
+        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->fieldsUrl($id)) . '">' . esc_html__('Fields', 'civic-engagement') . '</a> | <a href="' . esc_url($this->responsesUrl($id)) . '">' . esc_html__('Responses', 'civic-engagement') . '</a></td>';
         echo '</tr>';
     }
 
@@ -263,6 +263,23 @@ class ThreadsListPage
         return add_query_arg(
             [
                 'page' => 'civic-thread-edit',
+                'thread_id' => $id,
+            ],
+            admin_url('admin.php')
+        );
+    }
+
+    /**
+     * Build the contextual fields URL for a thread.
+     *
+     * @param int $id Thread ID.
+     * @return string Fields URL.
+     */
+    private function fieldsUrl(int $id): string
+    {
+        return add_query_arg(
+            [
+                'page' => 'civic-thread-fields',
                 'thread_id' => $id,
             ],
             admin_url('admin.php')

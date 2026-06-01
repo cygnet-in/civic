@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Threads\Admin;
 
+use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldsListPage;
+use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldEditPage;
 use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponseDetailPage;
 use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponsesListPage;
 
@@ -43,6 +45,16 @@ class ThreadsAdmin
     private const EDIT_SLUG = 'civic-thread-edit';
 
     /**
+     * Thread fields list page slug.
+     */
+    private const FIELDS_SLUG = 'civic-thread-fields';
+
+    /**
+     * Thread field edit page slug.
+     */
+    private const FIELD_EDIT_SLUG = 'civic-thread-field-edit';
+
+    /**
      * Thread responses list page slug.
      */
     private const RESPONSES_SLUG = 'civic-thread-responses';
@@ -58,6 +70,20 @@ class ThreadsAdmin
      * @var ThreadsListPage
      */
     private ThreadsListPage $listPage;
+
+    /**
+     * Thread fields listing page.
+     *
+     * @var ThreadFieldsListPage
+     */
+    private ThreadFieldsListPage $fieldsListPage;
+
+    /**
+     * Thread field edit page.
+     *
+     * @var ThreadFieldEditPage
+     */
+    private ThreadFieldEditPage $fieldEditPage;
 
     /**
      * Thread responses listing page.
@@ -96,6 +122,8 @@ class ThreadsAdmin
 
     /**
      * @param ThreadsListPage $listPage Thread listing page.
+     * @param ThreadFieldsListPage $fieldsListPage Thread fields listing page.
+     * @param ThreadFieldEditPage $fieldEditPage Thread field edit page.
      * @param ThreadResponsesListPage $responsesListPage Thread responses listing page.
      * @param ThreadResponseDetailPage $responseDetailPage Thread response detail page.
      * @param ThreadDetailPage $detailPage Thread detail page.
@@ -104,6 +132,8 @@ class ThreadsAdmin
      */
     public function __construct(
         ThreadsListPage $listPage,
+        ThreadFieldsListPage $fieldsListPage,
+        ThreadFieldEditPage $fieldEditPage,
         ThreadResponsesListPage $responsesListPage,
         ThreadResponseDetailPage $responseDetailPage,
         ThreadDetailPage $detailPage,
@@ -111,6 +141,8 @@ class ThreadsAdmin
         ThreadCreatePage $createPage
     ) {
         $this->listPage = $listPage;
+        $this->fieldsListPage = $fieldsListPage;
+        $this->fieldEditPage = $fieldEditPage;
         $this->responsesListPage = $responsesListPage;
         $this->responseDetailPage = $responseDetailPage;
         $this->detailPage = $detailPage;
@@ -151,6 +183,24 @@ class ThreadsAdmin
             self::CAPABILITY,
             self::CREATE_SLUG,
             [$this, 'renderCreatePage']
+        );
+
+        add_submenu_page(
+            self::PARENT_SLUG,
+            __('Consultation Fields', 'civic-engagement'),
+            __('Fields', 'civic-engagement'),
+            self::CAPABILITY,
+            self::FIELDS_SLUG,
+            [$this, 'renderFieldsPage']
+        );
+
+        add_submenu_page(
+            self::PARENT_SLUG,
+            __('Edit Consultation Field', 'civic-engagement'),
+            __('Edit Field', 'civic-engagement'),
+            self::CAPABILITY,
+            self::FIELD_EDIT_SLUG,
+            [$this, 'renderFieldEditPage']
         );
 
         add_submenu_page(
@@ -216,6 +266,34 @@ class ThreadsAdmin
         }
 
         $this->createPage->render();
+    }
+
+    /**
+     * Render the thread fields listing admin page.
+     *
+     * @return void
+     */
+    public function renderFieldsPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->fieldsListPage->render();
+    }
+
+    /**
+     * Render the thread field edit admin page.
+     *
+     * @return void
+     */
+    public function renderFieldEditPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->fieldEditPage->render();
     }
 
     /**

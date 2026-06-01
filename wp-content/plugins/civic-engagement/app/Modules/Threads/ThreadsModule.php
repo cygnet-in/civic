@@ -10,8 +10,11 @@ use CivicPlatform\Modules\Threads\Admin\ThreadDetailPage;
 use CivicPlatform\Modules\Threads\Admin\ThreadEditPage;
 use CivicPlatform\Modules\Threads\Admin\ThreadsAdmin;
 use CivicPlatform\Modules\Threads\Admin\ThreadsListPage;
+use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldEditPage;
+use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldsListPage;
 use CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode;
 use CivicPlatform\Modules\Threads\Frontend\ThreadsListShortcode;
+use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponseDetailPage;
@@ -52,6 +55,8 @@ class ThreadsModule
     {
         $admin = new ThreadsAdmin(
             $this->createListPage(),
+            $this->createFieldsListPage(),
+            $this->createFieldEditPage(),
             $this->createResponsesListPage(),
             $this->createResponseDetailPage(),
             $this->createDetailPage(),
@@ -80,6 +85,32 @@ class ThreadsModule
     private function createListPage(): ThreadsListPage
     {
         return new ThreadsListPage(new ThreadRepository($this->wpdb), new DateHelper());
+    }
+
+    /**
+     * Create the thread fields listing page.
+     *
+     * @return ThreadFieldsListPage
+     */
+    private function createFieldsListPage(): ThreadFieldsListPage
+    {
+        return new ThreadFieldsListPage(
+            new ThreadFieldRepository($this->wpdb),
+            new ThreadRepository($this->wpdb)
+        );
+    }
+
+    /**
+     * Create the thread field edit page.
+     *
+     * @return ThreadFieldEditPage
+     */
+    private function createFieldEditPage(): ThreadFieldEditPage
+    {
+        return new ThreadFieldEditPage(
+            new ThreadFieldRepository($this->wpdb),
+            new ThreadRepository($this->wpdb)
+        );
     }
 
     /**

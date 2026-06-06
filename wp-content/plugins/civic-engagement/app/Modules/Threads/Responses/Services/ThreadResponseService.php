@@ -67,8 +67,8 @@ class ThreadResponseService
     /**
      * Submit a public consultation response.
      *
-     * Expected keys: thread_id, name, email, phone, address, response_text,
-     * and custom_fields.
+     * Expected keys: thread_id, name, email, phone, address, eircode,
+     * response_text, and custom_fields.
      *
      * @param array<string, mixed> $data Submission data.
      * @return array<string, mixed> Structured workflow result.
@@ -131,6 +131,7 @@ class ThreadResponseService
             'email' => $this->stringValue($data['email'] ?? ''),
             'phone' => $this->stringValue($data['phone'] ?? ''),
             'address' => $this->stringValue($data['address'] ?? ''),
+            'eircode' => $this->stringValue($data['eircode'] ?? ''),
             'electoral_area_id' => isset($data['electoral_area_id']) ? (int) $data['electoral_area_id'] : 0,
             'electoral_area' => $this->stringValue($data['electoral_area'] ?? ''),
             'response_text' => $this->stringValue($data['response_text'] ?? ''),
@@ -154,7 +155,7 @@ class ThreadResponseService
             'email_snapshot' => $data['email'],
             'phone_snapshot' => $data['phone'],
             'address_snapshot' => $data['address'],
-            'eircode_snapshot' => '',
+            'eircode_snapshot' => $data['eircode'],
             'electoral_area_id' => $data['electoral_area_id'],
             'electoral_area_snapshot' => $data['electoral_area'],
             'response_data' => [

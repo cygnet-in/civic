@@ -100,6 +100,7 @@ class ThreadResponseForm
         $this->renderEmailField('email', __('Email', 'civic-engagement'), (string) $values['email'], $errors, true);
         $this->renderTextField('phone', __('Phone', 'civic-engagement'), (string) $values['phone'], $errors, false);
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
+        $this->renderTextField('eircode', __('Eircode', 'civic-engagement'), (string) $values['eircode'], $errors, false);
         $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
         $this->renderTextareaField('response_text', __('Response', 'civic-engagement'), (string) $values['response_text'], $errors, true);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
@@ -410,6 +411,7 @@ class ThreadResponseForm
             'email' => sanitize_email($this->requestValue($data, 'email')),
             'phone' => sanitize_text_field($this->requestValue($data, 'phone')),
             'address' => sanitize_textarea_field($this->requestValue($data, 'address')),
+            'eircode' => sanitize_text_field($this->requestValue($data, 'eircode')),
             'electoral_area_id' => absint($this->requestValue($data, 'electoral_area_id')),
             'electoral_area' => $this->electoralAreaName(absint($this->requestValue($data, 'electoral_area_id'))),
             'response_text' => sanitize_textarea_field($this->requestValue($data, 'response_text')),
@@ -569,6 +571,7 @@ class ThreadResponseForm
             'email' => '',
             'phone' => '',
             'address' => '',
+            'eircode' => '',
             'electoral_area_id' => 0,
             'electoral_area' => '',
             'response_text' => '',

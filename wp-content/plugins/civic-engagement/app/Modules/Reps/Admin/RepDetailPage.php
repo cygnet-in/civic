@@ -6,14 +6,13 @@ namespace CivicPlatform\Modules\Reps\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Services\ActivityService;
-use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\RepService;
 
 /**
  * Renders a single representation detail page.
  *
- * This page handles request sanitization and presentation only. Rep, contact,
- * and activity data are loaded through services.
+ * This page handles request sanitization and presentation only. Rep and
+ * activity data are loaded through services.
  */
 class RepDetailPage
 {
@@ -28,13 +27,6 @@ class RepDetailPage
      * @var RepService
      */
     private RepService $reps;
-
-    /**
-     * Contact service.
-     *
-     * @var ContactService
-     */
-    private ContactService $contacts;
 
     /**
      * Activity service.
@@ -52,18 +44,15 @@ class RepDetailPage
 
     /**
      * @param RepService $reps Reps service.
-     * @param ContactService $contacts Contact service.
      * @param ActivityService $activities Activity service.
      * @param DateHelper $dates Date helper.
      */
     public function __construct(
         RepService $reps,
-        ContactService $contacts,
         ActivityService $activities,
         DateHelper $dates
     ) {
         $this->reps = $reps;
-        $this->contacts = $contacts;
         $this->activities = $activities;
         $this->dates = $dates;
     }
@@ -93,12 +82,10 @@ class RepDetailPage
             return;
         }
 
-        $contact = $this->contactForRep($rep);
         $activities = $this->activitiesForRep($rep);
 
         $this->renderSummary($rep);
         $this->renderSnapshot($rep);
-        $this->renderContact($contact);
         $this->renderActivities($activities);
 
         echo '</div>';
@@ -136,33 +123,8 @@ class RepDetailPage
         $this->renderDetailRow(__('Email', 'civic-engagement'), (string) ($rep['email_snapshot'] ?? ''));
         $this->renderDetailRow(__('Phone', 'civic-engagement'), (string) ($rep['phone_snapshot'] ?? ''));
         $this->renderDetailRow(__('Address', 'civic-engagement'), (string) ($rep['address_snapshot'] ?? ''));
-        echo '</tbody></table>';
-    }
-
-    /**
-     * Render linked latest contact details.
-     *
-     * @param array<string, mixed>|null $contact Contact row.
-     * @return void
-     */
-    private function renderContact(?array $contact): void
-    {
-        echo '<h2>' . esc_html__('Linked Contact', 'civic-engagement') . '</h2>';
-
-        if (!is_array($contact)) {
-            echo '<div class="notice notice-info inline"><p>' . esc_html__('No linked contact found.', 'civic-engagement') . '</p></div>';
-
-            return;
-        }
-
-        echo '<table class="widefat striped"><tbody>';
-        $this->renderDetailRow(__('Contact ID', 'civic-engagement'), (string) ($contact['id'] ?? ''));
-        $this->renderDetailRow(__('Latest Name', 'civic-engagement'), (string) ($contact['latest_name'] ?? ''));
-        $this->renderDetailRow(__('Email', 'civic-engagement'), (string) ($contact['email'] ?? ''));
-        $this->renderDetailRow(__('Latest Phone', 'civic-engagement'), (string) ($contact['latest_phone'] ?? ''));
-        $this->renderDetailRow(__('Latest Address', 'civic-engagement'), (string) ($contact['latest_address'] ?? ''));
-        $this->renderDetailRow(__('Latest Eircode', 'civic-engagement'), (string) ($contact['latest_eircode'] ?? ''));
-        $this->renderDetailRow(__('Latest Electoral Area', 'civic-engagement'), (string) ($contact['latest_electoral_area'] ?? ''));
+        $this->renderDetailRow(__('Eircode', 'civic-engagement'), (string) ($rep['eircode_snapshot'] ?? ''));
+        $this->renderDetailRow(__('Electoral Area', 'civic-engagement'), (string) ($rep['electoral_area_snapshot'] ?? ''));
         echo '</tbody></table>';
     }
 
@@ -224,23 +186,6 @@ class RepDetailPage
     private function renderNotFound(): void
     {
         echo '<div class="notice notice-error"><p>' . esc_html__('Representation not found.', 'civic-engagement') . '</p></div>';
-    }
-
-    /**
-     * Get linked contact for a rep.
-     *
-     * @param array<string, mixed> $rep Rep row.
-     * @return array<string, mixed>|null Contact row or null when absent.
-     */
-    private function contactForRep(array $rep): ?array
-    {
-        $contactId = isset($rep['contact_id']) ? (int) $rep['contact_id'] : 0;
-
-        if ($contactId <= 0) {
-            return null;
-        }
-
-        return $this->contacts->findById($contactId);
     }
 
     /**

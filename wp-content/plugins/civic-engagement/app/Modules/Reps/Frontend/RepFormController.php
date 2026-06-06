@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Reps\Frontend;
 
+use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\RepService;
 
 /**
@@ -38,6 +39,13 @@ class RepFormController
     private RepService $reps;
 
     /**
+     * Electoral area repository.
+     *
+     * @var ElectoralAreaRepository
+     */
+    private ElectoralAreaRepository $electoralAreas;
+
+    /**
      * Template path.
      *
      * @var string
@@ -46,11 +54,16 @@ class RepFormController
 
     /**
      * @param RepService $reps Rep workflow service.
+     * @param ElectoralAreaRepository $electoralAreas Electoral area repository.
      * @param string|null $templatePath Optional template path override.
      */
-    public function __construct(RepService $reps, ?string $templatePath = null)
-    {
+    public function __construct(
+        RepService $reps,
+        ElectoralAreaRepository $electoralAreas,
+        ?string $templatePath = null
+    ) {
         $this->reps = $reps;
+        $this->electoralAreas = $electoralAreas;
         $this->templatePath = $templatePath
             ?? dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'rep-form.php';
     }
@@ -65,6 +78,7 @@ class RepFormController
     {
         $response = $this->processSubmission();
         $values = $response['values'];
+        $electoralAreas = $this->electoralAreas->getAllActive();
         $formAction = self::ACTION;
         $nonceAction = self::NONCE_ACTION;
         $nonceField = self::NONCE_FIELD;
@@ -161,7 +175,10 @@ class RepFormController
             'whatsapp' => $this->sanitizeText($this->requestValue($requestData, 'whatsapp')),
             'address' => $this->sanitizeTextarea($this->requestValue($requestData, 'address')),
             'eircode' => $this->sanitizeText($this->requestValue($requestData, 'eircode')),
-            'electoral_area' => $this->sanitizeText($this->requestValue($requestData, 'electoral_area')),
+            'electoral_area_id' => absint($this->requestValue($requestData, 'electoral_area_id')),
+            'electoral_area' => $this->electoralAreaName(
+                absint($this->requestValue($requestData, 'electoral_area_id'))
+            ),
             'title' => $this->sanitizeText($this->requestValue($requestData, 'title')),
             'details' => $this->sanitizeTextarea($this->requestValue($requestData, 'details')),
             'map_lat' => $this->sanitizeCoordinate($this->requestValue($requestData, 'map_lat')),
@@ -252,6 +269,7 @@ class RepFormController
             'whatsapp' => '',
             'address' => '',
             'eircode' => '',
+            'electoral_area_id' => 0,
             'electoral_area' => '',
             'title' => '',
             'details' => '',
@@ -308,6 +326,23 @@ class RepFormController
         }
 
         return (string) (float) $value;
+    }
+
+    /**
+     * Resolve an electoral area display name.
+     *
+     * @param int $id Electoral area ID.
+     * @return string Electoral area name, or empty string when invalid/inactive.
+     */
+    private function electoralAreaName(int $id): string
+    {
+        $area = $this->electoralAreas->findById($id);
+
+        if (!is_array($area) || empty($area['is_active'])) {
+            return '';
+        }
+
+        return trim((string) ($area['name'] ?? ''));
     }
 
     /**

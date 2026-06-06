@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Responses\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 
@@ -47,6 +48,13 @@ class ThreadResponseDetailPage
     private ThreadRepository $threads;
 
     /**
+     * Thread field repository.
+     *
+     * @var ThreadFieldRepository
+     */
+    private ThreadFieldRepository $fields;
+
+    /**
      * Date helper.
      *
      * @var DateHelper
@@ -56,12 +64,18 @@ class ThreadResponseDetailPage
     /**
      * @param ThreadResponseRepository $responses Thread response repository.
      * @param ThreadRepository $threads Thread repository.
+     * @param ThreadFieldRepository $fields Thread field repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadResponseRepository $responses, ThreadRepository $threads, DateHelper $dates)
-    {
+    public function __construct(
+        ThreadResponseRepository $responses,
+        ThreadRepository $threads,
+        ThreadFieldRepository $fields,
+        DateHelper $dates
+    ) {
         $this->responses = $responses;
         $this->threads = $threads;
+        $this->fields = $fields;
         $this->dates = $dates;
     }
 
@@ -159,10 +173,37 @@ class ThreadResponseDetailPage
         $this->renderDetailRow(__('Address Snapshot', 'civic-engagement'), (string) ($response['address_snapshot'] ?? ''));
         $this->renderDetailRow(__('Eircode Snapshot', 'civic-engagement'), (string) ($response['eircode_snapshot'] ?? ''));
         $this->renderDetailRow(__('Electoral Area Snapshot', 'civic-engagement'), (string) ($response['electoral_area_snapshot'] ?? ''));
-        $this->renderDetailRow(__('Response Data', 'civic-engagement'), $this->formatResponseData($response['response_data'] ?? ''));
+        $this->renderDetailRow(__('Response Text', 'civic-engagement'), $this->responseText($response['response_data'] ?? ''));
+        $this->renderCustomFieldRows($response);
         $this->renderDetailRow(__('Public', 'civic-engagement'), $this->yesNo($response['is_public'] ?? 0));
         $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($response['created_at'] ?? null));
         echo '</tbody></table>';
+    }
+
+    /**
+     * Render submitted custom field values.
+     *
+     * @param array<string, mixed> $response Response row.
+     * @return void
+     */
+    private function renderCustomFieldRows(array $response): void
+    {
+        $customFields = $this->customFieldValues($response['response_data'] ?? '');
+
+        if (empty($customFields)) {
+            return;
+        }
+
+        $labels = $this->fieldLabels((int) ($response['thread_id'] ?? 0));
+
+        foreach ($customFields as $fieldKey => $value) {
+            if (empty($labels[$fieldKey])) {
+                continue;
+            }
+
+            $label = $labels[$fieldKey];
+            $this->renderDetailRow($label, $value);
+        }
     }
 
     /**
@@ -250,34 +291,96 @@ class ThreadResponseDetailPage
     }
 
     /**
-     * Format stored response JSON for display.
+     * Extract response text from stored response data.
      *
      * @param mixed $value Raw response_data value.
-     * @return string Display value.
+     * @return string Response text.
      */
-    private function formatResponseData($value): string
+    private function responseText($value): string
     {
-        if (is_array($value) || is_object($value)) {
-            $encoded = wp_json_encode($value, JSON_PRETTY_PRINT);
+        $data = $this->responseDataArray($value);
 
-            return false === $encoded ? '' : $encoded;
+        if (isset($data['response_text']) && !is_array($data['response_text']) && !is_object($data['response_text'])) {
+            return (string) $data['response_text'];
         }
 
-        $value = trim((string) $value);
+        return '';
+    }
 
-        if ('' === $value) {
-            return '';
+    /**
+     * Extract custom field values from response_data.
+     *
+     * @param mixed $value Raw response_data value.
+     * @return array<string, string>
+     */
+    private function customFieldValues($value): array
+    {
+        $data = $this->responseDataArray($value);
+        $customFields = isset($data['custom_fields']) && is_array($data['custom_fields'])
+            ? $data['custom_fields']
+            : [];
+        $values = [];
+
+        foreach ($customFields as $fieldKey => $fieldValue) {
+            if (is_array($fieldValue) || is_object($fieldValue)) {
+                continue;
+            }
+
+            $fieldKey = sanitize_key((string) $fieldKey);
+
+            if ('' !== $fieldKey) {
+                $values[$fieldKey] = (string) $fieldValue;
+            }
         }
 
-        $decoded = json_decode($value, true);
+        return $values;
+    }
 
-        if (JSON_ERROR_NONE !== json_last_error()) {
+    /**
+     * Decode response_data to an array.
+     *
+     * @param mixed $value Raw response_data value.
+     * @return array<string, mixed>
+     */
+    private function responseDataArray($value): array
+    {
+        if (is_array($value)) {
             return $value;
         }
 
-        $encoded = wp_json_encode($decoded, JSON_PRETTY_PRINT);
+        if (is_object($value)) {
+            return [];
+        }
 
-        return false === $encoded ? $value : $encoded;
+        $decoded = json_decode((string) $value, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Build field label lookup for a consultation.
+     *
+     * @param int $threadId Thread ID.
+     * @return array<string, string>
+     */
+    private function fieldLabels(int $threadId): array
+    {
+        if ($threadId <= 0) {
+            return [];
+        }
+
+        $labels = [];
+
+        foreach ($this->fields->findByThreadId($threadId) as $field) {
+            $fieldKey = sanitize_key((string) ($field['field_key'] ?? ''));
+            $label = trim((string) ($field['field_label'] ?? ''));
+
+            if ('' !== $fieldKey && '' !== $label) {
+                $labels[$fieldKey] = $label;
+            }
+        }
+
+        return $labels;
     }
 
     /**

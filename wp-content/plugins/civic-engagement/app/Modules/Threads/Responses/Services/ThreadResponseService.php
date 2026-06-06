@@ -67,7 +67,8 @@ class ThreadResponseService
     /**
      * Submit a public consultation response.
      *
-     * Expected keys: thread_id, name, email, phone, address, response_text.
+     * Expected keys: thread_id, name, email, phone, address, response_text,
+     * and custom_fields.
      *
      * @param array<string, mixed> $data Submission data.
      * @return array<string, mixed> Structured workflow result.
@@ -130,7 +131,10 @@ class ThreadResponseService
             'email' => $this->stringValue($data['email'] ?? ''),
             'phone' => $this->stringValue($data['phone'] ?? ''),
             'address' => $this->stringValue($data['address'] ?? ''),
+            'electoral_area_id' => isset($data['electoral_area_id']) ? (int) $data['electoral_area_id'] : 0,
+            'electoral_area' => $this->stringValue($data['electoral_area'] ?? ''),
             'response_text' => $this->stringValue($data['response_text'] ?? ''),
+            'custom_fields' => $this->customFields($data['custom_fields'] ?? []),
         ];
     }
 
@@ -151,9 +155,11 @@ class ThreadResponseService
             'phone_snapshot' => $data['phone'],
             'address_snapshot' => $data['address'],
             'eircode_snapshot' => '',
-            'electoral_area_snapshot' => '',
+            'electoral_area_id' => $data['electoral_area_id'],
+            'electoral_area_snapshot' => $data['electoral_area'],
             'response_data' => [
                 'response_text' => $data['response_text'],
+                'custom_fields' => $data['custom_fields'],
             ],
             'is_public' => 0,
         ];
@@ -190,6 +196,39 @@ class ThreadResponseService
         }
 
         return trim((string) $value);
+    }
+
+    /**
+     * Normalize custom field values.
+     *
+     * @param mixed $value Raw custom field values.
+     * @return array<string, string>
+     */
+    private function customFields($value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $customFields = [];
+
+        foreach ($value as $key => $fieldValue) {
+            if (is_array($fieldValue) || is_object($fieldValue)) {
+                continue;
+            }
+
+            $fieldKey = function_exists('sanitize_key')
+                ? sanitize_key((string) $key)
+                : trim((string) $key);
+
+            if ('' === $fieldKey) {
+                continue;
+            }
+
+            $customFields[$fieldKey] = trim((string) $fieldValue);
+        }
+
+        return $customFields;
     }
 
     /**

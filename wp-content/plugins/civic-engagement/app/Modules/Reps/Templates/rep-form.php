@@ -7,6 +7,7 @@
  *
  * @var array<string, mixed> $response Form response state.
  * @var array<string, mixed> $values Submitted/default values.
+ * @var array<int, array<string, mixed>> $electoralAreas Active electoral areas.
  * @var string $formAction Hidden action value.
  * @var string $nonceAction Nonce action.
  * @var string $nonceField Nonce field name.
@@ -97,12 +98,18 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
 
         <p class="civic-rep-form__field">
             <label for="civic-rep-electoral-area"><?php echo esc_html__('Electoral Area', 'civic-engagement'); ?></label>
-            <input
+            <select
                 id="civic-rep-electoral-area"
-                name="civic_rep[electoral_area]"
-                type="text"
-                value="<?php echo esc_attr((string) ($values['electoral_area'] ?? '')); ?>"
+                name="civic_rep[electoral_area_id]"
             >
+                <option value=""><?php echo esc_html__('Select an electoral area', 'civic-engagement'); ?></option>
+                <?php foreach ($electoralAreas as $area) : ?>
+                    <?php $areaId = isset($area['id']) ? (int) $area['id'] : 0; ?>
+                    <option value="<?php echo esc_attr((string) $areaId); ?>" <?php selected((int) ($values['electoral_area_id'] ?? 0), $areaId); ?>>
+                        <?php echo esc_html((string) ($area['name'] ?? '')); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </p>
 
         <p class="civic-rep-form__field">

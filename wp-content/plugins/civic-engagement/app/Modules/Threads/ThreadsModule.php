@@ -23,6 +23,7 @@ use CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm;
 use CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService;
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
+use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
 
@@ -71,8 +72,13 @@ class ThreadsModule
         $detailShortcode = new ThreadDetailShortcode(
             new ThreadRepository($this->wpdb),
             new ThreadResponseRepository($this->wpdb),
+            new ThreadFieldRepository($this->wpdb),
             new DateHelper(),
-            new ThreadResponseForm($this->createThreadResponseService())
+            new ThreadResponseForm(
+                $this->createThreadResponseService(),
+                new ThreadFieldRepository($this->wpdb),
+                new ElectoralAreaRepository($this->wpdb)
+            )
         );
         $detailShortcode->register();
     }
@@ -137,6 +143,7 @@ class ThreadsModule
         return new ThreadResponseDetailPage(
             new ThreadResponseRepository($this->wpdb),
             new ThreadRepository($this->wpdb),
+            new ThreadFieldRepository($this->wpdb),
             new DateHelper()
         );
     }

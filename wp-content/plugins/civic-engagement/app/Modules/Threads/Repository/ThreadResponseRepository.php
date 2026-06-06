@@ -27,6 +27,7 @@ class ThreadResponseRepository extends BaseRepository
         'phone_snapshot' => '%s',
         'address_snapshot' => '%s',
         'eircode_snapshot' => '%s',
+        'electoral_area_id' => '%d',
         'electoral_area_snapshot' => '%s',
         'response_data' => '%s',
         'is_public' => '%d',

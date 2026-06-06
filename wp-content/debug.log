@@ -107,3 +107,167 @@ Stack trace:
 [01-Jun-2026 11:36:53 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-includes\fonts\class-wp-font-face.php:98) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
 [01-Jun-2026 11:44:24 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:153) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
 [01-Jun-2026 11:44:24 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:153) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[01-Jun-2026 13:15:42 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:15:45 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-blog-header.php(13): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:15:53 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-blog-header.php(13): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:15:56 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-blog-header.php(13): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:15:58 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-blog-header.php(13): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:16:42 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:18:43 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:20:44 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #3 ($fields) must be of type CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository, CivicPlatform\Helpers\DateHelper given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:22:45 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #1 ($threads) must be of type CivicPlatform\Modules\Threads\Repository\ThreadRepository, CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:22:48 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #1 ($threads) must be of type CivicPlatform\Modules\Threads\Repository\ThreadRepository, CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-blog-header.php(13): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:23:46 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #1 ($threads) must be of type CivicPlatform\Modules\Threads\Repository\ThreadRepository, CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[01-Jun-2026 13:25:02 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode::__construct(): Argument #1 ($threads) must be of type CivicPlatform\Modules\Threads\Repository\ThreadRepository, CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php on line 71 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php:63
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\ThreadsModule.php(71): CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->__construct(Object(CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadRepository), Object(CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository), Object(CivicPlatform\Helpers\DateHelper), Object(CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm))
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(69): CivicPlatform\Modules\Threads\ThreadsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#9 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Threads\Frontend\ThreadDetailShortcode.php on line 63
+[06-Jun-2026 13:59:05 UTC] Automatic updates starting...
+[06-Jun-2026 13:59:07 UTC] Automatic updates complete.
+[06-Jun-2026 14:09:37 UTC] WordPress database error Unknown column 'electoral_area_id' in 'field list' for query INSERT INTO `wp_civic_thread_responses` (`thread_id`, `contact_id`, `name_snapshot`, `email_snapshot`, `phone_snapshot`, `address_snapshot`, `eircode_snapshot`, `electoral_area_id`, `electoral_area_snapshot`, `response_data`, `is_public`, `created_at`) VALUES (16, 4, 'fdgdfg', 'fdgfdgd@gdfgfg.fgdfg', '4534534', 'dggsdgds\r\ngsdgsdgsdg', '', 7, 'Dublin North-West', '{\"response_text\":\"dsdsgsdgsd\\r\\ngsdgsdgsg\",\"custom_fields\":{\"loc_distance\":\"33\",\"rating\":\"5\",\"gen_opinion\":\"gsdgsdgsdgsg\"}}', 0, '2026-06-06 14:09:37') made by require('wp-blog-header.php'), require_once('wp-includes/template-loader.php'), include('wp-includes/template-canvas.php'), get_the_block_template_html, do_blocks, render_block, WP_Block->render, WP_Block->render, WP_Block->render, render_block_core_post_content, apply_filters('the_content'), WP_Hook->apply_filters, do_shortcode, preg_replace_callback, do_shortcode_tag, CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->render, CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->renderResponseFormSection, CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm->render, CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm->processSubmission, CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService->submit, CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository->create

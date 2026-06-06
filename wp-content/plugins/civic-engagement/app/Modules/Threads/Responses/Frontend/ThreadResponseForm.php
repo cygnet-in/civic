@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Threads\Responses\Frontend;
 
+use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService;
+use CivicPlatform\Repositories\ElectoralAreaRepository;
 
 /**
  * Handles public consultation response form rendering and submission processing.
@@ -37,11 +39,32 @@ class ThreadResponseForm
     private ThreadResponseService $responses;
 
     /**
-     * @param ThreadResponseService $responses Thread response workflow service.
+     * Thread field repository.
+     *
+     * @var ThreadFieldRepository
      */
-    public function __construct(ThreadResponseService $responses)
-    {
+    private ThreadFieldRepository $fields;
+
+    /**
+     * Electoral area repository.
+     *
+     * @var ElectoralAreaRepository
+     */
+    private ElectoralAreaRepository $electoralAreas;
+
+    /**
+     * @param ThreadResponseService $responses Thread response workflow service.
+     * @param ThreadFieldRepository $fields Thread field repository.
+     * @param ElectoralAreaRepository $electoralAreas Electoral area repository.
+     */
+    public function __construct(
+        ThreadResponseService $responses,
+        ThreadFieldRepository $fields,
+        ElectoralAreaRepository $electoralAreas
+    ) {
         $this->responses = $responses;
+        $this->fields = $fields;
+        $this->electoralAreas = $electoralAreas;
     }
 
     /**
@@ -53,7 +76,8 @@ class ThreadResponseForm
     public function render(array $thread): string
     {
         $threadId = isset($thread['id']) ? (int) $thread['id'] : 0;
-        $response = $this->processSubmission($threadId);
+        $fieldDefinitions = $this->fieldDefinitions($threadId);
+        $response = $this->processSubmission($threadId, $fieldDefinitions);
         $values = $response['values'];
         $errors = $response['errors'];
 
@@ -76,9 +100,10 @@ class ThreadResponseForm
         $this->renderEmailField('email', __('Email', 'civic-engagement'), (string) $values['email'], $errors, true);
         $this->renderTextField('phone', __('Phone', 'civic-engagement'), (string) $values['phone'], $errors, false);
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
+        $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
         $this->renderTextareaField('response_text', __('Response', 'civic-engagement'), (string) $values['response_text'], $errors, true);
+        $this->renderCustomFields($fieldDefinitions, $values, $errors);
 
-        
         echo '<p>';
         echo '<button type="submit" class="button button-primary">';
         echo esc_html__('Submit Response', 'civic-engagement');
@@ -95,9 +120,10 @@ class ThreadResponseForm
      * Process a submitted response form for the given thread.
      *
      * @param int $threadId Current thread ID.
+     * @param array<int, array<string, mixed>> $fieldDefinitions Custom field definitions.
      * @return array<string, mixed> Structured form response.
      */
-    public function processSubmission(int $threadId): array
+    public function processSubmission(int $threadId, array $fieldDefinitions = []): array
     {
         if (!$this->isSubmission($threadId)) {
             return $this->buildResponse(false, false, null, $this->defaultValues($threadId), [], null);
@@ -107,8 +133,8 @@ class ThreadResponseForm
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $this->defaultValues($threadId), [], 'invalid_nonce');
         }
 
-        $values = $this->sanitizeRequestValues($threadId);
-        $errors = $this->validateValues($values);
+        $values = $this->sanitizeRequestValues($threadId, $fieldDefinitions);
+        $errors = $this->validateValues($values, $fieldDefinitions);
 
         if (!empty($errors)) {
             return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
@@ -181,6 +207,135 @@ class ThreadResponseForm
     }
 
     /**
+     * Render the electoral area dropdown.
+     *
+     * @param int $selectedAreaId Selected electoral area ID.
+     * @return void
+     */
+    private function renderElectoralAreaField(int $selectedAreaId): void
+    {
+        echo '<p>';
+        echo '<label for="civic-thread-response-electoral-area">' . esc_html__('Electoral Area', 'civic-engagement') . '</label><br>';
+        echo '<select id="civic-thread-response-electoral-area" name="civic_thread_response[electoral_area_id]">';
+        echo '<option value="">' . esc_html__('Select an electoral area', 'civic-engagement') . '</option>';
+
+        foreach ($this->electoralAreas->getAllActive() as $area) {
+            $areaId = isset($area['id']) ? (int) $area['id'] : 0;
+            echo '<option value="' . esc_attr((string) $areaId) . '"' . selected($selectedAreaId, $areaId, false) . '>' . esc_html((string) ($area['name'] ?? '')) . '</option>';
+        }
+
+        echo '</select>';
+        echo '</p>';
+    }
+
+    /**
+     * Render consultation-specific custom fields.
+     *
+     * @param array<int, array<string, mixed>> $fields Custom field definitions.
+     * @param array<string, mixed> $values Current form values.
+     * @param array<string, string> $errors Validation errors.
+     * @return void
+     */
+    private function renderCustomFields(array $fields, array $values, array $errors): void
+    {
+        if (empty($fields)) {
+            return;
+        }
+
+        foreach ($fields as $field) {
+            $fieldKey = $this->fieldKey($field);
+
+            if ('' === $fieldKey) {
+                continue;
+            }
+
+            $type = (string) ($field['field_type'] ?? '');
+            $label = (string) ($field['field_label'] ?? $fieldKey);
+            $required = !empty($field['is_required']);
+            $value = isset($values['custom_fields'][$fieldKey])
+                ? (string) $values['custom_fields'][$fieldKey]
+                : '';
+
+            if ('textarea' === $type) {
+                $this->renderCustomTextareaField($fieldKey, $label, $value, $errors, $required);
+                continue;
+            }
+
+            if ('select' === $type) {
+                $this->renderCustomSelectField($field, $fieldKey, $label, $value, $errors, $required);
+                continue;
+            }
+
+            $this->renderCustomTextField($fieldKey, $label, $value, $errors, $required);
+        }
+    }
+
+    /**
+     * Render a custom text field.
+     *
+     * @param string $fieldKey Field key.
+     * @param string $label Field label.
+     * @param string $value Field value.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderCustomTextField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
+    {
+        echo '<p>';
+        echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
+        echo '<input type="text" id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
+        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
+        echo '</p>';
+    }
+
+    /**
+     * Render a custom textarea field.
+     *
+     * @param string $fieldKey Field key.
+     * @param string $label Field label.
+     * @param string $value Field value.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderCustomTextareaField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
+    {
+        echo '<p>';
+        echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
+        echo '<textarea id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
+        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
+        echo '</p>';
+    }
+
+    /**
+     * Render a custom select field.
+     *
+     * @param array<string, mixed> $field Field definition.
+     * @param string $fieldKey Field key.
+     * @param string $label Field label.
+     * @param string $value Selected value.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderCustomSelectField(array $field, string $fieldKey, string $label, string $value, array $errors, bool $required): void
+    {
+        echo '<p>';
+        echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
+        echo '<select id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']"' . ($required ? ' required' : '') . '>';
+        echo '<option value="">' . esc_html__('Select an option', 'civic-engagement') . '</option>';
+
+        foreach ($this->fieldOptions($field) as $option) {
+            echo '<option value="' . esc_attr($option) . '"' . selected($value, $option, false) . '>' . esc_html($option) . '</option>';
+        }
+
+        echo '</select>';
+        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
+        echo '</p>';
+    }
+
+    /**
      * Render a field validation error.
      *
      * @param string $name Field name.
@@ -242,9 +397,10 @@ class ThreadResponseForm
      * Sanitize submitted request values.
      *
      * @param int $threadId Current thread ID.
+     * @param array<int, array<string, mixed>> $fieldDefinitions Custom field definitions.
      * @return array<string, mixed> Sanitized workflow data.
      */
-    private function sanitizeRequestValues(int $threadId): array
+    private function sanitizeRequestValues(int $threadId, array $fieldDefinitions): array
     {
         $data = $this->requestData();
 
@@ -254,7 +410,10 @@ class ThreadResponseForm
             'email' => sanitize_email($this->requestValue($data, 'email')),
             'phone' => sanitize_text_field($this->requestValue($data, 'phone')),
             'address' => sanitize_textarea_field($this->requestValue($data, 'address')),
+            'electoral_area_id' => absint($this->requestValue($data, 'electoral_area_id')),
+            'electoral_area' => $this->electoralAreaName(absint($this->requestValue($data, 'electoral_area_id'))),
             'response_text' => sanitize_textarea_field($this->requestValue($data, 'response_text')),
+            'custom_fields' => $this->sanitizeCustomFields($data, $fieldDefinitions),
         ];
     }
 
@@ -264,7 +423,7 @@ class ThreadResponseForm
      * @param array<string, mixed> $values Sanitized values.
      * @return array<string, string> Validation errors keyed by field.
      */
-    private function validateValues(array $values): array
+    private function validateValues(array $values, array $fieldDefinitions): array
     {
         $errors = [];
 
@@ -282,7 +441,58 @@ class ThreadResponseForm
             $errors['response_text'] = 'Response is required.';
         }
 
+        foreach ($fieldDefinitions as $field) {
+            $fieldKey = $this->fieldKey($field);
+
+            if ('' === $fieldKey || empty($field['is_required'])) {
+                continue;
+            }
+
+            $value = isset($values['custom_fields'][$fieldKey])
+                ? trim((string) $values['custom_fields'][$fieldKey])
+                : '';
+
+            if ('' === $value) {
+                $errors['custom_fields.' . $fieldKey] = sprintf(
+                    '%s is required.',
+                    (string) ($field['field_label'] ?? $fieldKey)
+                );
+            }
+        }
+
         return $errors;
+    }
+
+    /**
+     * Sanitize custom field values using field definitions.
+     *
+     * @param array<string, mixed> $data Request data.
+     * @param array<int, array<string, mixed>> $fieldDefinitions Custom field definitions.
+     * @return array<string, string>
+     */
+    private function sanitizeCustomFields(array $data, array $fieldDefinitions): array
+    {
+        $submitted = isset($data['custom_fields']) && is_array($data['custom_fields'])
+            ? $data['custom_fields']
+            : [];
+        $customFields = [];
+
+        foreach ($fieldDefinitions as $field) {
+            $fieldKey = $this->fieldKey($field);
+
+            if ('' === $fieldKey) {
+                continue;
+            }
+
+            $rawValue = $submitted[$fieldKey] ?? '';
+            $value = 'textarea' === (string) ($field['field_type'] ?? '')
+                ? sanitize_textarea_field($this->scalarValue($rawValue))
+                : sanitize_text_field($this->scalarValue($rawValue));
+
+            $customFields[$fieldKey] = $value;
+        }
+
+        return $customFields;
     }
 
     /**
@@ -359,8 +569,89 @@ class ThreadResponseForm
             'email' => '',
             'phone' => '',
             'address' => '',
+            'electoral_area_id' => 0,
+            'electoral_area' => '',
             'response_text' => '',
+            'custom_fields' => [],
         ];
+    }
+
+    /**
+     * Get supported custom fields for a thread.
+     *
+     * @param int $threadId Thread ID.
+     * @return array<int, array<string, mixed>>
+     */
+    private function fieldDefinitions(int $threadId): array
+    {
+        if ($threadId <= 0) {
+            return [];
+        }
+
+        return array_values(
+            array_filter(
+                $this->fields->findByThreadId($threadId),
+                function (array $field): bool {
+                    return in_array((string) ($field['field_type'] ?? ''), ['text', 'textarea', 'select'], true)
+                        && '' !== $this->fieldKey($field);
+                }
+            )
+        );
+    }
+
+    /**
+     * Get a normalized field key.
+     *
+     * @param array<string, mixed> $field Field definition.
+     * @return string Field key.
+     */
+    private function fieldKey(array $field): string
+    {
+        return sanitize_key((string) ($field['field_key'] ?? ''));
+    }
+
+    /**
+     * Decode select field options.
+     *
+     * @param array<string, mixed> $field Field definition.
+     * @return array<int, string>
+     */
+    private function fieldOptions(array $field): array
+    {
+        $options = $field['field_options'] ?? '';
+
+        if (is_array($options)) {
+            return array_values(array_filter(array_map('strval', $options), 'strlen'));
+        }
+
+        if (is_object($options)) {
+            return [];
+        }
+
+        $decoded = json_decode((string) $options, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('strval', $decoded), 'strlen'));
+    }
+
+    /**
+     * Resolve an electoral area display name.
+     *
+     * @param int $id Electoral area ID.
+     * @return string Electoral area name, or empty string when invalid/inactive.
+     */
+    private function electoralAreaName(int $id): string
+    {
+        $area = $this->electoralAreas->findById($id);
+
+        if (!is_array($area) || empty($area['is_active'])) {
+            return '';
+        }
+
+        return trim((string) ($area['name'] ?? ''));
     }
 
     /**

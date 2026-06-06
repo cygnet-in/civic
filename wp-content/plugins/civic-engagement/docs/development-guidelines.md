@@ -612,6 +612,16 @@ Rules:
 
 ---
 
+## Custom Field Display Rule
+
+Custom field values must always be displayed with their corresponding field labels.
+
+Field keys are storage identifiers only and must not be shown to users.
+
+Empty custom field values should be omitted from display.
+
+---
+
 ## Frontend Form Request Naming
 
 All frontend forms must namespace request fields using module-specific array structures.

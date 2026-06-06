@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm;
@@ -32,6 +33,13 @@ class ThreadDetailShortcode
     private ThreadResponseRepository $responses;
 
     /**
+     * Thread field repository.
+     *
+     * @var ThreadFieldRepository
+     */
+    private ThreadFieldRepository $fields;
+
+    /**
      * Date helper.
      *
      * @var DateHelper
@@ -48,17 +56,20 @@ class ThreadDetailShortcode
     /**
      * @param ThreadRepository $threads Thread repository.
      * @param ThreadResponseRepository $responses Thread response repository.
+     * @param ThreadFieldRepository $fields Thread field repository.
      * @param DateHelper $dates Date helper.
      * @param ThreadResponseForm $responseForm Thread response form handler.
      */
     public function __construct(
         ThreadRepository $threads,
         ThreadResponseRepository $responses,
+        ThreadFieldRepository $fields,
         DateHelper $dates,
         ThreadResponseForm $responseForm
     ) {
         $this->threads = $threads;
         $this->responses = $responses;
+        $this->fields = $fields;
         $this->dates = $dates;
         $this->responseForm = $responseForm;
     }
@@ -198,11 +209,14 @@ class ThreadDetailShortcode
             return;
         }
 
+        $threadId = isset($responses[0]['thread_id']) ? (int) $responses[0]['thread_id'] : 0;
+        $fieldLabels = $this->fieldLabels($threadId);
+
         echo '<section id="civic-thread-public-responses" class="civic-thread-detail__public-responses">';
         echo '<h2>' . esc_html__('Public Responses', 'civic-engagement') . '</h2>';
 
         foreach ($responses as $response) {
-            $this->renderPublicResponse($response);
+            $this->renderPublicResponse($response, $fieldLabels);
         }
 
         echo '</section>';
@@ -212,15 +226,48 @@ class ThreadDetailShortcode
      * Render a single public response.
      *
      * @param array<string, mixed> $response Public response row.
+     * @param array<string, string> $fieldLabels Field labels keyed by field key.
      * @return void
      */
-    private function renderPublicResponse(array $response): void
+    private function renderPublicResponse(array $response, array $fieldLabels): void
     {
         echo '<article class="civic-thread-response">';
         echo '<h3 class="civic-thread-response__name">' . esc_html((string) ($response['name_snapshot'] ?? '')) . '</h3>';
         echo '<p class="civic-thread-response__date">' . esc_html($this->dates->formatDate((string) ($response['created_at'] ?? ''))) . '</p>';
         echo '<div class="civic-thread-response__text">' . wpautop(esc_html($this->responseText($response['response_data'] ?? ''))) . '</div>';
+        $this->renderCustomFields($response['response_data'] ?? '', $fieldLabels);
         echo '</article>';
+    }
+
+    /**
+     * Render public custom field values with labels.
+     *
+     * @param mixed $responseData Stored response_data value.
+     * @param array<string, string> $fieldLabels Field labels keyed by field key.
+     * @return void
+     */
+    private function renderCustomFields($responseData, array $fieldLabels): void
+    {
+        $customFields = $this->customFieldValues($responseData);
+
+        if (empty($customFields) || empty($fieldLabels)) {
+            return;
+        }
+
+        echo '<dl class="civic-thread-response__custom-fields">';
+
+        foreach ($fieldLabels as $fieldKey => $label) {
+            $value = isset($customFields[$fieldKey]) ? trim((string) $customFields[$fieldKey]) : '';
+
+            if ('' === $value) {
+                continue;
+            }
+
+            echo '<dt>' . esc_html($label) . '</dt>';
+            echo '<dd>' . nl2br(esc_html($value)) . '</dd>';
+        }
+
+        echo '</dl>';
     }
 
     /**
@@ -272,21 +319,90 @@ class ThreadDetailShortcode
      */
     private function responseText($responseData): string
     {
-        if (is_array($responseData) && isset($responseData['response_text'])) {
-            return (string) $responseData['response_text'];
-        }
-
-        if (is_array($responseData) || is_object($responseData)) {
-            return '';
-        }
-
-        $decoded = json_decode((string) $responseData, true);
+        $decoded = $this->responseDataArray($responseData);
 
         if (is_array($decoded) && isset($decoded['response_text'])) {
             return (string) $decoded['response_text'];
         }
 
         return '';
+    }
+
+    /**
+     * Extract custom field values from response_data.
+     *
+     * @param mixed $responseData Stored response_data value.
+     * @return array<string, string>
+     */
+    private function customFieldValues($responseData): array
+    {
+        $data = $this->responseDataArray($responseData);
+        $customFields = isset($data['custom_fields']) && is_array($data['custom_fields'])
+            ? $data['custom_fields']
+            : [];
+        $values = [];
+
+        foreach ($customFields as $fieldKey => $value) {
+            if (is_array($value) || is_object($value)) {
+                continue;
+            }
+
+            $fieldKey = sanitize_key((string) $fieldKey);
+            $value = trim((string) $value);
+
+            if ('' !== $fieldKey && '' !== $value) {
+                $values[$fieldKey] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * Decode response_data to an array.
+     *
+     * @param mixed $responseData Stored response_data value.
+     * @return array<string, mixed>
+     */
+    private function responseDataArray($responseData): array
+    {
+        if (is_array($responseData)) {
+            return $responseData;
+        }
+
+        if (is_object($responseData)) {
+            return [];
+        }
+
+        $decoded = json_decode((string) $responseData, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Build ordered field label lookup for a consultation.
+     *
+     * @param int $threadId Thread ID.
+     * @return array<string, string>
+     */
+    private function fieldLabels(int $threadId): array
+    {
+        if ($threadId <= 0) {
+            return [];
+        }
+
+        $labels = [];
+
+        foreach ($this->fields->findByThreadId($threadId) as $field) {
+            $fieldKey = sanitize_key((string) ($field['field_key'] ?? ''));
+            $label = trim((string) ($field['field_label'] ?? ''));
+
+            if ('' !== $fieldKey && '' !== $label) {
+                $labels[$fieldKey] = $label;
+            }
+        }
+
+        return $labels;
     }
 
     /**

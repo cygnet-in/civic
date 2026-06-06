@@ -13,6 +13,7 @@ use CivicPlatform\Modules\Reps\Frontend\RepFormController;
 use CivicPlatform\Modules\Reps\Frontend\RepsShortcodes;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
+use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\RepService;
@@ -61,7 +62,10 @@ class RepsModule
      */
     private function createFormController(): RepFormController
     {
-        return new RepFormController($this->createRepService());
+        return new RepFormController(
+            $this->createRepService(),
+            new ElectoralAreaRepository($this->wpdb)
+        );
     }
 
     /**
@@ -85,7 +89,6 @@ class RepsModule
 
         return new RepDetailPage(
             $services['reps'],
-            $services['contacts'],
             $services['activities'],
             new DateHelper()
         );

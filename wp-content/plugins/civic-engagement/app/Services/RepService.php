@@ -133,6 +133,7 @@ class RepService
             'whatsapp' => $this->stringValue($data['whatsapp'] ?? $data['latest_whatsapp'] ?? ''),
             'address' => $this->stringValue($data['address'] ?? $data['latest_address'] ?? ''),
             'eircode' => $this->stringValue($data['eircode'] ?? $data['latest_eircode'] ?? ''),
+            'electoral_area_id' => isset($data['electoral_area_id']) ? (int) $data['electoral_area_id'] : 0,
             'electoral_area' => $this->stringValue(
                 $data['electoral_area'] ?? $data['latest_electoral_area'] ?? ''
             ),
@@ -161,6 +162,7 @@ class RepService
             'whatsapp_snapshot' => $data['whatsapp'],
             'address_snapshot' => $data['address'],
             'eircode_snapshot' => $data['eircode'],
+            'electoral_area_id' => $data['electoral_area_id'],
             'electoral_area_snapshot' => $data['electoral_area'],
             'title' => $data['title'],
             'details' => $data['details'],

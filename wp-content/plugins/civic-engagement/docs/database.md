@@ -161,6 +161,7 @@ Stores public representation submissions.
 | whatsapp_snapshot       | submitted WhatsApp   |
 | address_snapshot        | submitted address    |
 | eircode_snapshot        | submitted Eircode    |
+| electoral_area_id       | Electoral Area ID |
 | electoral_area_snapshot | submitted area       |
 | title                   | rep title            |
 | details                 | rep details          |
@@ -240,6 +241,7 @@ Stores configurable response fields for threads.
 | id            | field ID      |
 | thread_id     | linked thread |
 | field_label   | label         |
+| field_key     | field Key     |
 | field_type    | type          |
 | field_options | JSON options  |
 | sort_order    | display order |
@@ -276,6 +278,7 @@ Stores public thread responses.
 | phone_snapshot          | submitted phone   |
 | address_snapshot        | submitted address |
 | eircode_snapshot        | submitted Eircode |
+| electoral_area_id       | Electoral Area ID |
 | electoral_area_snapshot | submitted area    |
 | response_data           | JSON response     |
 | is_public               | public visibility |
@@ -353,6 +356,7 @@ Stores event registrations.
 | phone_snapshot          | submitted phone   |
 | address_snapshot        | submitted address |
 | eircode_snapshot        | submitted Eircode |
+| electoral_area_id       | Electoral Area ID |
 | electoral_area_snapshot | submitted area    |
 | registration_data       | JSON registration |
 | created_at              | timestamp         |

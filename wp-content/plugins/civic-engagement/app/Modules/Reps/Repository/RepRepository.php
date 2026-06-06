@@ -27,6 +27,7 @@ class RepRepository extends BaseRepository
         'whatsapp_snapshot' => '%s',
         'address_snapshot' => '%s',
         'eircode_snapshot' => '%s',
+        'electoral_area_id' => '%d',
         'electoral_area_snapshot' => '%s',
         'title' => '%s',
         'details' => '%s',

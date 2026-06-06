@@ -1,5 +1,18 @@
 # Project Status
 
+## Current Development Stage
+
+Current milestone:
+Consultation module complete.
+
+Next milestone:
+Event module.
+
+Deferred:
+- slug routing
+- response pagination
+- frontend administration
+
 ## Project
 
 **Civic Engagement Platform (WordPress Plugin)**

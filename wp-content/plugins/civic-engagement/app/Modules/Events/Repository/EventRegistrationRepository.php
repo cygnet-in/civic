@@ -79,6 +79,29 @@ class EventRegistrationRepository extends BaseRepository
     }
 
     /**
+     * Find an event registration by ID.
+     *
+     * @param int $id Registration ID.
+     * @return array<string, mixed>|null Registration row or null when not found.
+     */
+    public function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE id = %d LIMIT 1",
+                [$id]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
      * Get paginated registrations for an event.
      *
      * Supported args: page, per_page, contact_id, orderby, order.

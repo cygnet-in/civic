@@ -1,0 +1,195 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CivicPlatform\Modules\Events\Frontend;
+
+use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Modules\Events\Repository\EventRepository;
+use CivicPlatform\Modules\Events\Registrations\Frontend\EventRegistrationForm;
+
+/**
+ * Registers and renders the public event detail shortcode.
+ *
+ * Rendering remains frontend-focused. Event retrieval is delegated to the
+ * repository.
+ */
+class EventDetailShortcode
+{
+    /**
+     * Event repository.
+     *
+     * @var EventRepository
+     */
+    private EventRepository $events;
+
+    /**
+     * Date helper.
+     *
+     * @var DateHelper
+     */
+    private DateHelper $dates;
+
+    /**
+     * Event registration form handler.
+     *
+     * @var EventRegistrationForm
+     */
+    private EventRegistrationForm $registrationForm;
+
+    /**
+     * @param EventRepository $events Event repository.
+     * @param DateHelper $dates Date helper.
+     * @param EventRegistrationForm $registrationForm Event registration form handler.
+     */
+    public function __construct(
+        EventRepository $events,
+        DateHelper $dates,
+        EventRegistrationForm $registrationForm
+    ) {
+        $this->events = $events;
+        $this->dates = $dates;
+        $this->registrationForm = $registrationForm;
+    }
+
+    /**
+     * Register the public event detail shortcode.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        add_shortcode('civic_event_detail', [$this, 'render']);
+    }
+
+    /**
+     * Render a public event detail.
+     *
+     * @param mixed $atts Shortcode attributes.
+     * @return string Rendered shortcode output.
+     */
+    public function render($atts = []): string
+    {
+        unset($atts);
+
+        $event = $this->events->findById($this->eventId());
+
+        ob_start();
+
+        echo '<div class="civic-event-detail">';
+
+        if (!is_array($event)) {
+            echo '<p class="civic-event-detail__empty">' . esc_html__('Event not found.', 'civic-engagement') . '</p>';
+            echo '</div>';
+
+            return (string) ob_get_clean();
+        }
+
+        if (empty($event['is_public'])) {
+            echo '<p class="civic-event-detail__empty">' . esc_html__('This event is not currently public.', 'civic-engagement') . '</p>';
+            echo '</div>';
+
+            return (string) ob_get_clean();
+        }
+
+        $this->renderEvent($event);
+        $this->renderRegistrationFormSection($event);
+
+        echo '</div>';
+
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * Render public event content.
+     *
+     * @param array<string, mixed> $event Event row.
+     * @return void
+     */
+    private function renderEvent(array $event): void
+    {
+        echo '<article class="civic-event-detail__content">';
+        echo '<h1 class="civic-event-detail__title">' . esc_html((string) ($event['title'] ?? '')) . '</h1>';
+
+        if (!empty($event['summary'])) {
+            echo '<p class="civic-event-detail__summary">' . esc_html((string) $event['summary']) . '</p>';
+        }
+
+        if (!empty($event['description'])) {
+            echo '<div class="civic-event-detail__description">' . wpautop(esc_html((string) $event['description'])) . '</div>';
+        }
+
+        if (!empty($event['location'])) {
+            echo '<p class="civic-event-detail__location">';
+            echo '<strong>' . esc_html__('Location:', 'civic-engagement') . '</strong><br>';
+            echo esc_html((string) $event['location']);
+            echo '</p>';
+        }
+
+        echo '<p class="civic-event-detail__date">';
+        echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
+        echo 'From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span>';
+        // echo esc_html(
+        //     sprintf(
+        //         /* translators: 1: start date, 2: end date */
+        //         __('From %1$s To %2$s', 'civic-engagement'),
+        //         $this->dates->formatDateTime($event['start_date'] ?? null),
+        //         $this->dates->formatDateTime($event['end_date'] ?? null)
+        //     )
+        // );
+        echo '</p>';
+
+        echo '<p class="civic-event-detail__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+        echo '</article>';
+    }
+
+    /**
+     * Render the registration form section when registrations are open.
+     *
+     * @param array<string, mixed> $event Event row.
+     * @return void
+     */
+    private function renderRegistrationFormSection(array $event): void
+    {
+        if (empty($event['is_public']) || empty($event['registration_enabled'])) {
+            return;
+        }
+
+        echo '<section id="civic-event-registration-form" class="civic-event-detail__registration-form">';
+        echo $this->registrationForm->render($event);
+        echo '</section>';
+    }
+
+    /**
+     * Build a registration status label.
+     *
+     * @param array<string, mixed> $event Event row.
+     * @return string Registration status.
+     */
+    private function registrationStatus(array $event): string
+    {
+        return !empty($event['registration_enabled'])
+            ? __('Registration is currently open', 'civic-engagement')
+            : __('Registration is currently closed', 'civic-engagement');
+    }
+
+    /**
+     * Get sanitized requested event ID.
+     *
+     * @return int Event ID.
+     */
+    private function eventId(): int
+    {
+        if (!isset($_GET['event_id'])) {
+            return 0;
+        }
+
+        $eventId = wp_unslash($_GET['event_id']);
+
+        if (is_array($eventId) || is_object($eventId)) {
+            return 0;
+        }
+
+        return absint($eventId);
+    }
+}

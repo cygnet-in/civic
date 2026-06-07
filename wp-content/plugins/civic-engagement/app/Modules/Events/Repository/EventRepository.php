@@ -21,13 +21,35 @@ class EventRepository extends BaseRepository
      */
     private array $insertFormats = [
         'title' => '%s',
+        'slug' => '%s',
+        'summary' => '%s',
         'description' => '%s',
         'location' => '%s',
+        'is_public' => '%d',
+        'registration_enabled' => '%d',
         'start_date' => '%s',
         'end_date' => '%s',
-        'is_public' => '%d',
         'status' => '%s',
         'created_at' => '%s',
+        'updated_at' => '%s',
+    ];
+
+    /**
+     * Columns accepted when updating events.
+     *
+     * @var array<string, string>
+     */
+    private array $updateFormats = [
+        'title' => '%s',
+        'slug' => '%s',
+        'summary' => '%s',
+        'description' => '%s',
+        'location' => '%s',
+        'is_public' => '%d',        
+        'registration_enabled' => '%d',
+        'start_date' => '%s',
+        'end_date' => '%s',
+        'status' => '%s',
         'updated_at' => '%s',
     ];
 
@@ -53,6 +75,7 @@ class EventRepository extends BaseRepository
             return 0;
         }
 
+        $insertData = $this->normalizeDateFields($insertData);
         $now = current_time('mysql');
 
         if (!isset($insertData['created_at'])) {
@@ -74,6 +97,39 @@ class EventRepository extends BaseRepository
         }
 
         return (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Update an event.
+     *
+     * @param int $id Event ID.
+     * @param array<string, mixed> $data Event data keyed by editable civic_events columns.
+     * @return bool True when the update succeeds.
+     */
+    public function update(int $id, array $data): bool
+    {
+        if ($id <= 0) {
+            return false;
+        }
+
+        $updateData = $this->filterDataByFormats($data, $this->updateFormats);
+
+        if (empty($updateData) || empty($updateData['title'])) {
+            return false;
+        }
+
+        $updateData = $this->normalizeDateFields($updateData);
+        $updateData['updated_at'] = current_time('mysql');
+
+        $updated = $this->wpdb->update(
+            $this->table,
+            $updateData,
+            ['id' => $id],
+            $this->getFormatsForData($updateData, $this->updateFormats),
+            ['%d']
+        );
+
+        return false !== $updated;
     }
 
     /**
@@ -103,7 +159,7 @@ class EventRepository extends BaseRepository
      * Get public events.
      *
      * Public listing is limited to records with is_public = 1. If no status is
-     * supplied, active events are returned by default.
+     * supplied, published events are returned by default.
      *
      * @param array<string, mixed> $args Listing arguments.
      * @return array<string, mixed> Paginated result set and metadata.
@@ -113,7 +169,7 @@ class EventRepository extends BaseRepository
         $args['is_public'] = 1;
 
         if (!isset($args['status']) || '' === trim((string) $args['status'])) {
-            $args['status'] = 'active';
+            $args['status'] = 'published';
         }
 
         return $this->getPaginated($args);
@@ -122,7 +178,8 @@ class EventRepository extends BaseRepository
     /**
      * Get a paginated event listing.
      *
-     * Supported args: page, per_page, status, is_public, orderby, order.
+     * Supported args: page, per_page, status, is_public,
+     * registration_enabled, orderby, order.
      *
      * @param array<string, mixed> $args Listing arguments.
      * @return array<string, mixed> Paginated result set and metadata.
@@ -131,6 +188,38 @@ class EventRepository extends BaseRepository
     {
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildEventFilters($args);
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'ASC');
+
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Search events by keyword with pagination.
+     *
+     * Supported args: page, per_page, status, is_public, registration_enabled,
+     * orderby, order.
+     *
+     * @param string $keyword Search keyword.
+     * @param array<string, mixed> $args Search arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function search(string $keyword, array $args = []): array
+    {
+        $keyword = trim($keyword);
+
+        if ('' === $keyword) {
+            return $this->getPaginated($args);
+        }
+
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildEventFilters($args);
+        $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
+
+        if ('' !== $search['sql']) {
+            $where['sql'][] = $search['sql'];
+            $where['values'] = array_merge($where['values'], $search['values']);
+        }
+
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'ASC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
@@ -176,6 +265,7 @@ class EventRepository extends BaseRepository
             [
                 'status' => ['column' => 'status', 'format' => '%s'],
                 'is_public' => ['column' => 'is_public', 'format' => '%d'],
+                'registration_enabled' => ['column' => 'registration_enabled', 'format' => '%d'],
             ]
         );
     }
@@ -219,6 +309,29 @@ class EventRepository extends BaseRepository
     }
 
     /**
+     * Normalize optional date fields for persistence.
+     *
+     * Empty admin date inputs should be stored as NULL, not zero dates.
+     *
+     * @param array<string, mixed> $data Event data.
+     * @return array<string, mixed> Normalized event data.
+     */
+    private function normalizeDateFields(array $data): array
+    {
+        foreach (['start_date', 'end_date'] as $field) {
+            if (!array_key_exists($field, $data)) {
+                continue;
+            }
+
+            if (null === $data[$field] || '' === trim((string) $data[$field])) {
+                $data[$field] = null;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Get wpdb formats matching data column order.
      *
      * @param array<string, mixed> $data Filtered data.
@@ -246,13 +359,31 @@ class EventRepository extends BaseRepository
         return [
             'id',
             'title',
+            'slug',
+            'is_public',
+            'registration_enabled',
             'location',
             'start_date',
             'end_date',
-            'is_public',
             'status',
             'created_at',
             'updated_at',
+        ];
+    }
+
+    /**
+     * Get safe columns included in keyword search.
+     *
+     * @return array<int, string>
+     */
+    private function getSearchColumns(): array
+    {
+        return [
+            'title',
+            'slug',
+            'summary',
+            'description',
+            'status',
         ];
     }
 }

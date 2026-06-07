@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use CivicPlatform\Core\Capabilities;
 use CivicPlatform\Modules\Activities\ActivitiesModule;
+use CivicPlatform\Modules\Events\EventsModule;
 use CivicPlatform\Modules\Reps\RepsModule;
 use CivicPlatform\Modules\Threads\ThreadsModule;
 
@@ -67,6 +68,9 @@ add_action(
 
         $threadsModule = new ThreadsModule($wpdb);
         $threadsModule->register();
+
+        $eventsModule = new EventsModule($wpdb);
+        $eventsModule->register();
 
         $capabilities = new Capabilities();
         $capabilities->register();

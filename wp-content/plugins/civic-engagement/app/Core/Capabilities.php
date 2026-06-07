@@ -29,6 +29,11 @@ class Capabilities
     private const MANAGE_THREADS = 'manage_civic_threads';
 
     /**
+     * Events management capability.
+     */
+    private const MANAGE_EVENTS = 'manage_civic_events';
+
+    /**
      * Activity history viewing capability.
      */
     private const VIEW_ACTIVITIES = 'view_civic_activities';
@@ -61,6 +66,7 @@ class Capabilities
                     'read' => true,
                     self::MANAGE_REPS => true,
                     self::MANAGE_THREADS => true,
+                    self::MANAGE_EVENTS => true,
                     self::VIEW_ACTIVITIES => true,
                 ]
             );
@@ -70,6 +76,7 @@ class Capabilities
 
         $role->add_cap(self::MANAGE_REPS);
         $role->add_cap(self::MANAGE_THREADS);
+        $role->add_cap(self::MANAGE_EVENTS);
         $role->add_cap(self::VIEW_ACTIVITIES);
     }
 
@@ -88,6 +95,7 @@ class Capabilities
 
         $role->add_cap(self::MANAGE_REPS);
         $role->add_cap(self::MANAGE_THREADS);
+        $role->add_cap(self::MANAGE_EVENTS);
         $role->add_cap(self::VIEW_ACTIVITIES);
     }
 }

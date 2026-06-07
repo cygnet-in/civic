@@ -1,0 +1,229 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CivicPlatform\Modules\Events\Frontend;
+
+use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Modules\Events\Repository\EventRepository;
+
+/**
+ * Registers and renders the public events listing shortcode.
+ *
+ * Rendering remains lightweight and data access is delegated to the event
+ * repository.
+ */
+class EventListShortcode
+{
+    /**
+     * Event repository.
+     *
+     * @var EventRepository
+     */
+    private EventRepository $events;
+
+    /**
+     * Date helper.
+     *
+     * @var DateHelper
+     */
+    private DateHelper $dates;
+
+    /**
+     * @param EventRepository $events Event repository.
+     * @param DateHelper $dates Date helper.
+     */
+    public function __construct(EventRepository $events, DateHelper $dates)
+    {
+        $this->events = $events;
+        $this->dates = $dates;
+    }
+
+    /**
+     * Register the public events shortcode.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        add_shortcode('civic_events', [$this, 'render']);
+    }
+
+    /**
+     * Render published public events.
+     *
+     * @param mixed $atts Shortcode attributes.
+     * @return string Rendered shortcode output.
+     */
+    public function render($atts = []): string
+    {
+        if (!is_array($atts)) {
+            $atts = [];
+        }
+
+        $atts = shortcode_atts(
+            [
+                'detail_page_id' => 0,
+            ],
+            $atts,
+            'civic_events'
+        );
+
+        $page = $this->currentPage();
+        $result = $this->events->getPublicEvents(
+            [
+                'page' => $page,
+                'per_page' => 20,
+                'orderby' => 'start_date',
+                'order' => 'ASC',
+            ]
+        );
+        $items = isset($result['items']) && is_array($result['items']) ? $result['items'] : [];
+        $totalPages = isset($result['total_pages']) ? (int) $result['total_pages'] : 1;
+        $detailPageId = absint($atts['detail_page_id']);
+
+        ob_start();
+
+        echo '<div class="civic-events">';
+
+        if (empty($items)) {
+            echo '<p class="civic-events__empty">' . esc_html__('No public events are currently available.', 'civic-engagement') . '</p>';
+        }
+
+        foreach ($items as $event) {
+            $this->renderEvent($event, $detailPageId);
+        }
+
+        $this->renderPagination($page, $totalPages);
+
+        echo '</div>';
+
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * Render a single event summary.
+     *
+     * @param array<string, mixed> $event Event row.
+     * @return void
+     */
+    private function renderEvent(array $event, $detailPageId): void
+    {
+        $eventId = isset($event['id']) ? (int) $event['id'] : 0;
+
+        echo '<article class="civic-events__item">';
+        echo '<h2 class="civic-events__title">' . esc_html((string) ($event['title'] ?? '')) . '</h2>';
+
+        if (!empty($event['summary'])) {
+            echo '<p class="civic-events__summary">' . esc_html((string) $event['summary']) . '</p>';
+        }
+
+        if (!empty($event['location'])) {
+            echo '<p class="civic-events__location">Location: <span class="civic-events__location-name">' . esc_html((string) $event['location']) . '</span></p>';
+        }
+
+        echo '<p class="civic-events__date">Date: From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span></p>';
+        echo '<p class="civic-events__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+
+        echo '<p class="civic-events__actions">';
+        echo '<a href="' . esc_url($this->readMoreUrl($eventId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
+        echo '</p>';
+        echo '</article>';
+    }
+
+    /**
+     * Build a registration status label.
+     *
+     * @param array<string, mixed> $event Event row.
+     * @return string Registration status.
+     */
+    private function registrationStatus(array $event): string
+    {
+        return !empty($event['registration_enabled'])
+            ? __('Registration is currently open', 'civic-engagement')
+            : __('Registration is currently closed', 'civic-engagement');
+    }
+
+    /**
+     * Build a placeholder read-more URL.
+     *
+     * @param int $eventId Event ID.
+     * @return string Read-more URL.
+     */
+    private function readMoreUrl(int $eventId, int $detailPageId): string
+    {
+        return add_query_arg(
+            ['event_id' => $eventId],
+            get_permalink($detailPageId)
+        );
+    }
+
+    /**
+     * Render lightweight query-string pagination.
+     *
+     * @param int $page Current page.
+     * @param int $totalPages Total pages.
+     * @return void
+     */
+    private function renderPagination(int $page, int $totalPages): void
+    {
+        if ($totalPages <= 1) {
+            return;
+        }
+
+        echo '<nav class="civic-events__pagination" aria-label="' . esc_attr__('Event pages', 'civic-engagement') . '">';
+
+        if ($page > 1) {
+            echo '<a class="civic-events__pagination-previous" href="' . esc_url($this->pageUrl($page - 1)) . '">' . esc_html__('Previous', 'civic-engagement') . '</a>';
+        }
+
+        echo '<span class="civic-events__pagination-current">' . esc_html(
+            sprintf(
+                /* translators: 1: current page, 2: total pages */
+                __('Page %1$d of %2$d', 'civic-engagement'),
+                $page,
+                $totalPages
+            )
+        ) . '</span>';
+
+        if ($page < $totalPages) {
+            echo '<a class="civic-events__pagination-next" href="' . esc_url($this->pageUrl($page + 1)) . '">' . esc_html__('Next', 'civic-engagement') . '</a>';
+        }
+
+        echo '</nav>';
+    }
+
+    /**
+     * Build a pagination URL.
+     *
+     * @param int $page Page number.
+     * @return string Page URL.
+     */
+    private function pageUrl(int $page): string
+    {
+        return add_query_arg(
+            ['event_page' => max(1, $page)],
+            get_permalink()
+        );
+    }
+
+    /**
+     * Get sanitized current frontend page number.
+     *
+     * @return int Current page.
+     */
+    private function currentPage(): int
+    {
+        if (!isset($_GET['event_page'])) {
+            return 1;
+        }
+
+        $page = wp_unslash($_GET['event_page']);
+
+        if (is_array($page) || is_object($page)) {
+            return 1;
+        }
+
+        return max(1, absint($page));
+    }
+}

@@ -273,3 +273,101 @@ Stack trace:
 [06-Jun-2026 14:09:37 UTC] WordPress database error Unknown column 'electoral_area_id' in 'field list' for query INSERT INTO `wp_civic_thread_responses` (`thread_id`, `contact_id`, `name_snapshot`, `email_snapshot`, `phone_snapshot`, `address_snapshot`, `eircode_snapshot`, `electoral_area_id`, `electoral_area_snapshot`, `response_data`, `is_public`, `created_at`) VALUES (16, 4, 'fdgdfg', 'fdgfdgd@gdfgfg.fgdfg', '4534534', 'dggsdgds\r\ngsdgsdgsdg', '', 7, 'Dublin North-West', '{\"response_text\":\"dsdsgsdgsd\\r\\ngsdgsdgsg\",\"custom_fields\":{\"loc_distance\":\"33\",\"rating\":\"5\",\"gen_opinion\":\"gsdgsdgsdgsg\"}}', 0, '2026-06-06 14:09:37') made by require('wp-blog-header.php'), require_once('wp-includes/template-loader.php'), include('wp-includes/template-canvas.php'), get_the_block_template_html, do_blocks, render_block, WP_Block->render, WP_Block->render, WP_Block->render, render_block_core_post_content, apply_filters('the_content'), WP_Hook->apply_filters, do_shortcode, preg_replace_callback, do_shortcode_tag, CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->render, CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode->renderResponseFormSection, CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm->render, CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm->processSubmission, CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService->submit, CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository->create
 [06-Jun-2026 15:06:51 UTC] Automatic updates starting...
 [06-Jun-2026 15:06:51 UTC] Automatic updates complete.
+[07-Jun-2026 06:05:57 UTC] Automatic updates starting...
+[07-Jun-2026 06:05:59 UTC] Automatic updates complete.
+[07-Jun-2026 06:06:53 UTC] WordPress database error Unknown column 'summary' in 'field list' for query INSERT INTO `wp_civic_events` (`title`, `slug`, `summary`, `description`, `registration_enabled`, `start_date`, `end_date`, `is_public`, `status`, `created_at`, `updated_at`) VALUES ('Test Event', 'tevent', 'fsdfsdfsdfsdf', 'sdfdsfsdfsfsfdsfdsfsdf', 1, '2026-06-08', '2026-06-10', 1, 'published', '2026-06-07 06:06:53', '2026-06-07 06:06:53') made by do_action('civic-platform_page_civic-event-edit'), WP_Hook->do_action, WP_Hook->apply_filters, CivicPlatform\Modules\Events\Admin\EventsAdmin->renderEditPage, CivicPlatform\Modules\Events\Admin\EventEditPage->render, CivicPlatform\Modules\Events\Admin\EventEditPage->processSubmission, CivicPlatform\Modules\Events\Repository\EventRepository->create
+[07-Jun-2026 06:09:06 UTC] WordPress database error Unknown column 'registration_enabled' in 'field list' for query INSERT INTO `wp_civic_events` (`title`, `slug`, `summary`, `description`, `registration_enabled`, `start_date`, `end_date`, `is_public`, `status`, `created_at`, `updated_at`) VALUES ('Test Event', 'test-event', 'sdgsdgsdgsdgsdgsdg', 'gfdgdfgdfgdfg dfgdf \r\ngdfgdfgdfgdfgdfg dfg dfg\r\ndfg dfgdfgdfg', 1, '2026-06-10', '2026-06-20', 1, 'published', '2026-06-07 06:09:06', '2026-06-07 06:09:06') made by do_action('civic-platform_page_civic-event-edit'), WP_Hook->do_action, WP_Hook->apply_filters, CivicPlatform\Modules\Events\Admin\EventsAdmin->renderEditPage, CivicPlatform\Modules\Events\Admin\EventEditPage->render, CivicPlatform\Modules\Events\Admin\EventEditPage->processSubmission, CivicPlatform\Modules\Events\Repository\EventRepository->create
+[07-Jun-2026 06:18:11 UTC] PHP Parse error:  syntax error, unexpected token "{", expecting "function" or "const" in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Admin\EventEditPage.php on line 288
+[07-Jun-2026 06:21:42 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-includes\fonts\class-wp-font-face.php:98) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[07-Jun-2026 06:21:42 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-includes\fonts\class-wp-font-face.php:98) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[07-Jun-2026 09:36:26 UTC] PHP Warning:  Undefined variable $atts in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 73
+[07-Jun-2026 09:36:26 UTC] PHP Warning:  Trying to access array offset on value of type null in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 73
+[07-Jun-2026 09:36:26 UTC] PHP Warning:  Undefined variable $detailPageId in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 119
+[07-Jun-2026 09:36:26 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Events\Frontend\EventListShortcode::readMoreUrl(): Argument #2 ($detailPageId) must be of type int, null given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 119 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php:143
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(119): CivicPlatform\Modules\Events\Frontend\EventListShortcode->readMoreUrl(2, NULL)
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(84): CivicPlatform\Modules\Events\Frontend\EventListShortcode->renderEvent(Array, 0)
+#2 E:\htdocs\civic\wp-includes\shortcodes.php(434): CivicPlatform\Modules\Events\Frontend\EventListShortcode->render(NULL, '', 'civic_events')
+#3 [internal function]: do_shortcode_tag(Array)
+#4 E:\htdocs\civic\wp-includes\shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(civic_...', 'do_shortcode_ta...', '[civic_events d...')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): do_shortcode('[civic_events d...')
+#6 E:\htdocs\civic\wp-includes\plugin.php(205): WP_Hook->apply_filters('[civic_events d...', Array)
+#7 E:\htdocs\civic\wp-includes\blocks\post-content.php(50): apply_filters('the_content', '<!-- wp:shortco...')
+#8 E:\htdocs\civic\wp-includes\class-wp-block.php(596): render_block_core_post_content(Array, '<!-- wp:shortco...', Object(WP_Block))
+#9 E:\htdocs\civic\wp-includes\class-wp-block.php(576): WP_Block->render()
+#10 E:\htdocs\civic\wp-includes\class-wp-block.php(576): WP_Block->render()
+#11 E:\htdocs\civic\wp-includes\blocks.php(2438): WP_Block->render()
+#12 E:\htdocs\civic\wp-includes\blocks.php(2521): render_block(Array)
+#13 E:\htdocs\civic\wp-includes\block-template.php(291): do_blocks('<!-- wp:templat...')
+#14 E:\htdocs\civic\wp-includes\template-canvas.php(12): get_the_block_template_html()
+#15 E:\htdocs\civic\wp-includes\template-loader.php(132): include('E:\\htdocs\\civic...')
+#16 E:\htdocs\civic\wp-blog-header.php(19): require_once('E:\\htdocs\\civic...')
+#17 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#18 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 143
+[07-Jun-2026 09:38:28 UTC] PHP Warning:  Undefined variable $detailPageId in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 129
+[07-Jun-2026 09:38:28 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Events\Frontend\EventListShortcode::readMoreUrl(): Argument #2 ($detailPageId) must be of type int, null given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 129 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php:153
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(129): CivicPlatform\Modules\Events\Frontend\EventListShortcode->readMoreUrl(2, NULL)
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(94): CivicPlatform\Modules\Events\Frontend\EventListShortcode->renderEvent(Array, 21)
+#2 E:\htdocs\civic\wp-includes\shortcodes.php(434): CivicPlatform\Modules\Events\Frontend\EventListShortcode->render(Array, '', 'civic_events')
+#3 [internal function]: do_shortcode_tag(Array)
+#4 E:\htdocs\civic\wp-includes\shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(civic_...', 'do_shortcode_ta...', '[civic_events d...')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): do_shortcode('[civic_events d...')
+#6 E:\htdocs\civic\wp-includes\plugin.php(205): WP_Hook->apply_filters('[civic_events d...', Array)
+#7 E:\htdocs\civic\wp-includes\rest-api\endpoints\class-wp-rest-posts-controller.php(2007): apply_filters('the_content', '<!-- wp:shortco...')
+#8 E:\htdocs\civic\wp-includes\rest-api\endpoints\class-wp-rest-posts-controller.php(669): WP_REST_Posts_Controller->prepare_item_for_response(Object(WP_Post), Object(WP_REST_Request))
+#9 E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php(1287): WP_REST_Posts_Controller->get_item(Object(WP_REST_Request))
+#10 E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php(1120): WP_REST_Server->respond_to_request(Object(WP_REST_Request), '/wp/v2/pages/(?...', Array, NULL)
+#11 E:\htdocs\civic\wp-includes\rest-api.php(598): WP_REST_Server->dispatch(Object(WP_REST_Request))
+#12 E:\htdocs\civic\wp-includes\rest-api.php(2985): rest_do_request(Object(WP_REST_Request))
+#13 [internal function]: rest_preload_api_request(Array, '/wp/v2/pages/19...')
+#14 E:\htdocs\civic\wp-includes\block-editor.php(738): array_reduce(Array, 'rest_preload_ap...', Array)
+#15 E:\htdocs\civic\wp-admin\edit-form-blocks.php(120): block_editor_rest_api_preload(Array, Object(WP_Block_Editor_Context))
+#16 E:\htdocs\civic\wp-admin\post.php(187): require('E:\\htdocs\\civic...')
+#17 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 153
+[07-Jun-2026 09:38:41 UTC] PHP Warning:  Undefined variable $detailPageId in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 129
+[07-Jun-2026 09:38:41 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Events\Frontend\EventListShortcode::readMoreUrl(): Argument #2 ($detailPageId) must be of type int, null given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 129 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php:153
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(129): CivicPlatform\Modules\Events\Frontend\EventListShortcode->readMoreUrl(2, NULL)
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(94): CivicPlatform\Modules\Events\Frontend\EventListShortcode->renderEvent(Array, 21)
+#2 E:\htdocs\civic\wp-includes\shortcodes.php(434): CivicPlatform\Modules\Events\Frontend\EventListShortcode->render(Array, '', 'civic_events')
+#3 [internal function]: do_shortcode_tag(Array)
+#4 E:\htdocs\civic\wp-includes\shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(civic_...', 'do_shortcode_ta...', '[civic_events d...')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): do_shortcode('[civic_events d...')
+#6 E:\htdocs\civic\wp-includes\plugin.php(205): WP_Hook->apply_filters('[civic_events d...', Array)
+#7 E:\htdocs\civic\wp-includes\rest-api\endpoints\class-wp-rest-posts-controller.php(2007): apply_filters('the_content', '<!-- wp:shortco...')
+#8 E:\htdocs\civic\wp-includes\rest-api\endpoints\class-wp-rest-posts-controller.php(669): WP_REST_Posts_Controller->prepare_item_for_response(Object(WP_Post), Object(WP_REST_Request))
+#9 E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php(1287): WP_REST_Posts_Controller->get_item(Object(WP_REST_Request))
+#10 E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php(1120): WP_REST_Server->respond_to_request(Object(WP_REST_Request), '/wp/v2/pages/(?...', Array, NULL)
+#11 E:\htdocs\civic\wp-includes\rest-api.php(598): WP_REST_Server->dispatch(Object(WP_REST_Request))
+#12 E:\htdocs\civic\wp-includes\rest-api.php(2985): rest_do_request(Object(WP_REST_Request))
+#13 [internal function]: rest_preload_api_request(Array, '/wp/v2/pages/19...')
+#14 E:\htdocs\civic\wp-includes\block-editor.php(738): array_reduce(Array, 'rest_preload_ap...', Array)
+#15 E:\htdocs\civic\wp-admin\edit-form-blocks.php(120): block_editor_rest_api_preload(Array, Object(WP_Block_Editor_Context))
+#16 E:\htdocs\civic\wp-admin\post.php(187): require('E:\\htdocs\\civic...')
+#17 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 153
+[07-Jun-2026 09:38:53 UTC] PHP Warning:  Undefined variable $detailPageId in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 129
+[07-Jun-2026 09:38:53 UTC] PHP Fatal error:  Uncaught TypeError: CivicPlatform\Modules\Events\Frontend\EventListShortcode::readMoreUrl(): Argument #2 ($detailPageId) must be of type int, null given, called in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 129 and defined in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php:153
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(129): CivicPlatform\Modules\Events\Frontend\EventListShortcode->readMoreUrl(2, NULL)
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php(94): CivicPlatform\Modules\Events\Frontend\EventListShortcode->renderEvent(Array, 21)
+#2 E:\htdocs\civic\wp-includes\shortcodes.php(434): CivicPlatform\Modules\Events\Frontend\EventListShortcode->render(Array, '', 'civic_events')
+#3 [internal function]: do_shortcode_tag(Array)
+#4 E:\htdocs\civic\wp-includes\shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(civic_...', 'do_shortcode_ta...', '[civic_events d...')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): do_shortcode('[civic_events d...')
+#6 E:\htdocs\civic\wp-includes\plugin.php(205): WP_Hook->apply_filters('[civic_events d...', Array)
+#7 E:\htdocs\civic\wp-includes\rest-api\endpoints\class-wp-rest-posts-controller.php(2007): apply_filters('the_content', '<!-- wp:shortco...')
+#8 E:\htdocs\civic\wp-includes\rest-api\endpoints\class-wp-rest-posts-controller.php(669): WP_REST_Posts_Controller->prepare_item_for_response(Object(WP_Post), Object(WP_REST_Request))
+#9 E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php(1287): WP_REST_Posts_Controller->get_item(Object(WP_REST_Request))
+#10 E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php(1120): WP_REST_Server->respond_to_request(Object(WP_REST_Request), '/wp/v2/pages/(?...', Array, NULL)
+#11 E:\htdocs\civic\wp-includes\rest-api.php(598): WP_REST_Server->dispatch(Object(WP_REST_Request))
+#12 E:\htdocs\civic\wp-includes\rest-api.php(2985): rest_do_request(Object(WP_REST_Request))
+#13 [internal function]: rest_preload_api_request(Array, '/wp/v2/pages/19...')
+#14 E:\htdocs\civic\wp-includes\block-editor.php(738): array_reduce(Array, 'rest_preload_ap...', Array)
+#15 E:\htdocs\civic\wp-admin\edit-form-blocks.php(120): block_editor_rest_api_preload(Array, Object(WP_Block_Editor_Context))
+#16 E:\htdocs\civic\wp-admin\post.php(187): require('E:\\htdocs\\civic...')
+#17 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 153

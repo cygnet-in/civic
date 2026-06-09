@@ -303,19 +303,21 @@ Stores event definitions.
 
 ## Fields
 
-| Field       | Purpose                                      |
-| ----------- | -------------                                |
-| id          | event ID                                     |
-| title       | event title                                  |
-| slug        | public shareable consultation URL identifier |
-| description | details                                      |
-| location    | location                                     |
-| start_date  | start                                        |
-| end_date    | end                                          |
-| is_public   | visibility                                   |
-| status      | active/closed                                |
-| created_at  | timestamp                                    |
-| updated_at  | timestamp                                    |
+| Field                | Purpose                                      |
+| -----------          | -------------                                |
+| id                   | event ID                                     |
+| title                | event title                                  |
+| slug                 | public shareable consultation URL identifier |
+| summary              | Summary of the event                         |
+| description          | details                                      |
+| location             | location                                     |
+| start_date           | start                                        |
+| end_date             | end                                          |
+| is_public            | visibility                                   |
+| registration_enabled | To allow deny public registrations           |
+| status               | active/closed                                |
+| created_at           | timestamp                                    |
+| updated_at           | timestamp                                    |
 
 ---
 
@@ -551,3 +553,4 @@ The pilot implementation intentionally avoids:
 - constituency nesting
 - admin CRUD interfaces
 - import/export systems
+

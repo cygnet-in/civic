@@ -6,6 +6,8 @@ namespace CivicPlatform\Modules\Events;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Events\Admin\EventEditPage;
+use CivicPlatform\Modules\Events\Admin\EventFieldEditPage;
+use CivicPlatform\Modules\Events\Admin\EventFieldsListPage;
 use CivicPlatform\Modules\Events\Admin\EventsAdmin;
 use CivicPlatform\Modules\Events\Admin\EventsListPage;
 use CivicPlatform\Modules\Events\Frontend\EventDetailShortcode;
@@ -53,6 +55,8 @@ class EventsModule
         $admin = new EventsAdmin(
             $this->createListPage(),
             $this->createEditPage(),
+            $this->createFieldsListPage(),
+            $this->createFieldEditPage(),
             $this->createRegistrationsListPage(),
             $this->createRegistrationDetailPage()
         );
@@ -95,6 +99,32 @@ class EventsModule
         return new EventEditPage(
             new EventRepository($this->wpdb),
             new DateHelper()
+        );
+    }
+
+    /**
+     * Create the event fields listing page.
+     *
+     * @return EventFieldsListPage
+     */
+    private function createFieldsListPage(): EventFieldsListPage
+    {
+        return new EventFieldsListPage(
+            new EventFieldRepository($this->wpdb),
+            new EventRepository($this->wpdb)
+        );
+    }
+
+    /**
+     * Create the event field add/edit page.
+     *
+     * @return EventFieldEditPage
+     */
+    private function createFieldEditPage(): EventFieldEditPage
+    {
+        return new EventFieldEditPage(
+            new EventFieldRepository($this->wpdb),
+            new EventRepository($this->wpdb)
         );
     }
 

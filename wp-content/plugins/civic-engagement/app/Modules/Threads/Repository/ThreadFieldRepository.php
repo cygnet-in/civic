@@ -155,6 +155,33 @@ class ThreadFieldRepository extends BaseRepository
     }
 
     /**
+     * Check whether a field key already exists for a thread.
+     *
+     * @param int $threadId Thread ID.
+     * @param string $fieldKey Field key.
+     * @param int $excludeId Optional field ID to exclude when editing.
+     * @return bool True when the key exists for the thread.
+     */
+    public function fieldKeyExists(int $threadId, string $fieldKey, int $excludeId = 0): bool
+    {
+        $fieldKey = sanitize_key($fieldKey);
+
+        if ($threadId <= 0 || '' === $fieldKey) {
+            return false;
+        }
+
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE thread_id = %d AND field_key = %s";
+        $values = [$threadId, $fieldKey];
+
+        if ($excludeId > 0) {
+            $sql .= ' AND id != %d';
+            $values[] = $excludeId;
+        }
+
+        return (int) $this->wpdb->get_var($this->prepare($sql, $values)) > 0;
+    }
+
+    /**
      * Update a dynamic thread field.
      *
      * @param int $id Field ID.

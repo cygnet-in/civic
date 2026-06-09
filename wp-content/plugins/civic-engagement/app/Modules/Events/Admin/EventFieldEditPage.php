@@ -2,58 +2,58 @@
 
 declare(strict_types=1);
 
-namespace CivicPlatform\Modules\Threads\Fields\Admin;
+namespace CivicPlatform\Modules\Events\Admin;
 
-use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
-use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Events\Repository\EventFieldRepository;
+use CivicPlatform\Modules\Events\Repository\EventRepository;
 
 /**
- * Renders the admin create/edit form for consultation response fields.
+ * Renders the admin create/edit form for event registration fields.
  *
  * This page handles request sanitization, nonce validation, and presentation.
- * Field persistence is delegated to ThreadFieldRepository.
+ * Field persistence is delegated to EventFieldRepository.
  */
-class ThreadFieldEditPage
+class EventFieldEditPage
 {
     /**
-     * Required capability for thread field administration.
+     * Required capability for event field administration.
      */
-    private const CAPABILITY = 'manage_civic_threads';
+    private const CAPABILITY = 'manage_civic_events';
 
     /**
      * Nonce action.
      */
-    private const NONCE_ACTION = 'civic_thread_field_save';
+    private const NONCE_ACTION = 'civic_event_field_save';
 
     /**
      * Nonce field name.
      */
-    private const NONCE_FIELD = 'civic_thread_field_nonce';
+    private const NONCE_FIELD = 'civic_event_field_nonce';
 
     /**
-     * Supported Version 1 field types.
+     * Supported event registration field types.
      *
      * @var array<int, string>
      */
     private array $fieldTypes = [
         'text',
         'textarea',
-        'select',
+        'dropdown',
     ];
 
     /**
-     * Thread field repository.
+     * Event field repository.
      *
-     * @var ThreadFieldRepository
+     * @var EventFieldRepository
      */
-    private ThreadFieldRepository $fields;
+    private EventFieldRepository $fields;
 
     /**
-     * Thread repository.
+     * Event repository.
      *
-     * @var ThreadRepository
+     * @var EventRepository
      */
-    private ThreadRepository $threads;
+    private EventRepository $events;
 
     /**
      * Submitted form values retained after validation errors.
@@ -63,13 +63,13 @@ class ThreadFieldEditPage
     private ?array $submittedValues = null;
 
     /**
-     * @param ThreadFieldRepository $fields Thread field repository.
-     * @param ThreadRepository $threads Thread repository.
+     * @param EventFieldRepository $fields Event field repository.
+     * @param EventRepository $events Event repository.
      */
-    public function __construct(ThreadFieldRepository $fields, ThreadRepository $threads)
+    public function __construct(EventFieldRepository $fields, EventRepository $events)
     {
         $this->fields = $fields;
-        $this->threads = $threads;
+        $this->events = $events;
     }
 
     /**
@@ -83,51 +83,51 @@ class ThreadFieldEditPage
             wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
         }
 
-        $threadId = $this->threadId();
+        $eventId = $this->eventId();
         $fieldId = $this->fieldId();
-        $thread = $this->threads->findById($threadId);
+        $event = $this->events->findById($eventId);
         $field = $fieldId > 0 ? $this->fields->findById($fieldId) : null;
         $notice = null;
 
-        if (is_array($thread)) {
-            $notice = $this->processSubmission($threadId, $fieldId, $field);
+        if (is_array($event)) {
+            $notice = $this->processSubmission($eventId, $fieldId, $field);
             $field = $fieldId > 0 ? $this->fields->findById($fieldId) : $field;
         }
 
-        $values = $this->formValues($field, $threadId);
+        $values = $this->formValues($field, $eventId);
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html($this->pageTitle($fieldId)) . '</h1>';
-        echo '<p><a href="' . esc_url($this->fieldsUrl($threadId)) . '">' . esc_html__('Back to Fields', 'civic-engagement') . '</a></p>';
+        echo '<p><a href="' . esc_url($this->fieldsUrl($eventId)) . '">' . esc_html__('Back to Fields', 'civic-engagement') . '</a></p>';
         $this->renderNotice($notice);
 
-        if (!is_array($thread)) {
-            $this->renderNotFound(__('Consultation not found.', 'civic-engagement'));
+        if (!is_array($event)) {
+            $this->renderNotFound(__('Event not found.', 'civic-engagement'));
             echo '</div>';
 
             return;
         }
 
-        if ($fieldId > 0 && (!is_array($field) || (int) ($field['thread_id'] ?? 0) !== $threadId)) {
+        if ($fieldId > 0 && (!is_array($field) || (int) ($field['event_id'] ?? 0) !== $eventId)) {
             $this->renderNotFound(__('Field not found.', 'civic-engagement'));
             echo '</div>';
 
             return;
         }
 
-        $this->renderForm($values, $thread);
+        $this->renderForm($values, $event);
         echo '</div>';
     }
 
     /**
      * Process a create/edit submission.
      *
-     * @param int $threadId Thread ID.
+     * @param int $eventId Event ID.
      * @param int $fieldId Field ID.
      * @param array<string, mixed>|null $field Existing field row.
      * @return array{type: string, message: string}|null Notice data.
      */
-    private function processSubmission(int $threadId, int $fieldId, ?array $field): ?array
+    private function processSubmission(int $eventId, int $fieldId, ?array $field): ?array
     {
         if (!$this->isSubmission()) {
             return null;
@@ -137,11 +137,11 @@ class ThreadFieldEditPage
             return $this->notice('error', __('Security check failed. Please try again.', 'civic-engagement'));
         }
 
-        if ($fieldId > 0 && (!is_array($field) || (int) ($field['thread_id'] ?? 0) !== $threadId)) {
+        if ($fieldId > 0 && (!is_array($field) || (int) ($field['event_id'] ?? 0) !== $eventId)) {
             return $this->notice('error', __('Field not found.', 'civic-engagement'));
         }
 
-        $values = $this->sanitizeRequestValues($threadId);
+        $values = $this->sanitizeRequestValues($eventId, 0 === $fieldId);
         $this->submittedValues = $values;
         $errors = $this->validateValues($values, $fieldId);
 
@@ -153,7 +153,7 @@ class ThreadFieldEditPage
             $updated = $this->fields->update($fieldId, $this->fieldData($values, false));
 
             if ($updated) {
-                $this->redirectToFields($threadId, 'updated');
+                $this->redirectToFields($eventId, 'updated');
             }
 
             return $this->notice('error', __('Field could not be updated.', 'civic-engagement'));
@@ -162,7 +162,7 @@ class ThreadFieldEditPage
         $created = $this->fields->create($this->fieldData($values, true));
 
         if ($created > 0) {
-            $this->redirectToFields($threadId, 'created');
+            $this->redirectToFields($eventId, 'created');
         }
 
         return $this->notice('error', __('Field could not be created.', 'civic-engagement'));
@@ -172,22 +172,22 @@ class ThreadFieldEditPage
      * Render the create/edit form.
      *
      * @param array<string, mixed> $values Form values.
-     * @param array<string, mixed> $thread Thread row.
+     * @param array<string, mixed> $event Event row.
      * @return void
      */
-    private function renderForm(array $values, array $thread): void
+    private function renderForm(array $values, array $event): void
     {
         echo '<form method="post">';
         echo '<table class="form-table" role="presentation"><tbody>';
-        $this->renderReadonlyRow(__('Consultation', 'civic-engagement'), (string) ($thread['title'] ?? ''));
+        $this->renderReadonlyRow(__('Event', 'civic-engagement'), (string) ($event['title'] ?? ''));
         $this->renderTextInput('field_label', __('Field Label', 'civic-engagement'), (string) $values['field_label'], true);
-        $this->renderTextInput('field_key', __('Field Key', 'civic-engagement'), (string) $values['field_key'], true);
+        $this->renderTextInput('field_key', __('Field Key', 'civic-engagement'), (string) $values['field_key'], false);
         $this->renderTypeSelect((string) $values['field_type']);
         $this->renderRequiredCheckbox(!empty($values['is_required']));
         $this->renderNumberInput('sort_order', __('Sort Order', 'civic-engagement'), (string) $values['sort_order']);
         $this->renderOptionsTextarea((string) $values['field_options']);
         echo '</tbody></table>';
-        echo '<input type="hidden" name="civic_thread_field[thread_id]" value="' . esc_attr((string) $values['thread_id']) . '">';
+        echo '<input type="hidden" name="civic_event_field[event_id]" value="' . esc_attr((string) $values['event_id']) . '">';
         wp_nonce_field(self::NONCE_ACTION, self::NONCE_FIELD);
         submit_button(__('Save Field', 'civic-engagement'));
         echo '</form>';
@@ -220,8 +220,14 @@ class ThreadFieldEditPage
     private function renderTextInput(string $name, string $label, string $value, bool $required): void
     {
         echo '<tr>';
-        echo '<th scope="row"><label for="civic-thread-field-' . esc_attr($name) . '">' . esc_html($label) . '</label></th>';
-        echo '<td><input class="regular-text" type="text" id="civic-thread-field-' . esc_attr($name) . '" name="civic_thread_field[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '></td>';
+        echo '<th scope="row"><label for="civic-event-field-' . esc_attr($name) . '">' . esc_html($label) . '</label></th>';
+        echo '<td><input class="regular-text" type="text" id="civic-event-field-' . esc_attr($name) . '" name="civic_event_field[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
+
+        if ('field_key' === $name) {
+            echo '<p class="description">' . esc_html__('Leave blank on new fields to generate from the field label.', 'civic-engagement') . '</p>';
+        }
+
+        echo '</td>';
         echo '</tr>';
     }
 
@@ -234,8 +240,8 @@ class ThreadFieldEditPage
     private function renderTypeSelect(string $value): void
     {
         echo '<tr>';
-        echo '<th scope="row"><label for="civic-thread-field-field-type">' . esc_html__('Field Type', 'civic-engagement') . '</label></th>';
-        echo '<td><select id="civic-thread-field-field-type" name="civic_thread_field[field_type]">';
+        echo '<th scope="row"><label for="civic-event-field-field-type">' . esc_html__('Field Type', 'civic-engagement') . '</label></th>';
+        echo '<td><select id="civic-event-field-field-type" name="civic_event_field[field_type]">';
 
         foreach ($this->fieldTypes as $fieldType) {
             echo '<option value="' . esc_attr($fieldType) . '"' . selected($value, $fieldType, false) . '>' . esc_html($fieldType) . '</option>';
@@ -255,7 +261,7 @@ class ThreadFieldEditPage
     {
         echo '<tr>';
         echo '<th scope="row">' . esc_html__('Required', 'civic-engagement') . '</th>';
-        echo '<td><label><input type="checkbox" name="civic_thread_field[is_required]" value="1"' . checked($checked, true, false) . '> ' . esc_html__('Require a response for this field', 'civic-engagement') . '</label></td>';
+        echo '<td><label><input type="checkbox" name="civic_event_field[is_required]" value="1"' . checked($checked, true, false) . '> ' . esc_html__('Require a response for this field', 'civic-engagement') . '</label></td>';
         echo '</tr>';
     }
 
@@ -270,13 +276,13 @@ class ThreadFieldEditPage
     private function renderNumberInput(string $name, string $label, string $value): void
     {
         echo '<tr>';
-        echo '<th scope="row"><label for="civic-thread-field-' . esc_attr($name) . '">' . esc_html($label) . '</label></th>';
-        echo '<td><input class="small-text" type="number" id="civic-thread-field-' . esc_attr($name) . '" name="civic_thread_field[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"></td>';
+        echo '<th scope="row"><label for="civic-event-field-' . esc_attr($name) . '">' . esc_html($label) . '</label></th>';
+        echo '<td><input class="small-text" type="number" id="civic-event-field-' . esc_attr($name) . '" name="civic_event_field[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"></td>';
         echo '</tr>';
     }
 
     /**
-     * Render select options textarea.
+     * Render dropdown options textarea.
      *
      * @param string $value Newline-separated options.
      * @return void
@@ -284,26 +290,33 @@ class ThreadFieldEditPage
     private function renderOptionsTextarea(string $value): void
     {
         echo '<tr>';
-        echo '<th scope="row"><label for="civic-thread-field-options">' . esc_html__('Select Options', 'civic-engagement') . '</label></th>';
-        echo '<td><textarea class="large-text" id="civic-thread-field-options" name="civic_thread_field[field_options]" rows="6">' . esc_textarea($value) . '</textarea>';
-        echo '<p class="description">' . esc_html__('For select fields, enter one option per line.', 'civic-engagement') . '</p></td>';
+        echo '<th scope="row"><label for="civic-event-field-options">' . esc_html__('Dropdown Options', 'civic-engagement') . '</label></th>';
+        echo '<td><textarea class="large-text" id="civic-event-field-options" name="civic_event_field[field_options]" rows="6">' . esc_textarea($value) . '</textarea>';
+        echo '<p class="description">' . esc_html__('For dropdown fields, enter one option per line.', 'civic-engagement') . '</p></td>';
         echo '</tr>';
     }
 
     /**
      * Sanitize submitted values.
      *
-     * @param int $threadId Thread ID.
+     * @param int $eventId Event ID.
+     * @param bool $isCreate Whether this is a create request.
      * @return array<string, mixed>
      */
-    private function sanitizeRequestValues(int $threadId): array
+    private function sanitizeRequestValues(int $eventId, bool $isCreate): array
     {
         $data = $this->requestData();
+        $fieldLabel = sanitize_text_field($this->requestValue($data, 'field_label'));
+        $fieldKey = sanitize_key($this->requestValue($data, 'field_key'));
+
+        if ($isCreate && '' === $fieldKey) {
+            $fieldKey = sanitize_key($fieldLabel);
+        }
 
         return [
-            'thread_id' => $threadId,
-            'field_label' => sanitize_text_field($this->requestValue($data, 'field_label')),
-            'field_key' => sanitize_key($this->requestValue($data, 'field_key')),
+            'event_id' => $eventId,
+            'field_label' => $fieldLabel,
+            'field_key' => $fieldKey,
             'field_type' => sanitize_key($this->requestValue($data, 'field_type')),
             'is_required' => !empty($data['is_required']) ? 1 : 0,
             'sort_order' => isset($data['sort_order']) ? (int) $this->requestValue($data, 'sort_order') : 0,
@@ -332,9 +345,9 @@ class ThreadFieldEditPage
 
         if (
             '' !== $values['field_key']
-            && $this->fields->fieldKeyExists((int) $values['thread_id'], (string) $values['field_key'], $fieldId)
+            && $this->fields->fieldKeyExists((int) $values['event_id'], (string) $values['field_key'], $fieldId)
         ) {
-            $errors[] = __('Field key already exists for this consultation.', 'civic-engagement');
+            $errors[] = __('Field key already exists for this event.', 'civic-engagement');
         }
 
         if (!in_array((string) $values['field_type'], $this->fieldTypes, true)) {
@@ -348,10 +361,10 @@ class ThreadFieldEditPage
      * Build repository data.
      *
      * @param array<string, mixed> $values Sanitized form values.
-     * @param bool $includeThread Whether to include thread_id for create.
+     * @param bool $includeEvent Whether to include event_id for create.
      * @return array<string, mixed>
      */
-    private function fieldData(array $values, bool $includeThread): array
+    private function fieldData(array $values, bool $includeEvent): array
     {
         $data = [
             'field_label' => $values['field_label'],
@@ -362,8 +375,8 @@ class ThreadFieldEditPage
             'is_required' => (int) $values['is_required'],
         ];
 
-        if ($includeThread) {
-            $data['thread_id'] = (int) $values['thread_id'];
+        if ($includeEvent) {
+            $data['event_id'] = (int) $values['event_id'];
         }
 
         return $data;
@@ -373,17 +386,17 @@ class ThreadFieldEditPage
      * Build default/current form values.
      *
      * @param array<string, mixed>|null $field Field row.
-     * @param int $threadId Thread ID.
+     * @param int $eventId Event ID.
      * @return array<string, mixed>
      */
-    private function formValues(?array $field, int $threadId): array
+    private function formValues(?array $field, int $eventId): array
     {
         if (is_array($this->submittedValues)) {
             return $this->submittedValues;
         }
 
         return [
-            'thread_id' => $threadId,
+            'event_id' => $eventId,
             'field_label' => is_array($field) ? (string) ($field['field_label'] ?? '') : '',
             'field_key' => is_array($field) ? (string) ($field['field_key'] ?? '') : '',
             'field_type' => is_array($field) ? (string) ($field['field_type'] ?? 'text') : 'text',
@@ -449,11 +462,11 @@ class ThreadFieldEditPage
      */
     private function requestData(): array
     {
-        if (!isset($_POST['civic_thread_field'])) {
+        if (!isset($_POST['civic_event_field'])) {
             return [];
         }
 
-        $data = wp_unslash($_POST['civic_thread_field']);
+        $data = wp_unslash($_POST['civic_event_field']);
 
         return is_array($data) ? $data : [];
     }
@@ -483,7 +496,7 @@ class ThreadFieldEditPage
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper((string) $_SERVER['REQUEST_METHOD']) : '';
 
-        return 'POST' === $method && isset($_POST['civic_thread_field']);
+        return 'POST' === $method && isset($_POST['civic_event_field']);
     }
 
     /**
@@ -552,15 +565,15 @@ class ThreadFieldEditPage
     /**
      * Build the fields listing URL.
      *
-     * @param int $threadId Thread ID.
+     * @param int $eventId Event ID.
      * @return string Fields URL.
      */
-    private function fieldsUrl(int $threadId): string
+    private function fieldsUrl(int $eventId): string
     {
         return add_query_arg(
             [
-                'page' => 'civic-thread-fields',
-                'thread_id' => $threadId,
+                'page' => 'civic-event-fields',
+                'event_id' => $eventId,
             ],
             admin_url('admin.php')
         );
@@ -569,15 +582,15 @@ class ThreadFieldEditPage
     /**
      * Redirect to the field listing page after successful save.
      *
-     * @param int $threadId Thread ID.
+     * @param int $eventId Event ID.
      * @param string $status Status query flag.
      * @return void
      */
-    private function redirectToFields(int $threadId, string $status): void
+    private function redirectToFields(int $eventId, string $status): void
     {
         $args = [
-            'page' => 'civic-thread-fields',
-            'thread_id' => $threadId,
+            'page' => 'civic-event-fields',
+            'event_id' => $eventId,
         ];
 
         if ('created' === $status) {
@@ -589,7 +602,7 @@ class ThreadFieldEditPage
         }
 
         $url = add_query_arg($args, admin_url('admin.php'));
-        
+
         if (!headers_sent()) {
             wp_safe_redirect($url);
             exit;
@@ -608,30 +621,30 @@ class ThreadFieldEditPage
     private function pageTitle(int $fieldId): string
     {
         return $fieldId > 0
-            ? __('Edit Consultation Field', 'civic-engagement')
-            : __('Add Consultation Field', 'civic-engagement');
+            ? __('Edit Event Field', 'civic-engagement')
+            : __('Add Event Field', 'civic-engagement');
     }
 
     /**
-     * Get sanitized requested thread ID.
+     * Get sanitized requested event ID.
      *
-     * @return int Thread ID.
+     * @return int Event ID.
      */
-    private function threadId(): int
+    private function eventId(): int
     {
-        if (isset($_POST['civic_thread_field']['thread_id'])) {
-            $threadId = wp_unslash($_POST['civic_thread_field']['thread_id']);
-        } elseif (isset($_GET['thread_id'])) {
-            $threadId = wp_unslash($_GET['thread_id']);
+        if (isset($_POST['civic_event_field']['event_id'])) {
+            $eventId = wp_unslash($_POST['civic_event_field']['event_id']);
+        } elseif (isset($_GET['event_id'])) {
+            $eventId = wp_unslash($_GET['event_id']);
         } else {
             return 0;
         }
 
-        if (is_array($threadId) || is_object($threadId)) {
+        if (is_array($eventId) || is_object($eventId)) {
             return 0;
         }
 
-        return absint($threadId);
+        return absint($eventId);
     }
 
     /**

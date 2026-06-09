@@ -179,8 +179,6 @@ Examples:
 
 ---
 
-# Planned / Future Shortcodes
-
 ## Events Module
 
 * `[civic_events]`
@@ -188,6 +186,8 @@ Examples:
 * `[civic_event_registration]`
 
 ---
+
+# Planned / Future Shortcodes
 
 ## Schedule Module
 

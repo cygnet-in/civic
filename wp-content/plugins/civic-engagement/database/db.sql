@@ -1,361 +1,280 @@
--- =========================================================
--- wp_civic_contacts
--- =========================================================
-
-CREATE TABLE `wp_civic_contacts` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(191) NOT NULL,
-    `latest_name` VARCHAR(255) NULL,
-    `latest_phone` VARCHAR(50) NULL,
-    `latest_whatsapp` VARCHAR(50) NULL,
-    `latest_address` TEXT NULL,
-    `latest_eircode` VARCHAR(50) NULL,
-    `latest_electoral_area` VARCHAR(255) NULL,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uniq_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- =========================================================
--- wp_civic_activities
--- =========================================================
 
 CREATE TABLE `wp_civic_activities` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `contact_id` BIGINT UNSIGNED NOT NULL,
-
-    `activity_type` ENUM(
-        'rep',
-        'thread_response',
-        'event_registration',
-        'schedule',
-        'manual'
-    ) NOT NULL,
-
-    `related_id` BIGINT UNSIGNED NULL,
-    `summary` VARCHAR(500) NULL,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_contact_id` (`contact_id`),
-    KEY `idx_activity_type` (`activity_type`),
-    KEY `idx_contact_created` (`contact_id`, `created_at`),
-    KEY `idx_type_created` (`activity_type`, `created_at`),
-
-    CONSTRAINT `fk_activity_contact`
-        FOREIGN KEY (`contact_id`)
-        REFERENCES `wp_civic_contacts` (`id`)
-        ON DELETE RESTRICT
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `contact_id` bigint(20) UNSIGNED NOT NULL,
+  `activity_type` enum('rep','thread_response','event_registration','schedule','manual') NOT NULL,
+  `related_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `summary` varchar(500) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-
--- =========================================================
--- wp_civic_reps
--- =========================================================
-
-CREATE TABLE `wp_civic_reps` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `contact_id` BIGINT UNSIGNED NOT NULL,
-
-    `name_snapshot` VARCHAR(255) NOT NULL,
-    `email_snapshot` VARCHAR(191) NOT NULL,
-    `phone_snapshot` VARCHAR(50) NULL,
-    `whatsapp_snapshot` VARCHAR(50) NULL,
-    `address_snapshot` TEXT NULL,
-    `eircode_snapshot` VARCHAR(50) NULL,
-    `electoral_area_snapshot` VARCHAR(255) NULL,
-
-    `title` VARCHAR(255) NOT NULL,
-    `details` LONGTEXT NULL,
-
-    `map_lat` DECIMAL(10,7) NULL,
-    `map_lng` DECIMAL(10,7) NULL,
-
-    `status` VARCHAR(50) NOT NULL DEFAULT 'submitted',
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_contact_id` (`contact_id`),
-    KEY `idx_status_created` (`status`, `created_at`),
-
-    CONSTRAINT `fk_reps_contact`
-        FOREIGN KEY (`contact_id`)
-        REFERENCES `wp_civic_contacts` (`id`)
-        ON DELETE RESTRICT
+CREATE TABLE `wp_civic_contacts` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `latest_name` varchar(255) DEFAULT NULL,
+  `latest_phone` varchar(50) DEFAULT NULL,
+  `latest_whatsapp` varchar(50) DEFAULT NULL,
+  `latest_address` text DEFAULT NULL,
+  `latest_eircode` varchar(50) DEFAULT NULL,
+  `latest_electoral_area` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
--- =========================================================
--- wp_civic_threads
--- =========================================================
-
-CREATE TABLE `wp_civic_threads` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `title` VARCHAR(255) NOT NULL,
-    `slug` VARCHAR(255) NOT NULL,
-    `summary` VARCHAR(500) NULL,
-    `description` LONGTEXT NULL,
-    `response_enabled` TINYINT(1) NOT NULL DEFAULT 1,
-
-    `is_public` TINYINT(1) NOT NULL DEFAULT 0,
-
-    `created_by` BIGINT UNSIGNED NULL,
-
-    `start_date` DATETIME NULL,
-    `end_date` DATETIME NULL,
-
-    `status` VARCHAR(50) NOT NULL DEFAULT 'active',
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_status_dates` (`status`, `start_date`, `end_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- =========================================================
--- wp_civic_thread_fields
--- =========================================================
-
-CREATE TABLE `wp_civic_thread_fields` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `thread_id` BIGINT UNSIGNED NOT NULL,
-
-    `field_label` VARCHAR(255) NOT NULL,
-
-    `field_type` ENUM(
-        'text',
-        'textarea',
-        'dropdown',
-        'radio',
-        'checkbox'
-    ) NOT NULL,
-
-    `field_options` JSON NULL,
-
-    `sort_order` INT NOT NULL DEFAULT 0,
-
-    `is_required` TINYINT(1) NOT NULL DEFAULT 0,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_thread_id` (`thread_id`),
-    KEY `idx_sort_order` (`sort_order`),
-
-    CONSTRAINT `fk_thread_fields_thread`
-        FOREIGN KEY (`thread_id`)
-        REFERENCES `wp_civic_threads` (`id`)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- =========================================================
--- wp_civic_thread_responses
--- =========================================================
-
-CREATE TABLE `wp_civic_thread_responses` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `thread_id` BIGINT UNSIGNED NOT NULL,
-    `contact_id` BIGINT UNSIGNED NOT NULL,
-
-    `name_snapshot` VARCHAR(255) NOT NULL,
-    `email_snapshot` VARCHAR(191) NOT NULL,
-    `phone_snapshot` VARCHAR(50) NULL,
-    `address_snapshot` TEXT NULL,
-    `eircode_snapshot` VARCHAR(50) NULL,
-    `electoral_area_snapshot` VARCHAR(255) NULL,
-
-    `response_data` JSON NOT NULL,
-
-    `is_public` TINYINT(1) NOT NULL DEFAULT 0,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_contact_id` (`contact_id`),
-    KEY `idx_thread_id` (`thread_id`),
-
-    CONSTRAINT `fk_thread_response_contact`
-        FOREIGN KEY (`contact_id`)
-        REFERENCES `wp_civic_contacts` (`id`)
-        ON DELETE RESTRICT,
-
-    CONSTRAINT `fk_thread_response_thread`
-        FOREIGN KEY (`thread_id`)
-        REFERENCES `wp_civic_threads` (`id`)
-        ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- =========================================================
--- wp_civic_events
--- =========================================================
+CREATE TABLE `wp_civic_electoral_areas` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `is_active` tinyint(3) UNSIGNED NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `wp_civic_events` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `title` VARCHAR(255) NOT NULL,
-    `slug` VARCHAR(255) NOT NULL,
-    `description` LONGTEXT NULL,
-
-    `location` VARCHAR(500) NULL,
-
-    `start_date` DATETIME NULL,
-    `end_date` DATETIME NULL,
-
-    `is_public` TINYINT(1) NOT NULL DEFAULT 0,
-
-    `status` VARCHAR(50) NOT NULL DEFAULT 'active',
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_event_status` (`status`)
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `summary` varchar(500) NOT NULL,
+  `description` longtext DEFAULT NULL,
+  `location` varchar(500) DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `registration_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `status` varchar(50) NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- =========================================================
--- wp_civic_event_fields
--- =========================================================
 
 CREATE TABLE `wp_civic_event_fields` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `event_id` BIGINT UNSIGNED NOT NULL,
-
-    `field_label` VARCHAR(255) NOT NULL,
-
-    `field_type` ENUM(
-        'text',
-        'textarea',
-        'dropdown',
-        'radio',
-        'checkbox'
-    ) NOT NULL,
-
-    `field_options` JSON NULL,
-
-    `sort_order` INT NOT NULL DEFAULT 0,
-
-    `is_required` TINYINT(1) NOT NULL DEFAULT 0,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_event_id` (`event_id`),
-
-    CONSTRAINT `fk_event_fields_event`
-        FOREIGN KEY (`event_id`)
-        REFERENCES `wp_civic_events` (`id`)
-        ON DELETE CASCADE
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `event_id` bigint(20) UNSIGNED NOT NULL,
+  `field_label` varchar(255) NOT NULL,
+  `field_key` varchar(255) NOT NULL,
+  `field_type` enum('text','textarea','dropdown') NOT NULL,
+  `field_options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`field_options`)),
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `is_required` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
--- =========================================================
--- wp_civic_event_registrations
--- =========================================================
 
 CREATE TABLE `wp_civic_event_registrations` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `event_id` BIGINT UNSIGNED NOT NULL,
-    `contact_id` BIGINT UNSIGNED NOT NULL,
-
-    `name_snapshot` VARCHAR(255) NOT NULL,
-    `email_snapshot` VARCHAR(191) NOT NULL,
-    `phone_snapshot` VARCHAR(50) NULL,
-    `address_snapshot` TEXT NULL,
-    `eircode_snapshot` VARCHAR(50) NULL,
-    `electoral_area_snapshot` VARCHAR(255) NULL,
-
-    `registration_data` JSON NOT NULL,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_contact_id` (`contact_id`),
-    KEY `idx_event_id` (`event_id`),
-
-    CONSTRAINT `fk_event_registration_contact`
-        FOREIGN KEY (`contact_id`)
-        REFERENCES `wp_civic_contacts` (`id`)
-        ON DELETE RESTRICT,
-
-    CONSTRAINT `fk_event_registration_event`
-        FOREIGN KEY (`event_id`)
-        REFERENCES `wp_civic_events` (`id`)
-        ON DELETE RESTRICT
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `event_id` bigint(20) UNSIGNED NOT NULL,
+  `contact_id` bigint(20) UNSIGNED NOT NULL,
+  `name_snapshot` varchar(255) NOT NULL,
+  `email_snapshot` varchar(191) NOT NULL,
+  `phone_snapshot` varchar(50) DEFAULT NULL,
+  `address_snapshot` text DEFAULT NULL,
+  `eircode_snapshot` varchar(50) DEFAULT NULL,
+  `electoral_area_id` int(11) NULL,
+  `electoral_area_snapshot` varchar(255) DEFAULT NULL,
+  `registration_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`registration_data`)),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
--- =========================================================
--- wp_civic_schedules
--- =========================================================
+CREATE TABLE `wp_civic_reps` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `contact_id` bigint(20) UNSIGNED NOT NULL,
+  `name_snapshot` varchar(255) NOT NULL,
+  `email_snapshot` varchar(191) NOT NULL,
+  `phone_snapshot` varchar(50) DEFAULT NULL,
+  `whatsapp_snapshot` varchar(50) DEFAULT NULL,
+  `address_snapshot` text DEFAULT NULL,
+  `eircode_snapshot` varchar(50) DEFAULT NULL,
+  `electoral_area_id` int(11) NULL,
+  `electoral_area_snapshot` varchar(255) DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `details` longtext DEFAULT NULL,
+  `map_lat` decimal(10,7) DEFAULT NULL,
+  `map_lng` decimal(10,7) DEFAULT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'submitted',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `wp_civic_schedules` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `type` VARCHAR(100) NOT NULL,
-
-    `title` VARCHAR(255) NOT NULL,
-    `details` LONGTEXT NULL,
-
-    `reported_by` VARCHAR(255) NULL,
-
-    `status` VARCHAR(50) NOT NULL DEFAULT 'pending',
-
-    `review_date` DATETIME NULL,
-
-    `internal_comment` LONGTEXT NULL,
-    `response` LONGTEXT NULL,
-
-    `is_public` TINYINT(1) NOT NULL DEFAULT 0,
-
-    `start_date` DATETIME NULL,
-    `end_date` DATETIME NULL,
-
-    `source_type` VARCHAR(50) NULL,
-    `source_id` BIGINT UNSIGNED NULL,
-
-    `created_by` BIGINT UNSIGNED NULL,
-
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (`id`),
-
-    KEY `idx_start_date` (`start_date`),
-    KEY `idx_is_public` (`is_public`),
-    KEY `idx_public_start` (`is_public`, `start_date`),
-    KEY `idx_status_review` (`status`, `review_date`)
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `type` varchar(100) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `details` longtext DEFAULT NULL,
+  `reported_by` varchar(255) DEFAULT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'pending',
+  `review_date` datetime DEFAULT NULL,
+  `internal_comment` longtext DEFAULT NULL,
+  `response` longtext DEFAULT NULL,
+  `is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `source_type` varchar(50) DEFAULT NULL,
+  `source_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `wp_civic_threads` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `summary` varchar(500) NOT NULL,
+  `description` longtext DEFAULT NULL,
+  `response_enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `wp_civic_thread_fields` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `thread_id` bigint(20) UNSIGNED NOT NULL,
+  `field_label` varchar(255) NOT NULL,
+  `field_key` varchar(255) NOT NULL,
+  `field_type` enum('text','textarea','dropdown','radio','checkbox') NOT NULL,
+  `field_options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`field_options`)),
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `is_required` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `wp_civic_thread_responses` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `thread_id` bigint(20) UNSIGNED NOT NULL,
+  `contact_id` bigint(20) UNSIGNED NOT NULL,
+  `name_snapshot` varchar(255) NOT NULL,
+  `email_snapshot` varchar(191) NOT NULL,
+  `phone_snapshot` varchar(50) DEFAULT NULL,
+  `address_snapshot` text DEFAULT NULL,
+  `eircode_snapshot` varchar(50) DEFAULT NULL,
+  `electoral_area_id` int(11) NULL,
+  `electoral_area_snapshot` varchar(255) DEFAULT NULL,
+  `response_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`response_data`)),
+  `is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `wp_civic_activities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_contact_id` (`contact_id`),
+  ADD KEY `idx_activity_type` (`activity_type`),
+  ADD KEY `idx_contact_created` (`contact_id`,`created_at`),
+  ADD KEY `idx_type_created` (`activity_type`,`created_at`);
+
+ALTER TABLE `wp_civic_contacts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_email` (`email`);
+
+ALTER TABLE `wp_civic_electoral_areas`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `wp_civic_events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_event_status` (`status`);
+
+ALTER TABLE `wp_civic_event_fields`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_event_id` (`event_id`);
+
+ALTER TABLE `wp_civic_event_registrations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_contact_id` (`contact_id`),
+  ADD KEY `idx_event_id` (`event_id`);
+
+ALTER TABLE `wp_civic_reps`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_contact_id` (`contact_id`),
+  ADD KEY `idx_status_created` (`status`,`created_at`);
+
+ALTER TABLE `wp_civic_schedules`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_start_date` (`start_date`),
+  ADD KEY `idx_is_public` (`is_public`),
+  ADD KEY `idx_public_start` (`is_public`,`start_date`),
+  ADD KEY `idx_status_review` (`status`,`review_date`);
+
+ALTER TABLE `wp_civic_threads`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_status_dates` (`status`,`start_date`,`end_date`);
+
+ALTER TABLE `wp_civic_thread_fields`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_thread_id` (`thread_id`),
+  ADD KEY `idx_sort_order` (`sort_order`);
+
+ALTER TABLE `wp_civic_thread_responses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_contact_id` (`contact_id`),
+  ADD KEY `idx_thread_id` (`thread_id`);
+
+
+ALTER TABLE `wp_civic_activities`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+ALTER TABLE `wp_civic_contacts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+ALTER TABLE `wp_civic_electoral_areas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+ALTER TABLE `wp_civic_events`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+ALTER TABLE `wp_civic_event_fields`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `wp_civic_event_registrations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+ALTER TABLE `wp_civic_reps`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+ALTER TABLE `wp_civic_schedules`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `wp_civic_threads`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
+ALTER TABLE `wp_civic_thread_fields`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+ALTER TABLE `wp_civic_thread_responses`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+
+ALTER TABLE `wp_civic_activities`
+  ADD CONSTRAINT `fk_activity_contact` FOREIGN KEY (`contact_id`) REFERENCES `wp_civic_contacts` (`id`);
+
+ALTER TABLE `wp_civic_event_fields`
+  ADD CONSTRAINT `fk_event_fields_event` FOREIGN KEY (`event_id`) REFERENCES `wp_civic_events` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `wp_civic_event_registrations`
+  ADD CONSTRAINT `fk_event_registration_contact` FOREIGN KEY (`contact_id`) REFERENCES `wp_civic_contacts` (`id`),
+  ADD CONSTRAINT `fk_event_registration_event` FOREIGN KEY (`event_id`) REFERENCES `wp_civic_events` (`id`);
+
+ALTER TABLE `wp_civic_reps`
+  ADD CONSTRAINT `fk_reps_contact` FOREIGN KEY (`contact_id`) REFERENCES `wp_civic_contacts` (`id`);
+
+ALTER TABLE `wp_civic_thread_fields`
+  ADD CONSTRAINT `fk_thread_fields_thread` FOREIGN KEY (`thread_id`) REFERENCES `wp_civic_threads` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `wp_civic_thread_responses`
+  ADD CONSTRAINT `fk_thread_response_contact` FOREIGN KEY (`contact_id`) REFERENCES `wp_civic_contacts` (`id`),
+  ADD CONSTRAINT `fk_thread_response_thread` FOREIGN KEY (`thread_id`) REFERENCES `wp_civic_threads` (`id`);
+
+ALTER TABLE wp_civic_threads
+ADD UNIQUE KEY uniq_thread_slug (slug);
+
+ALTER TABLE wp_civic_events
+ADD UNIQUE KEY uniq_event_slug (slug);
+
+ALTER TABLE wp_civic_event_fields
+ADD UNIQUE KEY uniq_event_field (event_id, field_key);
+
+ALTER TABLE wp_civic_thread_fields 
+ADD UNIQUE KEY uniq_event_field (thread_id, field_key);
+
+ALTER TABLE wp_civic_electoral_areas
+ADD UNIQUE KEY uniq_electoral_slug (slug);

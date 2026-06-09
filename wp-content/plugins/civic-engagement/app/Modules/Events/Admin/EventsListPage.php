@@ -188,7 +188,7 @@ class EventsListPage
         echo '<td>' . esc_html(!empty($item['registration_enabled']) ? __('Enabled', 'civic-engagement') : __('Disabled', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['start_date'] ?? null)) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['end_date'] ?? null)) . '</td>';
-        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->registrationsUrl($id)) . '">' . esc_html__('Registrations', 'civic-engagement') . '</a></td>';
+        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->fieldsUrl($id)) . '">' . esc_html__('Fields', 'civic-engagement') . '</a> | <a href="' . esc_url($this->registrationsUrl($id)) . '">' . esc_html__('Registrations', 'civic-engagement') . '</a></td>';
         echo '</tr>';
     }
 
@@ -286,6 +286,23 @@ class EventsListPage
         return add_query_arg(
             [
                 'page' => 'civic-event-registrations',
+                'event_id' => $id,
+            ],
+            admin_url('admin.php')
+        );
+    }
+
+    /**
+     * Build contextual fields URL for an event.
+     *
+     * @param int $id Event ID.
+     * @return string Fields URL.
+     */
+    private function fieldsUrl(int $id): string
+    {
+        return add_query_arg(
+            [
+                'page' => 'civic-event-fields',
                 'event_id' => $id,
             ],
             admin_url('admin.php')

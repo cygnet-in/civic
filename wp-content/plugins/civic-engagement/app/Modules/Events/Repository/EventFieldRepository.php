@@ -23,8 +23,6 @@ class EventFieldRepository extends BaseRepository
         'text',
         'textarea',
         'dropdown',
-        'radio',
-        'checkbox',
     ];
 
     /**
@@ -35,6 +33,7 @@ class EventFieldRepository extends BaseRepository
     private array $insertFormats = [
         'event_id' => '%d',
         'field_label' => '%s',
+        'field_key' => '%s',
         'field_type' => '%s',
         'field_options' => '%s',
         'sort_order' => '%d',
@@ -49,6 +48,7 @@ class EventFieldRepository extends BaseRepository
      */
     private array $updateFormats = [
         'field_label' => '%s',
+        'field_key' => '%s',
         'field_type' => '%s',
         'field_options' => '%s',
         'sort_order' => '%d',
@@ -76,6 +76,7 @@ class EventFieldRepository extends BaseRepository
         if (
             empty($insertData['event_id'])
             || empty($insertData['field_label'])
+            || empty($insertData['field_key'])
             || empty($insertData['field_type'])
             || !$this->isSupportedFieldType((string) $insertData['field_type'])
         ) {
@@ -108,6 +109,29 @@ class EventFieldRepository extends BaseRepository
     }
 
     /**
+     * Find a dynamic event registration field by ID.
+     *
+     * @param int $id Field ID.
+     * @return array<string, mixed>|null Field row or null when not found.
+     */
+    public function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE id = %d LIMIT 1",
+                [$id]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
      * Get fields for an event ordered by sort order.
      *
      * @param int $eventId Event ID.
@@ -131,6 +155,33 @@ class EventFieldRepository extends BaseRepository
     }
 
     /**
+     * Check whether a field key already exists for an event.
+     *
+     * @param int $eventId Event ID.
+     * @param string $fieldKey Field key.
+     * @param int $excludeId Optional field ID to exclude when editing.
+     * @return bool True when the key exists for the event.
+     */
+    public function fieldKeyExists(int $eventId, string $fieldKey, int $excludeId = 0): bool
+    {
+        $fieldKey = sanitize_key($fieldKey);
+
+        if ($eventId <= 0 || '' === $fieldKey) {
+            return false;
+        }
+
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE event_id = %d AND field_key = %s";
+        $values = [$eventId, $fieldKey];
+
+        if ($excludeId > 0) {
+            $sql .= ' AND id != %d';
+            $values[] = $excludeId;
+        }
+
+        return (int) $this->wpdb->get_var($this->prepare($sql, $values)) > 0;
+    }
+
+    /**
      * Update a dynamic event registration field.
      *
      * @param int $id Field ID.
@@ -146,6 +197,10 @@ class EventFieldRepository extends BaseRepository
         $updateData = $this->filterDataByFormats($data, $this->updateFormats);
 
         if (empty($updateData)) {
+            return false;
+        }
+
+        if (isset($updateData['field_key']) && '' === trim((string) $updateData['field_key'])) {
             return false;
         }
 

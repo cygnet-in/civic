@@ -387,3 +387,4 @@ Stack trace:
   thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\EventsModule.php on line 122
 [09-Jun-2026 04:27:11 UTC] Automatic updates starting...
 [09-Jun-2026 04:27:13 UTC] Automatic updates complete.
+[09-Jun-2026 05:45:11 UTC] WordPress database error Duplicate entry '1-gender' for key 'uniq_event_field' for query INSERT INTO `wp_civic_event_fields` (`field_label`, `field_key`, `field_type`, `field_options`, `sort_order`, `is_required`, `event_id`, `created_at`) VALUES ('Gender2', 'gender', 'text', '[]', 0, 0, 1, '2026-06-09 05:45:11') made by do_action('civic-platform_page_civic-event-field-edit'), WP_Hook->do_action, WP_Hook->apply_filters, CivicPlatform\Modules\Events\Admin\EventsAdmin->renderFieldEditPage, CivicPlatform\Modules\Events\Admin\EventFieldEditPage->render, CivicPlatform\Modules\Events\Admin\EventFieldEditPage->processSubmission, CivicPlatform\Modules\Events\Repository\EventFieldRepository->create

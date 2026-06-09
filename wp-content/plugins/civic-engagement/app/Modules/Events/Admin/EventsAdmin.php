@@ -33,6 +33,16 @@ class EventsAdmin
     private const EDIT_SLUG = 'civic-event-edit';
 
     /**
+     * Event fields list page slug.
+     */
+    private const FIELDS_SLUG = 'civic-event-fields';
+
+    /**
+     * Event field edit page slug.
+     */
+    private const FIELD_EDIT_SLUG = 'civic-event-field-edit';
+
+    /**
      * Event registrations list page slug.
      */
     private const REGISTRATIONS_SLUG = 'civic-event-registrations';
@@ -57,6 +67,20 @@ class EventsAdmin
     private EventEditPage $editPage;
 
     /**
+     * Event fields list page.
+     *
+     * @var EventFieldsListPage
+     */
+    private EventFieldsListPage $fieldsListPage;
+
+    /**
+     * Event field edit page.
+     *
+     * @var EventFieldEditPage
+     */
+    private EventFieldEditPage $fieldEditPage;
+
+    /**
      * Event registrations listing page.
      *
      * @var EventRegistrationsListPage
@@ -73,17 +97,23 @@ class EventsAdmin
     /**
      * @param EventsListPage $listPage Events list page.
      * @param EventEditPage $editPage Event edit page.
+     * @param EventFieldsListPage $fieldsListPage Event fields list page.
+     * @param EventFieldEditPage $fieldEditPage Event field edit page.
      * @param EventRegistrationsListPage $registrationsListPage Event registrations listing page.
      * @param EventRegistrationDetailPage $registrationDetailPage Event registration detail page.
      */
     public function __construct(
         EventsListPage $listPage,
         EventEditPage $editPage,
+        EventFieldsListPage $fieldsListPage,
+        EventFieldEditPage $fieldEditPage,
         EventRegistrationsListPage $registrationsListPage,
         EventRegistrationDetailPage $registrationDetailPage
     ) {
         $this->listPage = $listPage;
         $this->editPage = $editPage;
+        $this->fieldsListPage = $fieldsListPage;
+        $this->fieldEditPage = $fieldEditPage;
         $this->registrationsListPage = $registrationsListPage;
         $this->registrationDetailPage = $registrationDetailPage;
     }
@@ -121,6 +151,24 @@ class EventsAdmin
             self::CAPABILITY,
             self::EDIT_SLUG,
             [$this, 'renderEditPage']
+        );
+
+        add_submenu_page(
+            self::PARENT_SLUG,
+            __('Event Fields', 'civic-engagement'),
+            __('Event Fields', 'civic-engagement'),
+            self::CAPABILITY,
+            self::FIELDS_SLUG,
+            [$this, 'renderFieldsPage']
+        );
+
+        add_submenu_page(
+            self::PARENT_SLUG,
+            __('Edit Event Field', 'civic-engagement'),
+            __('Edit Event Field', 'civic-engagement'),
+            self::CAPABILITY,
+            self::FIELD_EDIT_SLUG,
+            [$this, 'renderFieldEditPage']
         );
 
         add_submenu_page(
@@ -168,6 +216,34 @@ class EventsAdmin
         }
 
         $this->editPage->render();
+    }
+
+    /**
+     * Render the event fields listing page.
+     *
+     * @return void
+     */
+    public function renderFieldsPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->fieldsListPage->render();
+    }
+
+    /**
+     * Render the event field create/edit page.
+     *
+     * @return void
+     */
+    public function renderFieldEditPage(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'civic-engagement'));
+        }
+
+        $this->fieldEditPage->render();
     }
 
     /**

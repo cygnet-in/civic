@@ -166,7 +166,8 @@ class EventsModule
     {
         return new EventRegistrationForm(
             $this->createRegistrationService(),
-            new ElectoralAreaRepository($this->wpdb)
+            new ElectoralAreaRepository($this->wpdb),
+            new EventFieldRepository($this->wpdb)
         );
     }
 

@@ -1,41 +1,84 @@
 # Current Development Stage
 
 Current milestone:
-Event module completion.
+Core workflow completion.
 
 Completed:
 
-- Representations
-- Consultations
-- Consultation Responses
-- Consultation Custom Fields
-- Electoral Areas
-- Event Administration
-- Public Event Listing
-- Public Event Detail
-- Event Registration Submission
-- Event Registration Administration
+* Representations
+* Consultations
+* Consultation Responses
+* Consultation Custom Fields
+* Electoral Areas
+* Event Administration
+* Public Event Listing
+* Public Event Detail
+* Event Registration
+* Event Registration Administration
+* Event Custom Fields
 
 Next milestone:
 
-- Event Custom Fields
+* Prototype testing and workflow review
 
 Deferred:
 
-- slug routing
-- response pagination
-- registration pagination
-- frontend administration
+* slug routing
+* response pagination
+* registration pagination
+* frontend administration
+* export functionality
 
 ---
 
-# Activities
+# Project
 
-## Status
+**Civic Engagement Platform (WordPress Plugin)**
 
-Operational
+---
 
-## Purpose
+# Development Philosophy
+
+The project prioritizes:
+
+1. Complete business workflows first.
+2. Technical refinements later.
+3. Repository + Service architecture.
+4. Immutable citizen submissions.
+5. Frontend administration in the future.
+6. Minimal dependency on wp-admin implementation details.
+
+Current wp-admin screens are considered operational implementations used to validate workflows and business rules.
+
+---
+
+# Current Functional Status
+
+## Contacts
+
+Status: Operational
+
+Features:
+
+* Contact repository
+* Contact service
+* Email-based contact matching
+* Contact updates on subsequent submissions
+* Snapshot preservation on submissions
+
+Important Rule:
+
+Contact records may change over time.
+
+Submission records must preserve immutable snapshots.
+
+---
+
+## Activities
+
+Status: Operational
+
+Purpose:
 
 Tracks contact-related activities.
 
@@ -45,7 +88,7 @@ Examples:
 * consultation response
 * event registration
 
-## Important Rule
+Important Rule:
 
 Activities are contact-centric.
 
@@ -53,28 +96,21 @@ Activities are not intended as a generic system logging framework.
 
 ---
 
-# Electoral Areas
+## Electoral Areas
 
-## Status
+Status: Operational
 
-Operational
-
-## Table
+Table:
 
 `wp_civic_electoral_areas`
 
-## Current Approach
+Current Approach:
 
 * manually managed reference data
 * repository access
 * no admin CRUD
 
-## Implemented
-
-* ElectoralAreaRepository
-* active area lookup
-
-## Integrated Into
+Integrated Into:
 
 * representations
 * consultation responses
@@ -82,125 +118,204 @@ Operational
 
 ---
 
-# Event Module
-
-## Status
-
-Operational
-
-## Admin Features
-
-### Event Listing
-
-- search
-- pagination
-- view
-- edit
-- registrations
-
-### Event Create/Edit
-
-Fields:
-
-- title
-- slug
-- summary
-- description
-- location
-- is_public
-- registration_enabled
-- status
-- start_date
-- end_date
-
-### Registration Listing
-
-Supports:
-
-- search
-- pagination
-- event filtering
-- registration count
-- detail view
-
-### Registration Detail
-
-Displays:
-
-- event information
-- registration date
-- submitted contact snapshots
-- custom registration field values
-
-## Public Features
-
-### Event Listing
-
-Shortcode:
-
-[civic_events]
-
-Displays:
-
-- title
-- summary
-- location
-- date
-- registration status
-- read more link
-
-### Event Detail
-
-Shortcode:
-
-[civic_event_detail]
-
-Displays:
-
-- title
-- summary
-- description
-- location
-- date information
-- registration status
-
-### Event Registration
+## Representation Module
 
 Status: Operational
 
-Supported Fields:
+Public Features:
 
-- Name
-- Email
-- Phone
-- Address
-- Eircode
-- Electoral Area
+* representation submission
 
-Features:
+Admin Features:
 
-- no login required
-- contact matching
-- contact updates
-- snapshot preservation
-- nonce validation
+* listing
+* search
+* pagination
+* detail view
 
-Stores:
+Important Rule:
 
-- contact_id
-- name_snapshot
-- email_snapshot
-- phone_snapshot
-- address_snapshot
-- eircode_snapshot
-- electoral_area_snapshot
-- registration_data
+Representation detail pages display immutable contact snapshots.
 
-## Not Yet Implemented
+Future Enhancement:
 
-- Event Custom Fields
-- Registration custom field rendering
-- Registration export
-- Attendance tracking
-- Registration limits
-- Slug routing
+* display current contact record alongside snapshot
+
+---
+
+## Consultation Module
+
+Status: Operational
+
+Admin Features:
+
+* consultation CRUD
+* consultation fields
+* consultation responses
+* response moderation
+
+Public Features:
+
+* consultation listing
+* consultation detail
+* response submission
+* response viewing
+
+Implemented:
+
+* custom fields
+* response moderation
+* public response display
+* response counts
+* anchor navigation
+
+Important Rule:
+
+Citizen responses are immutable.
+
+Moderation controls visibility only.
+
+---
+
+## Consultation Custom Fields
+
+Status: Operational
+
+Supported Types:
+
+* text
+* textarea
+* dropdown
+
+Implemented:
+
+* field management
+* field rendering
+* validation
+* storage
+* admin display
+* public display
+
+Storage:
+
+Stored inside:
+
+`response_data['custom_fields']`
+
+Using stable field keys.
+
+---
+
+## Event Module
+
+Status: Operational
+
+### Event Administration
+
+Implemented:
+
+* event CRUD
+* event visibility control
+* registration control
+* location support
+
+### Public Event Listing
+
+Implemented:
+
+* event listing shortcode
+* event detail shortcode
+* registration status display
+
+### Event Registration
+
+Implemented:
+
+* no-login registration
+* contact matching
+* snapshot preservation
+* electoral area integration
+
+### Event Registration Administration
+
+Implemented:
+
+* registration listing
+* event filtering
+* search
+* pagination
+* registration detail view
+
+### Event Custom Fields
+
+Implemented:
+
+* field management
+* field keys
+* duplicate key validation
+* field rendering
+* validation
+* storage
+* registration detail display
+
+Supported Types:
+
+* text
+* textarea
+* dropdown
+
+Storage:
+
+Stored inside:
+
+`registration_data['custom_fields']`
+
+Using stable field keys.
+
+---
+
+# Deferred Enhancements
+
+## Operational
+
+* response pagination improvements
+* registration pagination improvements
+* export functionality
+* advanced filtering
+
+## UX
+
+* public response styling
+* moderation indicators
+* success message improvements
+* current contact display on detail pages
+
+## Technical
+
+* slug routing
+* rewrite rules
+* permalink integration
+* frontend administration
+* performance optimisation
+
+---
+
+# Current Priority
+
+1. Deliver prototype for client testing.
+2. Gather workflow feedback.
+3. Revisit deferred enhancements.
+4. Implement slug routing.
+5. Begin frontend administration phase.
+
+---
+
+# Important Architectural Rules
+
+* Repository pattern throughout.
+* Service layer for workflows.
+* No direct SQL in admin/frontend screens.
+* Preserve immutable submission snapshots.
+* Use namespaced request fields.
+* Use shared reference data repositories.
+* Prefer workflow completion over technical refinement.

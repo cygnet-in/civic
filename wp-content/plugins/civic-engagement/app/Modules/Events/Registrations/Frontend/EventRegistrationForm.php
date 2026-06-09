@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Events\Registrations\Frontend;
 
+use CivicPlatform\Modules\Events\Repository\EventFieldRepository;
 use CivicPlatform\Modules\Events\Registrations\Services\EventRegistrationService;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 
@@ -45,15 +46,25 @@ class EventRegistrationForm
     private ElectoralAreaRepository $electoralAreas;
 
     /**
+     * Event field repository.
+     *
+     * @var EventFieldRepository
+     */
+    private EventFieldRepository $fields;
+
+    /**
      * @param EventRegistrationService $registrations Event registration workflow service.
      * @param ElectoralAreaRepository $electoralAreas Electoral area repository.
+     * @param EventFieldRepository $fields Event field repository.
      */
     public function __construct(
         EventRegistrationService $registrations,
-        ElectoralAreaRepository $electoralAreas
+        ElectoralAreaRepository $electoralAreas,
+        EventFieldRepository $fields
     ) {
         $this->registrations = $registrations;
         $this->electoralAreas = $electoralAreas;
+        $this->fields = $fields;
     }
 
     /**
@@ -65,7 +76,8 @@ class EventRegistrationForm
     public function render(array $event): string
     {
         $eventId = isset($event['id']) ? (int) $event['id'] : 0;
-        $response = $this->processSubmission($eventId);
+        $fieldDefinitions = $this->fieldDefinitions($eventId);
+        $response = $this->processSubmission($eventId, $fieldDefinitions);
         $values = $response['values'];
         $errors = $response['errors'];
 
@@ -90,6 +102,7 @@ class EventRegistrationForm
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
         $this->renderTextField('eircode', __('Eircode', 'civic-engagement'), (string) $values['eircode'], $errors, false);
         $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
+        $this->renderCustomFields($fieldDefinitions, $values, $errors);
 
         echo '<p>';
         echo '<button type="submit" class="button button-primary">';
@@ -109,7 +122,7 @@ class EventRegistrationForm
      * @param int $eventId Current event ID.
      * @return array<string, mixed> Structured form response.
      */
-    public function processSubmission(int $eventId): array
+    public function processSubmission(int $eventId, array $fieldDefinitions = []): array
     {
         if (!$this->isSubmission($eventId)) {
             return $this->buildResponse(false, false, null, $this->defaultValues($eventId), [], null);
@@ -119,8 +132,8 @@ class EventRegistrationForm
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $this->defaultValues($eventId), [], 'invalid_nonce');
         }
 
-        $values = $this->sanitizeRequestValues($eventId);
-        $errors = $this->validateValues($values);
+        $values = $this->sanitizeRequestValues($eventId, $fieldDefinitions);
+        $errors = $this->validateValues($values, $fieldDefinitions);
 
         if (!empty($errors)) {
             return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
@@ -215,6 +228,113 @@ class EventRegistrationForm
     }
 
     /**
+     * Render event-specific custom registration fields.
+     *
+     * @param array<int, array<string, mixed>> $fields Custom field definitions.
+     * @param array<string, mixed> $values Current form values.
+     * @param array<string, string> $errors Validation errors.
+     * @return void
+     */
+    private function renderCustomFields(array $fields, array $values, array $errors): void
+    {
+        if (empty($fields)) {
+            return;
+        }
+
+        foreach ($fields as $field) {
+            $fieldKey = $this->fieldKey($field);
+
+            if ('' === $fieldKey) {
+                continue;
+            }
+
+            $type = (string) ($field['field_type'] ?? '');
+            $label = (string) ($field['field_label'] ?? $fieldKey);
+            $required = !empty($field['is_required']);
+            $value = isset($values['custom_fields'][$fieldKey])
+                ? (string) $values['custom_fields'][$fieldKey]
+                : '';
+
+            if ('textarea' === $type) {
+                $this->renderCustomTextareaField($fieldKey, $label, $value, $errors, $required);
+                continue;
+            }
+
+            if ('dropdown' === $type) {
+                $this->renderCustomDropdownField($field, $fieldKey, $label, $value, $errors, $required);
+                continue;
+            }
+
+            $this->renderCustomTextField($fieldKey, $label, $value, $errors, $required);
+        }
+    }
+
+    /**
+     * Render a custom text field.
+     *
+     * @param string $fieldKey Field key.
+     * @param string $label Field label.
+     * @param string $value Field value.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderCustomTextField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
+    {
+        echo '<p>';
+        echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
+        echo '<input type="text" id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
+        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
+        echo '</p>';
+    }
+
+    /**
+     * Render a custom textarea field.
+     *
+     * @param string $fieldKey Field key.
+     * @param string $label Field label.
+     * @param string $value Field value.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderCustomTextareaField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
+    {
+        echo '<p>';
+        echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
+        echo '<textarea id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
+        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
+        echo '</p>';
+    }
+
+    /**
+     * Render a custom dropdown field.
+     *
+     * @param array<string, mixed> $field Field definition.
+     * @param string $fieldKey Field key.
+     * @param string $label Field label.
+     * @param string $value Selected value.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderCustomDropdownField(array $field, string $fieldKey, string $label, string $value, array $errors, bool $required): void
+    {
+        echo '<p>';
+        echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
+        echo '<select id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']"' . ($required ? ' required' : '') . '>';
+        echo '<option value="">' . esc_html__('Select an option', 'civic-engagement') . '</option>';
+
+        foreach ($this->fieldOptions($field) as $option) {
+            echo '<option value="' . esc_attr($option) . '"' . selected($value, $option, false) . '>' . esc_html($option) . '</option>';
+        }
+
+        echo '</select>';
+        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
+        echo '</p>';
+    }
+
+    /**
      * Render a field validation error.
      *
      * @param string $name Field name.
@@ -276,12 +396,14 @@ class EventRegistrationForm
      * Sanitize submitted request values.
      *
      * @param int $eventId Current event ID.
+     * @param array<int, array<string, mixed>> $fieldDefinitions Custom field definitions.
      * @return array<string, mixed> Sanitized workflow data.
      */
-    private function sanitizeRequestValues(int $eventId): array
+    private function sanitizeRequestValues(int $eventId, array $fieldDefinitions): array
     {
         $data = $this->requestData();
         $electoralAreaId = absint($this->requestValue($data, 'electoral_area_id'));
+        $customFields = $this->sanitizeCustomFields($data, $fieldDefinitions);
 
         return [
             'event_id' => $eventId,
@@ -292,7 +414,10 @@ class EventRegistrationForm
             'eircode' => sanitize_text_field($this->requestValue($data, 'eircode')),
             'electoral_area_id' => $electoralAreaId,
             'electoral_area' => $this->electoralAreaName($electoralAreaId),
-            'registration_data' => [],
+            'custom_fields' => $customFields,
+            'registration_data' => [
+                'custom_fields' => $customFields,
+            ],
         ];
     }
 
@@ -300,9 +425,10 @@ class EventRegistrationForm
      * Validate sanitized values.
      *
      * @param array<string, mixed> $values Sanitized values.
+     * @param array<int, array<string, mixed>> $fieldDefinitions Custom field definitions.
      * @return array<string, string> Validation errors keyed by field.
      */
-    private function validateValues(array $values): array
+    private function validateValues(array $values, array $fieldDefinitions): array
     {
         $errors = [];
 
@@ -316,7 +442,58 @@ class EventRegistrationForm
             $errors['email'] = 'Please enter a valid email address.';
         }
 
+        foreach ($fieldDefinitions as $field) {
+            $fieldKey = $this->fieldKey($field);
+
+            if ('' === $fieldKey || empty($field['is_required'])) {
+                continue;
+            }
+
+            $value = isset($values['custom_fields'][$fieldKey])
+                ? trim((string) $values['custom_fields'][$fieldKey])
+                : '';
+
+            if ('' === $value) {
+                $errors['custom_fields.' . $fieldKey] = sprintf(
+                    '%s is required.',
+                    (string) ($field['field_label'] ?? $fieldKey)
+                );
+            }
+        }
+
         return $errors;
+    }
+
+    /**
+     * Sanitize custom field values using field definitions.
+     *
+     * @param array<string, mixed> $data Request data.
+     * @param array<int, array<string, mixed>> $fieldDefinitions Custom field definitions.
+     * @return array<string, string>
+     */
+    private function sanitizeCustomFields(array $data, array $fieldDefinitions): array
+    {
+        $submitted = isset($data['custom_fields']) && is_array($data['custom_fields'])
+            ? $data['custom_fields']
+            : [];
+        $customFields = [];
+
+        foreach ($fieldDefinitions as $field) {
+            $fieldKey = $this->fieldKey($field);
+
+            if ('' === $fieldKey) {
+                continue;
+            }
+
+            $rawValue = $submitted[$fieldKey] ?? '';
+            $value = 'textarea' === (string) ($field['field_type'] ?? '')
+                ? sanitize_textarea_field($this->scalarValue($rawValue))
+                : sanitize_text_field($this->scalarValue($rawValue));
+
+            $customFields[$fieldKey] = $value;
+        }
+
+        return $customFields;
     }
 
     /**
@@ -380,6 +557,67 @@ class EventRegistrationForm
     }
 
     /**
+     * Get supported custom fields for an event.
+     *
+     * @param int $eventId Event ID.
+     * @return array<int, array<string, mixed>>
+     */
+    private function fieldDefinitions(int $eventId): array
+    {
+        if ($eventId <= 0) {
+            return [];
+        }
+
+        return array_values(
+            array_filter(
+                $this->fields->findByEventId($eventId),
+                function (array $field): bool {
+                    return in_array((string) ($field['field_type'] ?? ''), ['text', 'textarea', 'dropdown'], true)
+                        && '' !== $this->fieldKey($field);
+                }
+            )
+        );
+    }
+
+    /**
+     * Get a normalized field key.
+     *
+     * @param array<string, mixed> $field Field definition.
+     * @return string Field key.
+     */
+    private function fieldKey(array $field): string
+    {
+        return sanitize_key((string) ($field['field_key'] ?? ''));
+    }
+
+    /**
+     * Decode dropdown field options.
+     *
+     * @param array<string, mixed> $field Field definition.
+     * @return array<int, string>
+     */
+    private function fieldOptions(array $field): array
+    {
+        $options = $field['field_options'] ?? '';
+
+        if (is_array($options)) {
+            return array_values(array_filter(array_map('strval', $options), 'strlen'));
+        }
+
+        if (is_object($options)) {
+            return [];
+        }
+
+        $decoded = json_decode((string) $options, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('strval', $decoded), 'strlen'));
+    }
+
+    /**
      * Resolve an electoral area display name.
      *
      * @param int $id Electoral area ID.
@@ -413,7 +651,10 @@ class EventRegistrationForm
             'eircode' => '',
             'electoral_area_id' => 0,
             'electoral_area' => '',
-            'registration_data' => [],
+            'custom_fields' => [],
+            'registration_data' => [
+                'custom_fields' => [],
+            ],
         ];
     }
 

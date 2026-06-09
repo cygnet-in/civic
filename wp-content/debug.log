@@ -371,3 +371,19 @@ Stack trace:
 #16 E:\htdocs\civic\wp-admin\post.php(187): require('E:\\htdocs\\civic...')
 #17 {main}
   thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\Frontend\EventListShortcode.php on line 153
+[09-Jun-2026 04:25:39 UTC] PHP Fatal error:  Uncaught Error: Class "CivicPlatform\Modules\Events\Registrations\Admin\EventRegistrationDetailPage" not found in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\EventsModule.php:122
+Stack trace:
+#0 E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\EventsModule.php(57): CivicPlatform\Modules\Events\EventsModule->createRegistrationDetailPage()
+#1 E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php(73): CivicPlatform\Modules\Events\EventsModule->register()
+#2 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#3 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#4 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#5 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#6 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#7 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#8 E:\htdocs\civic\wp-admin\admin.php(35): require_once('E:\\htdocs\\civic...')
+#9 E:\htdocs\civic\wp-admin\index.php(10): require_once('E:\\htdocs\\civic...')
+#10 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\app\Modules\Events\EventsModule.php on line 122
+[09-Jun-2026 04:27:11 UTC] Automatic updates starting...
+[09-Jun-2026 04:27:13 UTC] Automatic updates complete.

@@ -8,6 +8,7 @@ use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesAdmin;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesListPage;
+use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
 
@@ -69,7 +70,8 @@ class SchedulesModule
 
         return new ScheduleEditPage(
             $repository,
-            new ScheduleService($repository),
+            new ScheduleService($repository, new ScheduleNoteRepository($this->wpdb)),
+            new ScheduleNoteRepository($this->wpdb),
             new DateHelper()
         );
     }

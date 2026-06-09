@@ -50,11 +50,8 @@ class ScheduleRepository extends BaseRepository
         'type' => '%s',
         'title' => '%s',
         'details' => '%s',
-        'reported_by' => '%s',
         'status' => '%s',
-        'review_date' => '%s',
         'internal_comment' => '%s',
-        'response' => '%s',
         'is_public' => '%d',
         'is_archived' => '%d',
         'start_date' => '%s',
@@ -75,11 +72,8 @@ class ScheduleRepository extends BaseRepository
         'type' => '%s',
         'title' => '%s',
         'details' => '%s',
-        'reported_by' => '%s',
         'status' => '%s',
-        'review_date' => '%s',
         'internal_comment' => '%s',
-        'response' => '%s',
         'is_public' => '%d',
         'is_archived' => '%d',
         'start_date' => '%s',
@@ -315,7 +309,7 @@ class ScheduleRepository extends BaseRepository
      */
     private function normalizeNullableFields(array $data): array
     {
-        foreach (['review_date', 'start_date', 'end_date'] as $field) {
+        foreach (['start_date', 'end_date'] as $field) {
             if (array_key_exists($field, $data) && '' === trim((string) $data[$field])) {
                 $data[$field] = null;
             }
@@ -371,9 +365,7 @@ class ScheduleRepository extends BaseRepository
             'id',
             'type',
             'title',
-            'reported_by',
             'status',
-            'review_date',
             'is_public',
             'is_archived',
             'start_date',
@@ -393,9 +385,7 @@ class ScheduleRepository extends BaseRepository
         return [
             'title',
             'details',
-            'reported_by',
             'internal_comment',
-            'response',
             'source_type',
         ];
     }

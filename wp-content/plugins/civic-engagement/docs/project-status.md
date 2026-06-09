@@ -16,6 +16,7 @@ Completed:
 * Event Registration
 * Event Registration Administration
 * Event Custom Fields
+* Schedule Administration
 
 Next milestone:
 

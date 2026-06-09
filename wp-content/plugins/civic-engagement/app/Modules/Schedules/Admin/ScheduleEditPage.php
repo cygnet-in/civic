@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Schedules\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
 
@@ -63,6 +64,13 @@ class ScheduleEditPage
     private ScheduleService $service;
 
     /**
+     * Schedule note repository.
+     *
+     * @var ScheduleNoteRepository
+     */
+    private ScheduleNoteRepository $notes;
+
+    /**
      * Date helper.
      *
      * @var DateHelper
@@ -72,12 +80,19 @@ class ScheduleEditPage
     /**
      * @param ScheduleRepository $schedules Schedule repository.
      * @param ScheduleService $service Schedule service.
+     * @param ScheduleNoteRepository $notes Schedule note repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ScheduleRepository $schedules, ScheduleService $service, DateHelper $dates)
+    public function __construct(
+        ScheduleRepository $schedules,
+        ScheduleService $service,
+        ScheduleNoteRepository $notes,
+        DateHelper $dates
+    )
     {
         $this->schedules = $schedules;
         $this->service = $service;
+        $this->notes = $notes;
         $this->dates = $dates;
     }
 
@@ -95,7 +110,7 @@ class ScheduleEditPage
         $scheduleId = $this->scheduleId();
         $schedule = $scheduleId > 0 ? $this->schedules->findById($scheduleId) : null;
         $isView = $this->isViewMode();
-        $response = $isView ? $this->buildResponse(false, false, null, [], [], null) : $this->processSubmission($scheduleId);
+        $response = $isView ? $this->buildResponse(false, false, null, [], [], null) : $this->processSubmission($scheduleId, $schedule);
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html($this->pageTitle($scheduleId, $isView)) . '</h1>';
@@ -110,6 +125,7 @@ class ScheduleEditPage
 
         if ($isView && is_array($schedule)) {
             $this->renderView($schedule);
+            $this->renderNotes($scheduleId);
             echo '</div>';
 
             return;
@@ -130,13 +146,13 @@ class ScheduleEditPage
      * @param int $scheduleId Schedule ID, or 0 when creating.
      * @return array<string, mixed> Form response.
      */
-    private function processSubmission(int $scheduleId): array
+    private function processSubmission(int $scheduleId, ?array $schedule): array
     {
         if (!$this->isSubmission()) {
             return $this->buildResponse(false, false, null, $this->defaultValues(), [], null);
         }
 
-        $values = $this->sanitizeRequestValues();
+        $values = $this->sanitizeRequestValues($schedule);
 
         if (!$this->hasValidNonce($scheduleId)) {
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $values, [], 'invalid_nonce');
@@ -149,7 +165,12 @@ class ScheduleEditPage
         }
 
         if ($scheduleId > 0) {
-            $updated = $this->service->update($scheduleId, $this->buildScheduleData($values));
+            $updated = $this->service->update(
+                $scheduleId,
+                $this->buildScheduleData($values),
+                (string) $values['history_note'],
+                get_current_user_id()
+            );
 
             if (!$updated) {
                 return $this->buildResponse(true, false, 'The schedule could not be updated.', $values, [], 'schedule_update_failed');
@@ -158,7 +179,11 @@ class ScheduleEditPage
             $this->redirectToList(['updated' => 1]);
         }
 
-        $newScheduleId = $this->service->create($this->buildScheduleData($values));
+        $newScheduleId = $this->service->create(
+            $this->buildScheduleData($values),
+            (string) $values['history_note'],
+            get_current_user_id()
+        );
 
         if ($newScheduleId <= 0) {
             return $this->buildResponse(true, false, 'The schedule could not be created.', $values, [], 'schedule_create_failed');
@@ -184,18 +209,13 @@ class ScheduleEditPage
         $this->renderTypeSelect($values, $errors);
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
         $this->renderTextarea('details', __('Details', 'civic-engagement'), $values, $errors, 6);
-        $this->renderTextInput('reported_by', __('Reported By', 'civic-engagement'), $values, $errors, false);
         $this->renderStatusSelect($values, $errors);
-        $this->renderTextInput('review_date', __('Review Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('internal_comment', __('Internal Comment', 'civic-engagement'), $values, $errors, 5);
-        $this->renderTextarea('response', __('Response', 'civic-engagement'), $values, $errors, 5);
         $this->renderCheckbox('is_public', __('Public', 'civic-engagement'), __('Make this schedule visible publicly', 'civic-engagement'), $values);
         $this->renderCheckbox('is_archived', __('Archived', 'civic-engagement'), __('Mark this schedule as archived', 'civic-engagement'), $values);
         $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
-        $this->renderTextInput('source_type', __('Source Type', 'civic-engagement'), $values, $errors, false);
-        $this->renderNumberInput('source_id', __('Source ID', 'civic-engagement'), $values, $errors);
-        $this->renderNumberInput('created_by', __('Created By User ID', 'civic-engagement'), $values, $errors);
+        $this->renderTextarea('history_note', __('History Note', 'civic-engagement'), $values, $errors, 4);
         echo '</tbody></table>';
         submit_button($scheduleId > 0 ? __('Update Schedule', 'civic-engagement') : __('Create Schedule', 'civic-engagement'));
         echo '</form>';
@@ -234,21 +254,48 @@ class ScheduleEditPage
             __('Type', 'civic-engagement') => (string) ($schedule['type'] ?? ''),
             __('Title', 'civic-engagement') => (string) ($schedule['title'] ?? ''),
             __('Details', 'civic-engagement') => (string) ($schedule['details'] ?? ''),
-            __('Reported By', 'civic-engagement') => (string) ($schedule['reported_by'] ?? ''),
             __('Status', 'civic-engagement') => (string) ($schedule['status'] ?? ''),
-            __('Review Date', 'civic-engagement') => $this->dates->formatDateTime($schedule['review_date'] ?? null),
             __('Internal Comment', 'civic-engagement') => (string) ($schedule['internal_comment'] ?? ''),
-            __('Response', 'civic-engagement') => (string) ($schedule['response'] ?? ''),
             __('Public', 'civic-engagement') => !empty($schedule['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),
             __('Archived', 'civic-engagement') => !empty($schedule['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),
             __('Start Date', 'civic-engagement') => $this->dates->formatDateTime($schedule['start_date'] ?? null),
             __('End Date', 'civic-engagement') => $this->dates->formatDateTime($schedule['end_date'] ?? null),
-            __('Source Type', 'civic-engagement') => (string) ($schedule['source_type'] ?? ''),
-            __('Source ID', 'civic-engagement') => (string) ($schedule['source_id'] ?? ''),
             __('Created By', 'civic-engagement') => (string) ($schedule['created_by'] ?? ''),
             __('Created At', 'civic-engagement') => $this->dates->formatDateTime($schedule['created_at'] ?? null),
             __('Updated At', 'civic-engagement') => $this->dates->formatDateTime($schedule['updated_at'] ?? null),
         ];
+    }
+
+    /**
+     * Render append-only schedule notes newest first.
+     *
+     * @param int $scheduleId Schedule ID.
+     * @return void
+     */
+    private function renderNotes(int $scheduleId): void
+    {
+        $notes = $this->notes->findByScheduleId($scheduleId);
+
+        echo '<h2>' . esc_html__('Schedule Notes', 'civic-engagement') . '</h2>';
+        echo '<table class="widefat striped"><thead><tr>';
+        echo '<th scope="col">' . esc_html__('Note', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Created At', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Created By', 'civic-engagement') . '</th>';
+        echo '</tr></thead><tbody>';
+
+        if (empty($notes)) {
+            echo '<tr><td colspan="3">' . esc_html__('No notes found.', 'civic-engagement') . '</td></tr>';
+        }
+
+        foreach ($notes as $note) {
+            echo '<tr>';
+            echo '<td>' . nl2br(esc_html((string) ($note['note'] ?? ''))) . '</td>';
+            echo '<td>' . esc_html($this->dates->formatDateTime($note['created_at'] ?? null)) . '</td>';
+            echo '<td>' . esc_html((string) ($note['created_by'] ?? '')) . '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
     }
 
     /**
@@ -475,7 +522,7 @@ class ScheduleEditPage
      *
      * @return array<string, mixed> Sanitized values.
      */
-    private function sanitizeRequestValues(): array
+    private function sanitizeRequestValues(?array $schedule): array
     {
         $data = $this->requestData();
 
@@ -483,18 +530,16 @@ class ScheduleEditPage
             'type' => sanitize_key($this->requestValue($data, 'type')),
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
             'details' => sanitize_textarea_field($this->requestValue($data, 'details')),
-            'reported_by' => sanitize_text_field($this->requestValue($data, 'reported_by')),
             'status' => sanitize_key($this->requestValue($data, 'status')),
-            'review_date' => sanitize_text_field($this->requestValue($data, 'review_date')),
             'internal_comment' => sanitize_textarea_field($this->requestValue($data, 'internal_comment')),
-            'response' => sanitize_textarea_field($this->requestValue($data, 'response')),
             'is_public' => !empty($data['is_public']) ? 1 : 0,
             'is_archived' => !empty($data['is_archived']) ? 1 : 0,
             'start_date' => sanitize_text_field($this->requestValue($data, 'start_date')),
             'end_date' => sanitize_text_field($this->requestValue($data, 'end_date')),
-            'source_type' => sanitize_key($this->requestValue($data, 'source_type')),
-            'source_id' => $this->optionalAbsint($this->requestValue($data, 'source_id')),
-            'created_by' => $this->optionalAbsint($this->requestValue($data, 'created_by')),
+            'source_type' => is_array($schedule) ? (string) ($schedule['source_type'] ?? '') : '',
+            'source_id' => is_array($schedule) ? (string) ($schedule['source_id'] ?? '') : '',
+            'created_by' => is_array($schedule) ? (string) ($schedule['created_by'] ?? '') : (string) get_current_user_id(),
+            'history_note' => sanitize_textarea_field($this->requestValue($data, 'history_note')),
         ];
     }
 
@@ -528,17 +573,6 @@ class ScheduleEditPage
         }
 
         return (string) $data[$key];
-    }
-
-    /**
-     * Convert optional numeric text to an integer or empty string.
-     *
-     * @param string $value Raw value.
-     * @return int|string
-     */
-    private function optionalAbsint(string $value)
-    {
-        return '' === trim($value) ? '' : absint($value);
     }
 
     /**
@@ -578,11 +612,8 @@ class ScheduleEditPage
             'type' => $values['type'],
             'title' => $values['title'],
             'details' => $values['details'],
-            'reported_by' => $values['reported_by'],
             'status' => $values['status'],
-            'review_date' => $values['review_date'],
             'internal_comment' => $values['internal_comment'],
-            'response' => $values['response'],
             'is_public' => $values['is_public'] ? 1 : 0,
             'is_archived' => $values['is_archived'] ? 1 : 0,
             'start_date' => $values['start_date'],
@@ -609,11 +640,8 @@ class ScheduleEditPage
             'type' => (string) ($schedule['type'] ?? 'meeting'),
             'title' => (string) ($schedule['title'] ?? ''),
             'details' => (string) ($schedule['details'] ?? ''),
-            'reported_by' => (string) ($schedule['reported_by'] ?? ''),
             'status' => (string) ($schedule['status'] ?? 'open'),
-            'review_date' => $this->dateFormValue($schedule['review_date'] ?? null),
             'internal_comment' => (string) ($schedule['internal_comment'] ?? ''),
-            'response' => (string) ($schedule['response'] ?? ''),
             'is_public' => !empty($schedule['is_public']) ? 1 : 0,
             'is_archived' => !empty($schedule['is_archived']) ? 1 : 0,
             'start_date' => $this->dateFormValue($schedule['start_date'] ?? null),
@@ -621,6 +649,7 @@ class ScheduleEditPage
             'source_type' => (string) ($schedule['source_type'] ?? ''),
             'source_id' => (string) ($schedule['source_id'] ?? ''),
             'created_by' => (string) ($schedule['created_by'] ?? ''),
+            'history_note' => '',
         ];
     }
 
@@ -635,11 +664,8 @@ class ScheduleEditPage
             'type' => 'meeting',
             'title' => '',
             'details' => '',
-            'reported_by' => '',
             'status' => 'open',
-            'review_date' => '',
             'internal_comment' => '',
-            'response' => '',
             'is_public' => 0,
             'is_archived' => 0,
             'start_date' => '',
@@ -647,6 +673,7 @@ class ScheduleEditPage
             'source_type' => '',
             'source_id' => '',
             'created_by' => get_current_user_id() > 0 ? (string) get_current_user_id() : '',
+            'history_note' => '',
         ];
     }
 

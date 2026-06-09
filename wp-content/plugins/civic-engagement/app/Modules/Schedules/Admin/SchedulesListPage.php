@@ -150,13 +150,12 @@ class SchedulesListPage
         echo '<th scope="col">' . esc_html__('Public', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Archived', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Start Date', 'civic-engagement') . '</th>';
-        echo '<th scope="col">' . esc_html__('Review Date', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Actions', 'civic-engagement') . '</th>';
         echo '</tr></thead>';
         echo '<tbody>';
 
         if (empty($items)) {
-            echo '<tr><td colspan="9">' . esc_html__('No schedules found.', 'civic-engagement') . '</td></tr>';
+            echo '<tr><td colspan="8">' . esc_html__('No schedules found.', 'civic-engagement') . '</td></tr>';
         }
 
         foreach ($items as $item) {
@@ -185,7 +184,6 @@ class SchedulesListPage
         echo '<td>' . esc_html(!empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['start_date'] ?? null)) . '</td>';
-        echo '<td>' . esc_html($this->dates->formatDateTime($item['review_date'] ?? null)) . '</td>';
         echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a></td>';
         echo '</tr>';
     }

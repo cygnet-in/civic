@@ -400,17 +400,15 @@ Examples:
 | Field            | Purpose                  |
 | ---------------- | ------------------------ |
 | id               | schedule ID              |
-| type             | schedule type            |
+| type             | schedule type            | ENUM(    'meeting',    'motion',    question',    'rep_followup',    'public_announcement',    'other')
 | title            | heading                  |
 | details          | details                  |
-| reported_by      | reporter                 |
-| status           | status                   |
-| review_date      | review date              |
+| status           | status                   | ENUM ('open',    'pending',    'scheduled',    'completed',    'cancelled')
 | internal_comment | admin-only comment       |
-| response         | public/internal response |
 | is_public        | visibility               |
 | start_date       | start                    |
 | end_date         | end                      |
+| is_archived      | Archived or not          |
 | source_type      | rep/thread               |
 | source_id        | linked item              |
 | created_by       | admin user               |
@@ -418,6 +416,24 @@ Examples:
 | updated_at       | timestamp                |
 
 ---
+
+# Table: wp_civic_schedule_notes
+
+## Purpose
+
+To record the reason for edits in wp_civic_schedules (optional) like git commit comment
+
+## Source Linking
+
+With the id of schedule table
+
+## Fields
+
+|id          | ID                               |
+|schedule_id | Foreign key to wp_civic_schedules.id |
+|note        | Note                             |
+|created_by  | admin user                       |
+|created_at  | timestamp                        |
 
 # Index Recommendations
 

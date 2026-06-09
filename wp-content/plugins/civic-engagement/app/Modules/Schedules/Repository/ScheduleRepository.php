@@ -7,13 +7,40 @@ namespace CivicPlatform\Modules\Schedules\Repository;
 use CivicPlatform\Repositories\BaseRepository;
 
 /**
- * Repository for schedule and calendar records.
+ * Repository for schedule records.
  *
- * Handles civic_schedules database operations only. Schedule lifecycle
- * automation, source prefill workflows, and rendering belong outside this class.
+ * Handles civic_schedules database operations only. Workflow orchestration and
+ * rendering belong in services/controllers/templates.
  */
 class ScheduleRepository extends BaseRepository
 {
+    /**
+     * Supported schedule types.
+     *
+     * @var array<int, string>
+     */
+    private array $types = [
+        'meeting',
+        'motion',
+        'question',
+        'rep_followup',
+        'public_announcement',
+        'other',
+    ];
+
+    /**
+     * Supported schedule statuses.
+     *
+     * @var array<int, string>
+     */
+    private array $statuses = [
+        'open',
+        'pending',
+        'scheduled',
+        'completed',
+        'cancelled',
+    ];
+
     /**
      * Columns accepted when creating schedules.
      *
@@ -29,12 +56,37 @@ class ScheduleRepository extends BaseRepository
         'internal_comment' => '%s',
         'response' => '%s',
         'is_public' => '%d',
+        'is_archived' => '%d',
         'start_date' => '%s',
         'end_date' => '%s',
         'source_type' => '%s',
         'source_id' => '%d',
         'created_by' => '%d',
         'created_at' => '%s',
+        'updated_at' => '%s',
+    ];
+
+    /**
+     * Columns accepted when updating schedules.
+     *
+     * @var array<string, string>
+     */
+    private array $updateFormats = [
+        'type' => '%s',
+        'title' => '%s',
+        'details' => '%s',
+        'reported_by' => '%s',
+        'status' => '%s',
+        'review_date' => '%s',
+        'internal_comment' => '%s',
+        'response' => '%s',
+        'is_public' => '%d',
+        'is_archived' => '%d',
+        'start_date' => '%s',
+        'end_date' => '%s',
+        'source_type' => '%s',
+        'source_id' => '%d',
+        'created_by' => '%d',
         'updated_at' => '%s',
     ];
 
@@ -56,10 +108,11 @@ class ScheduleRepository extends BaseRepository
     {
         $insertData = $this->filterDataByFormats($data, $this->insertFormats);
 
-        if (empty($insertData['title'])) {
+        if (!$this->isValidScheduleData($insertData)) {
             return 0;
         }
 
+        $insertData = $this->normalizeNullableFields($insertData);
         $now = current_time('mysql');
 
         if (!isset($insertData['created_at'])) {
@@ -81,6 +134,39 @@ class ScheduleRepository extends BaseRepository
         }
 
         return (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Update a schedule.
+     *
+     * @param int $id Schedule ID.
+     * @param array<string, mixed> $data Schedule data keyed by editable civic_schedules columns.
+     * @return bool True when the update succeeds.
+     */
+    public function update(int $id, array $data): bool
+    {
+        if ($id <= 0) {
+            return false;
+        }
+
+        $updateData = $this->filterDataByFormats($data, $this->updateFormats);
+
+        if (!$this->isValidScheduleData($updateData)) {
+            return false;
+        }
+
+        $updateData = $this->normalizeNullableFields($updateData);
+        $updateData['updated_at'] = current_time('mysql');
+
+        $updated = $this->wpdb->update(
+            $this->table,
+            $updateData,
+            ['id' => $id],
+            $this->getFormatsForData($updateData, $this->updateFormats),
+            ['%d']
+        );
+
+        return false !== $updated;
     }
 
     /**
@@ -107,32 +193,10 @@ class ScheduleRepository extends BaseRepository
     }
 
     /**
-     * Get public schedules visible as of now.
-     *
-     * Public schedules are limited to is_public = 1 and start_date <= current
-     * time. Expired schedules are excluded unless include_expired is truthy.
-     *
-     * @param array<string, mixed> $args Listing arguments.
-     * @return array<string, mixed> Paginated result set and metadata.
-     */
-    public function getPublicSchedules(array $args = []): array
-    {
-        $args['is_public'] = 1;
-        $args['starts_before'] = current_time('mysql');
-
-        if (empty($args['include_expired'])) {
-            $args['ends_after'] = current_time('mysql');
-        }
-
-        return $this->getPaginated($args);
-    }
-
-    /**
      * Get a paginated schedule listing.
      *
-     * Supported args: page, per_page, type, status, is_public, source_type,
-     * source_id, created_by, starts_before, starts_after, ends_before,
-     * ends_after, orderby, order.
+     * Supported args: page, per_page, type, status, is_public, is_archived,
+     * orderby, order.
      *
      * @param array<string, mixed> $args Listing arguments.
      * @return array<string, mixed> Paginated result set and metadata.
@@ -141,60 +205,38 @@ class ScheduleRepository extends BaseRepository
     {
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildScheduleFilters($args);
-        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'ASC');
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'DESC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
 
     /**
-     * Get archived schedules.
+     * Search schedules by keyword with pagination.
      *
-     * Archive listing treats schedules with end_date before the current time as
-     * archived. Passing a status arg can further narrow the listing.
-     *
-     * @param array<string, mixed> $args Listing arguments.
+     * @param string $keyword Search keyword.
+     * @param array<string, mixed> $args Search arguments.
      * @return array<string, mixed> Paginated result set and metadata.
      */
-    public function getArchive(array $args = []): array
+    public function search(string $keyword, array $args = []): array
     {
-        $args['ends_before'] = current_time('mysql');
+        $keyword = trim($keyword);
 
-        if (!isset($args['orderby'])) {
-            $args['orderby'] = 'end_date';
+        if ('' === $keyword) {
+            return $this->getPaginated($args);
         }
 
-        if (!isset($args['order'])) {
-            $args['order'] = 'DESC';
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildScheduleFilters($args);
+        $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
+
+        if ('' !== $search['sql']) {
+            $where['sql'][] = $search['sql'];
+            $where['values'] = array_merge($where['values'], $search['values']);
         }
 
-        return $this->getPaginated($args);
-    }
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'DESC');
 
-    /**
-     * Update the status of a schedule.
-     *
-     * @param int $id Schedule ID.
-     * @param string $status New status.
-     * @return bool True when the update succeeds.
-     */
-    public function updateStatus(int $id, string $status): bool
-    {
-        if ($id <= 0 || '' === trim($status)) {
-            return false;
-        }
-
-        $updated = $this->wpdb->update(
-            $this->table,
-            [
-                'status' => trim($status),
-                'updated_at' => current_time('mysql'),
-            ],
-            ['id' => $id],
-            ['%s', '%s'],
-            ['%d']
-        );
-
-        return false !== $updated;
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
 
     /**
@@ -205,35 +247,15 @@ class ScheduleRepository extends BaseRepository
      */
     private function buildScheduleFilters(array $args): array
     {
-        $where = $this->buildFilterClause(
+        return $this->buildFilterClause(
             $args,
             [
                 'type' => ['column' => 'type', 'format' => '%s'],
                 'status' => ['column' => 'status', 'format' => '%s'],
                 'is_public' => ['column' => 'is_public', 'format' => '%d'],
-                'source_type' => ['column' => 'source_type', 'format' => '%s'],
-                'source_id' => ['column' => 'source_id', 'format' => '%d'],
-                'created_by' => ['column' => 'created_by', 'format' => '%d'],
+                'is_archived' => ['column' => 'is_archived', 'format' => '%d'],
             ]
         );
-
-        $dateFilters = [
-            'starts_before' => ['column' => 'start_date', 'operator' => '<='],
-            'starts_after' => ['column' => 'start_date', 'operator' => '>='],
-            'ends_before' => ['column' => 'end_date', 'operator' => '<'],
-            'ends_after' => ['column' => 'end_date', 'operator' => '>='],
-        ];
-
-        foreach ($dateFilters as $argName => $filter) {
-            if (!isset($args[$argName]) || '' === trim((string) $args[$argName])) {
-                continue;
-            }
-
-            $where['sql'][] = sprintf('%s %s %%s', $filter['column'], $filter['operator']);
-            $where['values'][] = trim((string) $args[$argName]);
-        }
-
-        return $where;
     }
 
     /**
@@ -260,6 +282,52 @@ class ScheduleRepository extends BaseRepository
             ['items' => is_array($items) ? $items : []],
             $this->buildPaginationMeta($total, $pagination)
         );
+    }
+
+    /**
+     * Validate required enum-backed schedule data.
+     *
+     * @param array<string, mixed> $data Schedule data.
+     * @return bool True when valid.
+     */
+    private function isValidScheduleData(array $data): bool
+    {
+        if (empty($data) || empty($data['title'])) {
+            return false;
+        }
+
+        if (empty($data['type']) || !in_array((string) $data['type'], $this->types, true)) {
+            return false;
+        }
+
+        if (empty($data['status']) || !in_array((string) $data['status'], $this->statuses, true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Normalize optional date/reference fields for persistence.
+     *
+     * @param array<string, mixed> $data Schedule data.
+     * @return array<string, mixed> Normalized data.
+     */
+    private function normalizeNullableFields(array $data): array
+    {
+        foreach (['review_date', 'start_date', 'end_date'] as $field) {
+            if (array_key_exists($field, $data) && '' === trim((string) $data[$field])) {
+                $data[$field] = null;
+            }
+        }
+
+        foreach (['source_type', 'source_id', 'created_by'] as $field) {
+            if (array_key_exists($field, $data) && '' === trim((string) $data[$field])) {
+                $data[$field] = null;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -303,16 +371,32 @@ class ScheduleRepository extends BaseRepository
             'id',
             'type',
             'title',
+            'reported_by',
             'status',
             'review_date',
             'is_public',
+            'is_archived',
             'start_date',
             'end_date',
-            'source_type',
-            'source_id',
-            'created_by',
             'created_at',
             'updated_at',
+        ];
+    }
+
+    /**
+     * Get safe columns included in keyword search.
+     *
+     * @return array<int, string>
+     */
+    private function getSearchColumns(): array
+    {
+        return [
+            'title',
+            'details',
+            'reported_by',
+            'internal_comment',
+            'response',
+            'source_type',
         ];
     }
 }

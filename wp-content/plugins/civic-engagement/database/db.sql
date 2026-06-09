@@ -94,15 +94,26 @@ CREATE TABLE `wp_civic_reps` (
 
 CREATE TABLE `wp_civic_schedules` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `type` varchar(100) NOT NULL,
+  `type` enum(
+    'meeting',
+    'motion',
+    'question',
+    'rep_followup',
+    'public_announcement',
+    'other'
+) NOT NULL,
   `title` varchar(255) NOT NULL,
   `details` longtext DEFAULT NULL,
-  `reported_by` varchar(255) DEFAULT NULL,
-  `status` varchar(50) NOT NULL DEFAULT 'pending',
-  `review_date` datetime DEFAULT NULL,
+  `status` enum(
+    'open',
+    'pending',
+    'scheduled',
+    'completed',
+    'cancelled'
+) NOT NULL DEFAULT 'pending',
   `internal_comment` longtext DEFAULT NULL,
-  `response` longtext DEFAULT NULL,
   `is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `is_archived` tinyint(1) NOT NULL DEFAULT 0,
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
   `source_type` varchar(50) DEFAULT NULL,
@@ -110,6 +121,25 @@ CREATE TABLE `wp_civic_schedules` (
   `created_by` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE wp_civic_schedule_notes (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    schedule_id BIGINT UNSIGNED NOT NULL,
+    note TEXT NOT NULL,
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    KEY idx_schedule_id (schedule_id),
+    KEY idx_created_by (created_by),
+    KEY idx_created_at (created_at),
+
+    CONSTRAINT fk_schedule_note_schedule
+        FOREIGN KEY (schedule_id)
+        REFERENCES wp_civic_schedules(id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `wp_civic_threads` (

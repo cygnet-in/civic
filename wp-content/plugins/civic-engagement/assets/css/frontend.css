@@ -593,3 +593,99 @@
         width: 100%;
     }
 }
+
+/* =========================
+   Side Bar
+========================= */
+
+.inside-right-sidebar .widget {
+    background: #fff;
+    border: 1px solid var(--civic-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.widget-title {
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+
+    font-size: 1.25rem;
+    font-weight: 600;
+
+    color: var(--civic-text);
+
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.civic-widget {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.civic-widget__item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.civic-widget__item:last-child {
+    border-bottom: none;
+}
+
+.civic-widget__item a {
+    display: block;
+
+    color: var(--civic-text);
+    text-decoration: none;
+
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.civic-widget__item a:hover {
+    color: var(--civic-primary);
+}
+
+.civic-widget__date {
+    display: block;
+    margin-top: 4px;
+
+    font-size: .85rem;
+    color: var(--civic-text-light);
+}
+
+.civic-widget__view-all {
+    margin: 18px 0 0;
+}
+
+.civic-widget__view-all a {
+    display: inline-block;
+
+    padding: 8px 14px;
+
+    border: 1px solid var(--civic-primary);
+    border-radius: 6px;
+
+    color: var(--civic-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.civic-widget__view-all a:hover {
+    background: var(--civic-primary);
+    color: #fff;
+}
+
+.widget_civic_latest_consultations .widget-title::before {
+    content: "💬 ";
+}
+
+.widget_civic_latest_events .widget-title::before {
+    content: "📅 ";
+}
+
+.widget_civic_upcoming_schedules .widget-title::before {
+    content: "🗓️ ";
+}

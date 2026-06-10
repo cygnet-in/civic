@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\FrontendPageResolver;
 use CivicPlatform\Modules\Threads\Admin\ThreadCreatePage;
 use CivicPlatform\Modules\Threads\Admin\ThreadDetailPage;
 use CivicPlatform\Modules\Threads\Admin\ThreadEditPage;
@@ -12,6 +13,7 @@ use CivicPlatform\Modules\Threads\Admin\ThreadsAdmin;
 use CivicPlatform\Modules\Threads\Admin\ThreadsListPage;
 use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldEditPage;
 use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldsListPage;
+use CivicPlatform\Modules\Threads\Frontend\LatestConsultationsWidget;
 use CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode;
 use CivicPlatform\Modules\Threads\Frontend\ThreadsListShortcode;
 use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
@@ -54,6 +56,8 @@ class ThreadsModule
      */
     public function register(): void
     {
+        add_action('widgets_init', [$this, 'registerWidgets']);
+
         $admin = new ThreadsAdmin(
             $this->createListPage(),
             $this->createFieldsListPage(),
@@ -81,6 +85,21 @@ class ThreadsModule
             )
         );
         $detailShortcode->register();
+    }
+
+    /**
+     * Register frontend widgets.
+     *
+     * @return void
+     */
+    public function registerWidgets(): void
+    {
+        register_widget(
+            new LatestConsultationsWidget(
+                new ThreadRepository($this->wpdb),
+                new FrontendPageResolver()
+            )
+        );
     }
 
     /**

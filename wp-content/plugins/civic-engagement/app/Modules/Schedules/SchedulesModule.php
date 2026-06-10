@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Schedules;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\FrontendPageResolver;
 use CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesAdmin;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesListPage;
 use CivicPlatform\Modules\Schedules\Frontend\ScheduleDetailShortcode;
 use CivicPlatform\Modules\Schedules\Frontend\ScheduleListShortcode;
+use CivicPlatform\Modules\Schedules\Frontend\UpcomingSchedulesWidget;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
@@ -41,6 +43,8 @@ class SchedulesModule
      */
     public function register(): void
     {
+        add_action('widgets_init', [$this, 'registerWidgets']);
+
         $admin = new SchedulesAdmin(
             $this->createListPage(),
             $this->createEditPage()
@@ -58,6 +62,22 @@ class SchedulesModule
             new DateHelper()
         );
         $detailShortcode->register();
+    }
+
+    /**
+     * Register frontend widgets.
+     *
+     * @return void
+     */
+    public function registerWidgets(): void
+    {
+        register_widget(
+            new UpcomingSchedulesWidget(
+                new ScheduleRepository($this->wpdb),
+                new DateHelper(),
+                new FrontendPageResolver()
+            )
+        );
     }
 
     /**

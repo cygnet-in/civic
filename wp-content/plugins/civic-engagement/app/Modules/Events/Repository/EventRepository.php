@@ -179,7 +179,7 @@ class EventRepository extends BaseRepository
      * Get a paginated event listing.
      *
      * Supported args: page, per_page, status, is_public,
-     * registration_enabled, orderby, order.
+     * registration_enabled, start_date_from, orderby, order.
      *
      * @param array<string, mixed> $args Listing arguments.
      * @return array<string, mixed> Paginated result set and metadata.
@@ -197,7 +197,7 @@ class EventRepository extends BaseRepository
      * Search events by keyword with pagination.
      *
      * Supported args: page, per_page, status, is_public, registration_enabled,
-     * orderby, order.
+     * start_date_from, orderby, order.
      *
      * @param string $keyword Search keyword.
      * @param array<string, mixed> $args Search arguments.
@@ -266,6 +266,7 @@ class EventRepository extends BaseRepository
                 'status' => ['column' => 'status', 'format' => '%s'],
                 'is_public' => ['column' => 'is_public', 'format' => '%d'],
                 'registration_enabled' => ['column' => 'registration_enabled', 'format' => '%d'],
+                'start_date_from' => ['column' => 'start_date', 'format' => '%s', 'operator' => '>='],
             ]
         );
     }

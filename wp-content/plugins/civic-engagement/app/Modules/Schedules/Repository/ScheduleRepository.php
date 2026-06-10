@@ -190,7 +190,7 @@ class ScheduleRepository extends BaseRepository
      * Get a paginated schedule listing.
      *
      * Supported args: page, per_page, type, status, is_public, is_archived,
-     * orderby, order.
+     * start_date_from, orderby, order.
      *
      * @param array<string, mixed> $args Listing arguments.
      * @return array<string, mixed> Paginated result set and metadata.
@@ -248,6 +248,7 @@ class ScheduleRepository extends BaseRepository
                 'status' => ['column' => 'status', 'format' => '%s'],
                 'is_public' => ['column' => 'is_public', 'format' => '%d'],
                 'is_archived' => ['column' => 'is_archived', 'format' => '%d'],
+                'start_date_from' => ['column' => 'start_date', 'format' => '%s', 'operator' => '>='],
             ]
         );
     }

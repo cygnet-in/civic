@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Events;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\FrontendPageResolver;
 use CivicPlatform\Modules\Events\Admin\EventEditPage;
 use CivicPlatform\Modules\Events\Admin\EventFieldEditPage;
 use CivicPlatform\Modules\Events\Admin\EventFieldsListPage;
@@ -12,6 +13,7 @@ use CivicPlatform\Modules\Events\Admin\EventsAdmin;
 use CivicPlatform\Modules\Events\Admin\EventsListPage;
 use CivicPlatform\Modules\Events\Frontend\EventDetailShortcode;
 use CivicPlatform\Modules\Events\Frontend\EventListShortcode;
+use CivicPlatform\Modules\Events\Frontend\LatestEventsWidget;
 use CivicPlatform\Modules\Events\Registrations\Frontend\EventRegistrationForm;
 use CivicPlatform\Modules\Events\Registrations\Services\EventRegistrationService;
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
@@ -52,6 +54,8 @@ class EventsModule
      */
     public function register(): void
     {
+        add_action('widgets_init', [$this, 'registerWidgets']);
+
         $admin = new EventsAdmin(
             $this->createListPage(),
             $this->createEditPage(),
@@ -74,6 +78,22 @@ class EventsModule
             $this->createRegistrationForm()
         );
         $detailShortcode->register();
+    }
+
+    /**
+     * Register frontend widgets.
+     *
+     * @return void
+     */
+    public function registerWidgets(): void
+    {
+        register_widget(
+            new LatestEventsWidget(
+                new EventRepository($this->wpdb),
+                new DateHelper(),
+                new FrontendPageResolver()
+            )
+        );
     }
 
     /**

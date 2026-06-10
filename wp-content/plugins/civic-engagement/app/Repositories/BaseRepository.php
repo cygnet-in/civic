@@ -116,19 +116,22 @@ abstract class BaseRepository
     }
 
     /**
-     * Build equality filters from whitelisted columns and formats.
+     * Build filters from whitelisted columns and formats.
      *
      * The $allowedFilters array should be keyed by request arg name. Each value
-     * should include a safe column name and a wpdb placeholder format.
+     * should include a safe column name and a wpdb placeholder format. Equality
+     * is used by default; comparison operators may be supplied for internal
+     * repository filters.
      *
      * Example:
      * [
      *     'status' => ['column' => 'status', 'format' => '%s'],
      *     'contact_id' => ['column' => 'contact_id', 'format' => '%d'],
+     *     'start_date_from' => ['column' => 'start_date', 'format' => '%s', 'operator' => '>='],
      * ]
      *
      * @param array<string, mixed> $args Filter input.
-     * @param array<string, array{column: string, format: string}> $allowedFilters Filter definitions.
+     * @param array<string, array{column: string, format: string, operator?: string}> $allowedFilters Filter definitions.
      * @return array{sql: array<int, string>, values: array<int, mixed>}
      */
     protected function buildFilterClause(array $args, array $allowedFilters): array
@@ -143,12 +146,13 @@ abstract class BaseRepository
 
             $column = $this->sanitizeIdentifier($filter['column']);
             $format = $this->sanitizePlaceholderFormat($filter['format']);
+            $operator = $this->sanitizeComparisonOperator((string) ($filter['operator'] ?? '='));
 
-            if ('' === $column || '' === $format) {
+            if ('' === $column || '' === $format || '' === $operator) {
                 continue;
             }
 
-            $sql[] = sprintf('%s = %s', $column, $format);
+            $sql[] = sprintf('%s %s %s', $column, $operator, $format);
             $values[] = '%d' === $format ? (int) $args[$argName] : trim((string) $args[$argName]);
         }
 
@@ -301,5 +305,18 @@ abstract class BaseRepository
     protected function sanitizePlaceholderFormat(string $format): string
     {
         return in_array($format, ['%s', '%d', '%f'], true) ? $format : '';
+    }
+
+    /**
+     * Validate an internally supplied SQL comparison operator.
+     *
+     * @param string $operator Candidate comparison operator.
+     * @return string Safe comparison operator, or an empty string.
+     */
+    protected function sanitizeComparisonOperator(string $operator): string
+    {
+        $operator = trim($operator);
+
+        return in_array($operator, ['=', '!=', '<', '<=', '>', '>='], true) ? $operator : '';
     }
 }

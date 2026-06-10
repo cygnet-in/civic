@@ -8,6 +8,8 @@ use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesAdmin;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesListPage;
+use CivicPlatform\Modules\Schedules\Frontend\ScheduleDetailShortcode;
+use CivicPlatform\Modules\Schedules\Frontend\ScheduleListShortcode;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
@@ -44,6 +46,18 @@ class SchedulesModule
             $this->createEditPage()
         );
         $admin->register();
+
+        $shortcode = new ScheduleListShortcode(
+            new ScheduleRepository($this->wpdb),
+            new DateHelper()
+        );
+        $shortcode->register();
+
+        $detailShortcode = new ScheduleDetailShortcode(
+            new ScheduleRepository($this->wpdb),
+            new DateHelper()
+        );
+        $detailShortcode->register();
     }
 
     /**

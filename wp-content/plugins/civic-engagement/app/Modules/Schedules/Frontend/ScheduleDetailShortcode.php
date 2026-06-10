@@ -1,0 +1,160 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CivicPlatform\Modules\Schedules\Frontend;
+
+use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
+
+/**
+ * Registers and renders the public schedule detail shortcode.
+ */
+class ScheduleDetailShortcode
+{
+    /**
+     * Schedule repository.
+     *
+     * @var ScheduleRepository
+     */
+    private ScheduleRepository $schedules;
+
+    /**
+     * Date helper.
+     *
+     * @var DateHelper
+     */
+    private DateHelper $dates;
+
+    /**
+     * @param ScheduleRepository $schedules Schedule repository.
+     * @param DateHelper $dates Date helper.
+     */
+    public function __construct(ScheduleRepository $schedules, DateHelper $dates)
+    {
+        $this->schedules = $schedules;
+        $this->dates = $dates;
+    }
+
+    /**
+     * Register the public schedule detail shortcode.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        add_shortcode('civic_schedule_detail', [$this, 'render']);
+    }
+
+    /**
+     * Render a public schedule detail.
+     *
+     * @param mixed $atts Shortcode attributes.
+     * @return string Rendered shortcode output.
+     */
+    public function render($atts = []): string
+    {
+        unset($atts);
+
+        $scheduleId = $this->scheduleId();
+
+        ob_start();
+
+        echo '<div class="civic-schedule-detail">';
+
+        if ($scheduleId <= 0) {
+            echo '<p class="civic-schedule-detail__empty">' . esc_html__('No schedule selected.', 'civic-engagement') . '</p>';
+            echo '</div>';
+
+            return (string) ob_get_clean();
+        }
+
+        $schedule = $this->schedules->findById($scheduleId);
+
+        if (!is_array($schedule)) {
+            echo '<p class="civic-schedule-detail__empty">' . esc_html__('Schedule not found.', 'civic-engagement') . '</p>';
+            echo '</div>';
+
+            return (string) ob_get_clean();
+        }
+
+        if (empty($schedule['is_public']) || !empty($schedule['is_archived'])) {
+            echo '<p class="civic-schedule-detail__empty">' . esc_html__('This schedule is not currently public.', 'civic-engagement') . '</p>';
+            echo '</div>';
+
+            return (string) ob_get_clean();
+        }
+
+        $this->renderSchedule($schedule);
+
+        echo '</div>';
+
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * Render public schedule content.
+     *
+     * @param array<string, mixed> $schedule Schedule row.
+     * @return void
+     */
+    private function renderSchedule(array $schedule): void
+    {
+        echo '<article class="civic-schedule-detail__content">';
+        echo '<h1 class="civic-schedule-detail__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h1>';
+        echo '<p class="civic-schedule-detail__type"><strong>' . esc_html__('Type:', 'civic-engagement') . '</strong> ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
+        echo '<p class="civic-schedule-detail__status"><strong>' . esc_html__('Status:', 'civic-engagement') . '</strong> ' . esc_html($this->statusLabel((string) ($schedule['status'] ?? ''))) . '</p>';
+
+        if (!empty($schedule['details'])) {
+            echo '<div class="civic-schedule-detail__details">' . wpautop(esc_html((string) $schedule['details'])) . '</div>';
+        }
+
+        echo '<p class="civic-schedule-detail__date">';
+        echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
+        echo 'From <span class="civic-schedule-detail__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedule-detail__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span>';
+        echo '</p>';
+        echo '</article>';
+    }
+
+    /**
+     * Get sanitized requested schedule ID.
+     *
+     * @return int Schedule ID.
+     */
+    private function scheduleId(): int
+    {
+        if (!isset($_GET['schedule_id'])) {
+            return 0;
+        }
+
+        $scheduleId = wp_unslash($_GET['schedule_id']);
+
+        if (is_array($scheduleId) || is_object($scheduleId)) {
+            return 0;
+        }
+
+        return absint($scheduleId);
+    }
+
+    /**
+     * Convert a stored schedule type to a readable label.
+     *
+     * @param string $type Stored schedule type.
+     * @return string Type label.
+     */
+    private function typeLabel(string $type): string
+    {
+        return ucwords(str_replace('_', ' ', $type));
+    }
+
+    /**
+     * Convert a stored schedule status to a readable label.
+     *
+     * @param string $status Stored schedule status.
+     * @return string Status label.
+     */
+    private function statusLabel(string $status): string
+    {
+        return ucwords(str_replace('_', ' ', $status));
+    }
+}

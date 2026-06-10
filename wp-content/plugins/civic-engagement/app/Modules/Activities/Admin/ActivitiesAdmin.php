@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Activities\Admin;
 
+use CivicPlatform\Helpers\AdminMenuHelper;
+
 /**
  * Registers admin pages for the Activities module.
  *
@@ -50,6 +52,7 @@ class ActivitiesAdmin
     public function register(): void
     {
         add_action('admin_menu', [$this, 'registerMenus']);
+        add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
     }
 
     /**
@@ -66,6 +69,21 @@ class ActivitiesAdmin
             self::CAPABILITY,
             self::PAGE_SLUG,
             [$this, 'renderActivitiesPage']
+        );
+    }
+
+    /**
+     * Hide internal admin pages after all menu registration is complete.
+     *
+     * @return void
+     */
+    public function hideInternalMenuPages(): void
+    {
+        AdminMenuHelper::hideSubmenuPages(
+            self::PARENT_SLUG,
+            [
+                self::PAGE_SLUG,
+            ]
         );
     }
 

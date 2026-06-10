@@ -67,7 +67,8 @@ class ThreadsListPage
         $totalPages = isset($result['total_pages']) ? (int) $result['total_pages'] : 1;
 
         echo '<div class="wrap">';
-        echo '<h1>' . esc_html__('Threads / Consultations', 'civic-engagement') . '</h1>';
+        echo '<h1 class="wp-heading-inline">' . esc_html__('Consultations', 'civic-engagement') . '</h1>';
+        echo ' <a href="' . esc_url($this->addUrl()) . '" class="page-title-action">' . esc_html__('Add Consultation', 'civic-engagement') . '</a>';
         $this->renderSearchForm($search);
         $this->renderTable($items);
         $this->renderPagination($page, $totalPages, $search);
@@ -233,6 +234,16 @@ class ThreadsListPage
 
         echo '</div>';
         echo '</div>';
+    }
+
+    /**
+     * Build add consultation URL.
+     *
+     * @return string Add URL.
+     */
+    private function addUrl(): string
+    {
+        return add_query_arg(['page' => 'civic-thread-create'], admin_url('admin.php'));
     }
 
     /**

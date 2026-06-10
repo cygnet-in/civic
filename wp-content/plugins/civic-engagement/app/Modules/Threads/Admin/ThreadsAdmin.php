@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Threads\Admin;
 
+use CivicPlatform\Helpers\AdminMenuHelper;
 use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldsListPage;
 use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldEditPage;
 use CivicPlatform\Modules\Threads\Responses\Admin\ThreadResponseDetailPage;
@@ -158,6 +159,7 @@ class ThreadsAdmin
     public function register(): void
     {
         add_action('admin_menu', [$this, 'registerMenus']);
+        add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
     }
 
     /**
@@ -169,15 +171,15 @@ class ThreadsAdmin
     {
         add_submenu_page(
             self::PARENT_SLUG,
-            __('Threads / Consultations', 'civic-engagement'),
-            __('Threads', 'civic-engagement'),
+            __('Consultations', 'civic-engagement'),
+            __('Consultations', 'civic-engagement'),
             self::CAPABILITY,
             self::LIST_SLUG,
             [$this, 'renderListPage']
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Create Consultation', 'civic-engagement'),
             __('Add New Thread', 'civic-engagement'),
             self::CAPABILITY,
@@ -186,7 +188,7 @@ class ThreadsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Consultation Fields', 'civic-engagement'),
             __('Fields', 'civic-engagement'),
             self::CAPABILITY,
@@ -195,7 +197,7 @@ class ThreadsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Edit Consultation Field', 'civic-engagement'),
             __('Edit Field', 'civic-engagement'),
             self::CAPABILITY,
@@ -213,7 +215,7 @@ class ThreadsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('View Thread', 'civic-engagement'),
             __('View Thread', 'civic-engagement'),
             self::CAPABILITY,
@@ -222,7 +224,7 @@ class ThreadsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('View Response', 'civic-engagement'),
             __('View Response', 'civic-engagement'),
             self::CAPABILITY,
@@ -231,12 +233,33 @@ class ThreadsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Edit Thread', 'civic-engagement'),
             __('Edit Thread', 'civic-engagement'),
             self::CAPABILITY,
             self::EDIT_SLUG,
             [$this, 'renderEditPage']
+        );
+    }
+
+    /**
+     * Hide internal admin pages after all menu registration is complete.
+     *
+     * @return void
+     */
+    public function hideInternalMenuPages(): void
+    {
+        AdminMenuHelper::hideSubmenuPages(
+            self::PARENT_SLUG,
+            [
+                self::CREATE_SLUG,
+                self::DETAIL_SLUG,
+                self::EDIT_SLUG,
+                self::FIELDS_SLUG,
+                self::FIELD_EDIT_SLUG,
+                self::RESPONSES_SLUG,
+                self::RESPONSE_DETAIL_SLUG,
+            ]
         );
     }
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Reps\Admin;
 
+use CivicPlatform\Helpers\AdminMenuHelper;
+
 /**
  * Registers admin pages for the Reps module.
  *
@@ -59,6 +61,7 @@ class RepsAdmin
     public function register(): void
     {
         add_action('admin_menu', [$this, 'registerMenus']);
+        add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
     }
 
     /**
@@ -88,12 +91,27 @@ class RepsAdmin
         );
 
         add_submenu_page(
-            self::MENU_SLUG,
+            ' ',
             __('View Representation', 'civic-engagement'),
             __('View Representation', 'civic-engagement'),
             self::CAPABILITY,
             self::DETAIL_SLUG,
             [$this, 'renderRepresentationDetailPage']
+        );
+    }
+
+    /**
+     * Hide internal admin pages after all menu registration is complete.
+     *
+     * @return void
+     */
+    public function hideInternalMenuPages(): void
+    {
+        AdminMenuHelper::hideSubmenuPages(
+            self::MENU_SLUG,
+            [
+                self::DETAIL_SLUG,
+            ]
         );
     }
 

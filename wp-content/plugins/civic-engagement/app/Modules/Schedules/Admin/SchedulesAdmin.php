@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Schedules\Admin;
 
+use CivicPlatform\Helpers\AdminMenuHelper;
+
 /**
  * Registers admin pages for the Schedules module.
  */
@@ -61,6 +63,7 @@ class SchedulesAdmin
     public function register(): void
     {
         add_action('admin_menu', [$this, 'registerMenus']);
+        add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
     }
 
     /**
@@ -80,12 +83,27 @@ class SchedulesAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Add Schedule', 'civic-engagement'),
             __('Add Schedule', 'civic-engagement'),
             self::CAPABILITY,
             self::EDIT_SLUG,
             [$this, 'renderEditPage']
+        );
+    }
+
+    /**
+     * Hide internal admin pages after all menu registration is complete.
+     *
+     * @return void
+     */
+    public function hideInternalMenuPages(): void
+    {
+        AdminMenuHelper::hideSubmenuPages(
+            self::PARENT_SLUG,
+            [
+                self::EDIT_SLUG,
+            ]
         );
     }
 

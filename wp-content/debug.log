@@ -433,3 +433,5 @@ Stack trace:
 #15 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
 #16 {main}
   thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php on line 88
+[10-Jun-2026 10:00:24 UTC] PHP Deprecated:  strip_tags(): Passing null to parameter #1 ($string) of type string is deprecated in E:\htdocs\civic\wp-admin\admin-header.php on line 41
+[10-Jun-2026 10:02:55 UTC] PHP Deprecated:  strip_tags(): Passing null to parameter #1 ($string) of type string is deprecated in E:\htdocs\civic\wp-admin\admin-header.php on line 41

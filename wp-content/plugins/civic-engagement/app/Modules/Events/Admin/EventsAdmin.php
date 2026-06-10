@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Events\Admin;
 
+use CivicPlatform\Helpers\AdminMenuHelper;
 use CivicPlatform\Modules\Events\Registrations\Admin\EventRegistrationDetailPage;
 use CivicPlatform\Modules\Events\Registrations\Admin\EventRegistrationsListPage;
 
@@ -126,6 +127,7 @@ class EventsAdmin
     public function register(): void
     {
         add_action('admin_menu', [$this, 'registerMenus']);
+        add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
     }
 
     /**
@@ -145,7 +147,7 @@ class EventsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Add Event', 'civic-engagement'),
             __('Add Event', 'civic-engagement'),
             self::CAPABILITY,
@@ -154,7 +156,7 @@ class EventsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Event Fields', 'civic-engagement'),
             __('Event Fields', 'civic-engagement'),
             self::CAPABILITY,
@@ -163,7 +165,7 @@ class EventsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('Edit Event Field', 'civic-engagement'),
             __('Edit Event Field', 'civic-engagement'),
             self::CAPABILITY,
@@ -181,12 +183,31 @@ class EventsAdmin
         );
 
         add_submenu_page(
-            self::PARENT_SLUG,
+            ' ',
             __('View Event Registration', 'civic-engagement'),
             __('View Event Registration', 'civic-engagement'),
             self::CAPABILITY,
             self::REGISTRATION_DETAIL_SLUG,
             [$this, 'renderRegistrationDetailPage']
+        );
+    }
+
+    /**
+     * Hide internal admin pages after all menu registration is complete.
+     *
+     * @return void
+     */
+    public function hideInternalMenuPages(): void
+    {
+        AdminMenuHelper::hideSubmenuPages(
+            self::PARENT_SLUG,
+            [
+                self::EDIT_SLUG,
+                self::FIELDS_SLUG,
+                self::FIELD_EDIT_SLUG,
+                self::REGISTRATIONS_SLUG,
+                self::REGISTRATION_DETAIL_SLUG,
+            ]
         );
     }
 

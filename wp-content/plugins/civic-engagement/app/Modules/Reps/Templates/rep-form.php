@@ -19,12 +19,12 @@ if (!defined('ABSPATH')) {
 
 $errors = isset($response['errors']) && is_array($response['errors']) ? $response['errors'] : [];
 $message = isset($response['message']) ? (string) $response['message'] : '';
-$messageClass = !empty($response['success']) ? 'civic-rep-form__message--success' : 'civic-rep-form__message--error';
+$messageClass = !empty($response['success']) ? 'civic-rep-form__message--success civic-form__message--success' : 'civic-rep-form__message--error civic-form__message--error';
 ?>
 
-<div class="civic-rep-form">
+<div class="civic-rep-form civic-form">
     <?php if ('' !== $message) : ?>
-        <div class="civic-rep-form__message <?php echo esc_attr($messageClass); ?>" role="status">
+        <div class="civic-rep-form__message civic-form__message <?php echo esc_attr($messageClass); ?>" role="status">
             <?php echo esc_html($message); ?>
         </div>
     <?php endif; ?>

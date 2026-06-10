@@ -105,29 +105,33 @@ class EventListShortcode
      * Render a single event summary.
      *
      * @param array<string, mixed> $event Event row.
+     * @param int $detailPageId Detail page ID.
      * @return void
      */
     private function renderEvent(array $event, $detailPageId): void
     {
         $eventId = isset($event['id']) ? (int) $event['id'] : 0;
 
-        echo '<article class="civic-events__item">';
-        echo '<h2 class="civic-events__title">' . esc_html((string) ($event['title'] ?? '')) . '</h2>';
+        echo '<article class="civic-card civic-events__item">';
+        echo '<div class="civic-card__media"></div>';
+        echo '<div class="civic-card__content">';
+        echo '<h2 class="civic-card__title civic-events__title">' . esc_html((string) ($event['title'] ?? '')) . '</h2>';
 
         if (!empty($event['summary'])) {
-            echo '<p class="civic-events__summary">' . esc_html((string) $event['summary']) . '</p>';
+            echo '<p class="civic-card__summary civic-events__summary">' . esc_html((string) $event['summary']) . '</p>';
         }
 
         if (!empty($event['location'])) {
-            echo '<p class="civic-events__location">Location: <span class="civic-events__location-name">' . esc_html((string) $event['location']) . '</span></p>';
+            echo '<p class="civic-card__location civic-events__location">Location: <span class="civic-events__location-name">' . esc_html((string) $event['location']) . '</span></p>';
         }
 
-        echo '<p class="civic-events__date">Date: From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span></p>';
-        echo '<p class="civic-events__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+        echo '<p class="civic-card__date civic-events__date">Date: From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span></p>';
+        echo '<p class="civic-card__status civic-events__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
 
-        echo '<p class="civic-events__actions">';
+        echo '<p class="civic-card__actions civic-events__actions">';
         echo '<a href="' . esc_url($this->readMoreUrl($eventId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
+        echo '</div>';
         echo '</article>';
     }
 

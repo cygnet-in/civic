@@ -413,3 +413,23 @@ Stack trace:
 [09-Jun-2026 16:45:12 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-includes\class-wpdb.php:1851) in E:\htdocs\civic\wp-includes\rest-api\class-wp-rest-server.php on line 1921
 [10-Jun-2026 05:15:55 UTC] Automatic updates starting...
 [10-Jun-2026 05:15:57 UTC] Automatic updates complete.
+[10-Jun-2026 05:44:38 UTC] PHP Fatal error:  Uncaught Error: Undefined constant "CIVIC_PLUGIN_URL" in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php:88
+Stack trace:
+#0 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): civic_enqueue_frontend_assets('')
+#1 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#2 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#3 E:\htdocs\civic\wp-includes\script-loader.php(2329): do_action('wp_enqueue_scri...')
+#4 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): wp_enqueue_scripts('')
+#5 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#6 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#7 E:\htdocs\civic\wp-includes\general-template.php(3208): do_action('wp_head')
+#8 E:\htdocs\civic\wp-content\themes\generatepress\header.php(16): wp_head()
+#9 E:\htdocs\civic\wp-includes\template.php(814): require_once('E:\\htdocs\\civic...')
+#10 E:\htdocs\civic\wp-includes\template.php(749): load_template('E:\\htdocs\\civic...', true, Array)
+#11 E:\htdocs\civic\wp-includes\general-template.php(48): locate_template(Array, true, true, Array)
+#12 E:\htdocs\civic\wp-content\themes\generatepress\page.php(17): get_header()
+#13 E:\htdocs\civic\wp-includes\template-loader.php(132): include('E:\\htdocs\\civic...')
+#14 E:\htdocs\civic\wp-blog-header.php(19): require_once('E:\\htdocs\\civic...')
+#15 E:\htdocs\civic\index.php(17): require('E:\\htdocs\\civic...')
+#16 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php on line 88

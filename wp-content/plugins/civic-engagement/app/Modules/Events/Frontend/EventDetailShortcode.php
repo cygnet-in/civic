@@ -108,25 +108,26 @@ class EventDetailShortcode
      */
     private function renderEvent(array $event): void
     {
-        echo '<article class="civic-event-detail__content">';
-        echo '<h1 class="civic-event-detail__title">' . esc_html((string) ($event['title'] ?? '')) . '</h1>';
+        echo '<article class="civic-card civic-event-detail__content">';
+        echo '<div class="civic-card__content">';
+        echo '<h1 class="civic-card-detail__title civic-event-detail__title">' . esc_html((string) ($event['title'] ?? '')) . '</h1>';
 
         if (!empty($event['summary'])) {
-            echo '<p class="civic-event-detail__summary">' . esc_html((string) $event['summary']) . '</p>';
+            echo '<p class="civic-card__summary civic-event-detail__summary">' . esc_html((string) $event['summary']) . '</p>';
         }
 
         if (!empty($event['description'])) {
-            echo '<div class="civic-event-detail__description">' . wpautop(esc_html((string) $event['description'])) . '</div>';
+            echo '<div class="civic-card__description civic-event-detail__description">' . wpautop(esc_html((string) $event['description'])) . '</div>';
         }
 
         if (!empty($event['location'])) {
-            echo '<p class="civic-event-detail__location">';
+            echo '<p class="civic-card__location civic-event-detail__location">';
             echo '<strong>' . esc_html__('Location:', 'civic-engagement') . '</strong><br>';
             echo esc_html((string) $event['location']);
             echo '</p>';
         }
 
-        echo '<p class="civic-event-detail__date">';
+        echo '<p class="civic-card__date civic-event-detail__date">';
         echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
         echo 'From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span>';
         // echo esc_html(
@@ -139,7 +140,8 @@ class EventDetailShortcode
         // );
         echo '</p>';
 
-        echo '<p class="civic-event-detail__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+        echo '<p class="civic-card__status civic-event-detail__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+        echo '</div>';
         echo '</article>';
     }
 
@@ -155,7 +157,7 @@ class EventDetailShortcode
             return;
         }
 
-        echo '<section id="civic-event-registration-form" class="civic-event-detail__registration-form">';
+        echo '<section id="civic-event-registration-form" class="civic-event-detail__registration-form civic-form">';
         echo $this->registrationForm->render($event);
         echo '</section>';
     }

@@ -87,8 +87,8 @@ class EventRegistrationForm
         echo '<h2>' . esc_html__('Register for this Event', 'civic-engagement') . '</h2>';
 
         if (!empty($response['message'])) {
-            $class = !empty($response['success']) ? 'civic-event-registration-form__message--success' : 'civic-event-registration-form__message--error';
-            echo '<p class="civic-event-registration-form__message ' . esc_attr($class) . '">' . esc_html((string) $response['message']) . '</p>';
+            $class = !empty($response['success']) ? 'civic-event-registration-form__message--success civic-form__message--success' : 'civic-event-registration-form__message--error civic-form__message--error';
+            echo '<p class="civic-event-registration-form__message civic-form__message ' . esc_attr($class) . '">' . esc_html((string) $response['message']) . '</p>';
         }
 
         echo '<form method="post">';

@@ -25,6 +25,12 @@ if (!defined('CIVIC_ENGAGEMENT_PLUGIN_FILE')) {
 if (!defined('CIVIC_ENGAGEMENT_PLUGIN_PATH')) {
     define('CIVIC_ENGAGEMENT_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
+if (!defined('CIVIC_ENGAGEMENT_PLUGIN_URL')) {
+    define('CIVIC_ENGAGEMENT_PLUGIN_URL', plugin_dir_url(__FILE__));
+}
+if (!defined('CIVIC_ENGAGEMENT_VERSION')) {
+    define('CIVIC_ENGAGEMENT_VERSION', '0.1.0');
+}
 
 spl_autoload_register(
     static function (string $class): void {
@@ -80,3 +86,15 @@ add_action(
         $capabilities->register();
     }
 );
+
+function civic_enqueue_frontend_assets(): void
+{
+    wp_enqueue_style(
+        'civic-frontend',
+        CIVIC_ENGAGEMENT_PLUGIN_URL . 'assets/css/frontend.css',
+        [],
+        CIVIC_ENGAGEMENT_VERSION
+    );
+}
+
+add_action('wp_enqueue_scripts', 'civic_enqueue_frontend_assets');

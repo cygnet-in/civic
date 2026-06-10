@@ -126,23 +126,25 @@ class ThreadDetailShortcode
      */
     private function renderThread(array $thread, array $publicResponses): void
     {
-        echo '<article class="civic-thread-detail__content">';
-        echo '<h1 class="civic-thread-detail__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h1>';
+        echo '<article class="civic-card civic-thread-detail__content">';
+        echo '<div class="civic-card__content">';
+        echo '<h1 class="civic-card-detail__title civic-thread-detail__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h1>';
 
         if (!empty($thread['summary'])) {
-            echo '<p class="civic-thread-detail__summary">' . esc_html((string) $thread['summary']) . '</p>';
+            echo '<p class="civic-card__summary civic-thread-detail__summary">' . esc_html((string) $thread['summary']) . '</p>';
         }
 
         if (!empty($thread['description'])) {
-            echo '<div class="civic-thread-detail__description">' . wpautop(esc_html((string) $thread['description'])) . '</div>';
+            echo '<div class="civic-card__description civic-thread-detail__description">' . wpautop(esc_html((string) $thread['description'])) . '</div>';
         }
 
-        echo '<dl class="civic-thread-detail__meta">';
+        echo '<dl class="civic-card__meta civic-thread-detail__meta">';
         $this->renderMetaItem(__('Created', 'civic-engagement'), $this->dates->formatDate((string) ($thread['created_at'] ?? '')));
         $this->renderMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
         $this->renderMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
         echo '</dl>';
         $this->renderActionLinks($thread, $publicResponses);
+        echo '</div>';
         echo '</article>';
     }
 
@@ -161,7 +163,7 @@ class ThreadDetailShortcode
             return;
         }
 
-        echo '<p class="civic-thread-detail__actions">';
+        echo '<p class="civic-card__actions civic-thread-detail__actions">';
 
         if (!empty($thread['response_enabled'])) {
             echo '<a href="#civic-thread-response-form">' . esc_html__('Respond to this Consultation', 'civic-engagement') . '</a>';
@@ -232,9 +234,9 @@ class ThreadDetailShortcode
     private function renderPublicResponse(array $response, array $fieldLabels): void
     {
         echo '<article class="civic-thread-response">';
-        echo '<h3 class="civic-thread-response__name">' . esc_html((string) ($response['name_snapshot'] ?? '')) . '</h3>';
-        echo '<p class="civic-thread-response__date">' . esc_html($this->dates->formatDate((string) ($response['created_at'] ?? ''))) . '</p>';
-        echo '<div class="civic-thread-response__text">' . wpautop(esc_html($this->responseText($response['response_data'] ?? ''))) . '</div>';
+        echo '<h3 class="civic-card__title civic-thread-response__name">' . esc_html((string) ($response['name_snapshot'] ?? '')) . '</h3>';
+        echo '<p class="civic-card__date civic-thread-response__date">' . esc_html($this->dates->formatDate((string) ($response['created_at'] ?? ''))) . '</p>';
+        echo '<div class="civic-card__text civic-thread-response__text">' . wpautop(esc_html($this->responseText($response['response_data'] ?? ''))) . '</div>';
         $this->renderCustomFields($response['response_data'] ?? '', $fieldLabels);
         echo '</article>';
     }
@@ -254,7 +256,7 @@ class ThreadDetailShortcode
             return;
         }
 
-        echo '<dl class="civic-thread-response__custom-fields">';
+        echo '<dl class="civic-card__custom-fields civic-thread-response__custom-fields">';
 
         foreach ($fieldLabels as $fieldKey => $label) {
             $value = isset($customFields[$fieldKey]) ? trim((string) $customFields[$fieldKey]) : '';

@@ -111,18 +111,21 @@ class ScheduleListShortcode
     {
         $scheduleId = isset($schedule['id']) ? (int) $schedule['id'] : 0;
 
-        echo '<article class="civic-schedules__item">';
-        echo '<h2 class="civic-schedules__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h2>';
-        echo '<p class="civic-schedules__type">' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
-        echo '<p class="civic-schedules__date">Date: From <span class="civic-schedules__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedules__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span></p>';
+        echo '<article class="civic-card civic-schedules__item">';
+        echo '<div class="civic-card__media"></div>';
+        echo '<div class="civic-card__content">';
+        echo '<h2 class="civic-card__title civic-schedules__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h2>';
+        echo '<p class="civic-card__type civic-schedules__type">' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
+        echo '<p class="civic-card__date civic-schedules__date">Date: From <span class="civic-schedules__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedules__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span></p>';
 
         if (!empty($schedule['details'])) {
-            echo '<p class="civic-schedules__details">' . esc_html($this->shortDetails((string) $schedule['details'])) . '</p>';
+            echo '<p class="civic-card__details civic-schedules__details">' . esc_html($this->shortDetails((string) $schedule['details'])) . '</p>';
         }
 
-        echo '<p class="civic-schedules__actions">';
+        echo '<p class="civic-card__actions civic-schedules__actions">';
         echo '<a href="' . esc_url($this->readMoreUrl($scheduleId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
+        echo '</div>';
         echo '</article>';
     }
 

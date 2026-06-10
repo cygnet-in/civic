@@ -112,18 +112,21 @@ class ThreadsListShortcode
     {
         $threadId = isset($thread['id']) ? (int) $thread['id'] : 0;
 
-        echo '<article class="civic-threads__item">';
-        echo '<h2 class="civic-threads__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h2>';
+        echo '<article class="civic-card civic-threads__item">';
+        echo '<div class="civic-card__media"></div>';
+        echo '<div class="civic-card__content">';
+        echo '<h2 class="civic-card__title civic-threads__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h2>';
 
         if (!empty($thread['summary'])) {
-            echo '<p class="civic-threads__summary">' . esc_html((string) $thread['summary']) . '</p>';
+            echo '<p class="civic-card__summary civic-threads__summary">' . esc_html((string) $thread['summary']) . '</p>';
         }
 
-        echo '<p class="civic-threads__date">' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</p>';
+        echo '<p class="civic-card__date civic-threads__date">' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</p>';
 
-        echo '<p class="civic-threads__actions">';
+        echo '<p class="civic-card__actions civic-threads__actions">';
         echo '<a href="' . esc_url($this->readMoreUrl($threadId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
+        echo '</div>';
         echo '</article>';
     }
 

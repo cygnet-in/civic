@@ -100,19 +100,21 @@ class ScheduleDetailShortcode
      */
     private function renderSchedule(array $schedule): void
     {
-        echo '<article class="civic-schedule-detail__content">';
-        echo '<h1 class="civic-schedule-detail__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h1>';
-        echo '<p class="civic-schedule-detail__type"><strong>' . esc_html__('Type:', 'civic-engagement') . '</strong> ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
-        echo '<p class="civic-schedule-detail__status"><strong>' . esc_html__('Status:', 'civic-engagement') . '</strong> ' . esc_html($this->statusLabel((string) ($schedule['status'] ?? ''))) . '</p>';
+        echo '<article class="civic-card civic-schedule-detail__content">';
+        echo '<div class="civic-card__content">';
+        echo '<h1 class="civic-card-detail__title civic-schedule-detail__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h1>';
+        echo '<p class="civic-card__type civic-schedule-detail__type"><strong>' . esc_html__('Type:', 'civic-engagement') . '</strong> ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
+        echo '<p class="civic-card__status civic-schedule-detail__status"><strong>' . esc_html__('Status:', 'civic-engagement') . '</strong> ' . esc_html($this->statusLabel((string) ($schedule['status'] ?? ''))) . '</p>';
 
         if (!empty($schedule['details'])) {
-            echo '<div class="civic-schedule-detail__details">' . wpautop(esc_html((string) $schedule['details'])) . '</div>';
+            echo '<div class="civic-card__details civic-schedule-detail__details">' . wpautop(esc_html((string) $schedule['details'])) . '</div>';
         }
 
-        echo '<p class="civic-schedule-detail__date">';
+        echo '<p class="civic-card__date civic-schedule-detail__date">';
         echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
         echo 'From <span class="civic-schedule-detail__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedule-detail__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span>';
         echo '</p>';
+        echo '</div>';
         echo '</article>';
     }
 

@@ -1,34 +1,21 @@
 # Current Development Stage
 
-Current milestone:
-Core workflow completion.
+Current Milestone:
+Testing and Theme/UI Integration
 
 Completed:
-
-* Representations
-* Consultations
-* Consultation Responses
-* Consultation Custom Fields
-* Electoral Areas
-* Event Administration
-* Public Event Listing
-* Public Event Detail
-* Event Registration
-* Event Registration Administration
-* Event Custom Fields
-* Schedule Administration
-
-Next milestone:
-
-* Prototype testing and workflow review
+- Representations
+- Consultations
+- Events
+- Schedules
+- Public Pages
+- Custom Fields
+- Admin Navigation Cleanup
 
 Deferred:
-
-* slug routing
-* response pagination
-* registration pagination
-* frontend administration
-* export functionality
+- Slug Routing
+- Exports
+- Frontend Administration
 
 ---
 

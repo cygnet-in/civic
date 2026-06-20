@@ -214,7 +214,7 @@ class ScheduleEditPage
         $this->renderCheckbox('is_public', __('Public', 'civic-engagement'), __('Make this schedule visible publicly', 'civic-engagement'), $values);
         $this->renderCheckbox('is_archived', __('Archived', 'civic-engagement'), __('Mark this schedule as archived', 'civic-engagement'), $values);
         $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
-        $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
+        $this->renderTextInput('end_date', __('Status Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('history_note', __('History Note', 'civic-engagement'), $values, $errors, 4);
         echo '</tbody></table>';
         submit_button($scheduleId > 0 ? __('Update Schedule', 'civic-engagement') : __('Create Schedule', 'civic-engagement'));
@@ -259,7 +259,7 @@ class ScheduleEditPage
             __('Public', 'civic-engagement') => !empty($schedule['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),
             __('Archived', 'civic-engagement') => !empty($schedule['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),
             __('Start Date', 'civic-engagement') => $this->dates->formatDateTime($schedule['start_date'] ?? null),
-            __('End Date', 'civic-engagement') => $this->dates->formatDateTime($schedule['end_date'] ?? null),
+            __('Status Date', 'civic-engagement') => $this->dates->formatDateTime($schedule['end_date'] ?? null),
             __('Created By', 'civic-engagement') => (string) ($schedule['created_by'] ?? ''),
             __('Created At', 'civic-engagement') => $this->dates->formatDateTime($schedule['created_at'] ?? null),
             __('Updated At', 'civic-engagement') => $this->dates->formatDateTime($schedule['updated_at'] ?? null),

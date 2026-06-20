@@ -1,0 +1,6 @@
+•	No sidebar for inner pages.
+•	List the archived/closed items in a lust at the bottom of the page.
+•	Schedule
+	o	Priority (1-5)
+	o	Images with captions.
+	o	Front end display – List manner

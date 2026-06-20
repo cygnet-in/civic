@@ -207,7 +207,7 @@ class RepFormController
         }
 
         if ('' === $values['title']) {
-            $errors['title'] = 'Title is required.';
+            $errors['title'] = 'Subject is required.';
         }
 
         if ('' === $values['details']) {

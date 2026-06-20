@@ -92,7 +92,18 @@ class ThreadDetailShortcode
      */
     public function render($atts = []): string
     {
-        unset($atts);
+        if (!is_array($atts)) {
+            $atts = [];
+        }
+
+        $atts = shortcode_atts(
+            [
+                'show_public_responses' => '0',
+            ],
+            $atts,
+            'civic_thread_detail'
+        );
+        $showPublicResponses = '1' === (string) $atts['show_public_responses'];
 
         $thread = $this->threads->findPublicById($this->threadId());
 
@@ -107,10 +118,15 @@ class ThreadDetailShortcode
             return (string) ob_get_clean();
         }
 
-        $publicResponses = $this->publicResponses((int) ($thread['id'] ?? 0));
-        $this->renderThread($thread, $publicResponses);
+        $publicResponses = $showPublicResponses
+            ? $this->publicResponses((int) ($thread['id'] ?? 0))
+            : ['items' => [], 'total' => 0];
+        $this->renderThread($thread, $publicResponses, $showPublicResponses);
         $this->renderResponseFormSection($thread);
-        $this->renderPublicResponsesSection($publicResponses['items']);
+
+        if ($showPublicResponses) {
+            $this->renderPublicResponsesSection($publicResponses['items']);
+        }
 
         echo '</div>';
 
@@ -122,9 +138,10 @@ class ThreadDetailShortcode
      *
      * @param array<string, mixed> $thread Thread row.
      * @param array<string, mixed> $publicResponses Public response result.
+     * @param bool $showPublicResponses Whether public responses are enabled.
      * @return void
      */
-    private function renderThread(array $thread, array $publicResponses): void
+    private function renderThread(array $thread, array $publicResponses, bool $showPublicResponses): void
     {
         echo '<article class="civic-card civic-thread-detail__content">';
         echo '<div class="civic-card__content">';
@@ -143,7 +160,7 @@ class ThreadDetailShortcode
         $this->renderMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
         $this->renderMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
         echo '</dl>';
-        $this->renderActionLinks($thread, $publicResponses);
+        $this->renderActionLinks($thread, $publicResponses, $showPublicResponses);
         echo '</div>';
         echo '</article>';
     }
@@ -153,11 +170,14 @@ class ThreadDetailShortcode
      *
      * @param array<string, mixed> $thread Thread row.
      * @param array<string, mixed> $publicResponses Public response result.
+     * @param bool $showPublicResponses Whether public responses are enabled.
      * @return void
      */
-    private function renderActionLinks(array $thread, array $publicResponses): void
+    private function renderActionLinks(array $thread, array $publicResponses, bool $showPublicResponses): void
     {
-        $total = isset($publicResponses['total']) ? (int) $publicResponses['total'] : 0;
+        $total = $showPublicResponses && isset($publicResponses['total'])
+            ? (int) $publicResponses['total']
+            : 0;
 
         if (empty($thread['response_enabled']) && $total <= 0) {
             return;
@@ -166,7 +186,7 @@ class ThreadDetailShortcode
         echo '<p class="civic-card__actions civic-thread-detail__actions">';
 
         if (!empty($thread['response_enabled'])) {
-            echo '<a href="#civic-thread-response-form">' . esc_html__('Respond to this Consultation', 'civic-engagement') . '</a>';
+            echo '<a href="#civic-thread-response-form">' . esc_html__('Have Your Say', 'civic-engagement') . '</a>';
         }
 
         if ($total > 0) {

@@ -113,7 +113,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
         </p>
 
         <p class="civic-rep-form__field">
-            <label for="civic-rep-title"><?php echo esc_html__('Title', 'civic-engagement'); ?></label>
+            <label for="civic-rep-title"><?php echo esc_html__('Subject', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-title"
                 name="civic_rep[title]"
@@ -142,3 +142,30 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
         </p>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var phone = document.getElementById('civic-rep-phone');
+    var whatsapp = document.getElementById('civic-rep-whatsapp');
+
+    if (!phone || !whatsapp) {
+        return;
+    }
+
+    var whatsappEdited = whatsapp.value !== '' && whatsapp.value !== phone.value;
+
+    if (!whatsappEdited && whatsapp.value === '' && phone.value !== '') {
+        whatsapp.value = phone.value;
+    }
+
+    whatsapp.addEventListener('input', function () {
+        whatsappEdited = true;
+    });
+
+    phone.addEventListener('input', function () {
+        if (!whatsappEdited) {
+            whatsapp.value = phone.value;
+        }
+    });
+});
+</script>

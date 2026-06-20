@@ -72,8 +72,6 @@ class UpcomingSchedulesWidget extends \WP_Widget
                 'per_page' => $count,
                 'is_public' => 1,
                 'is_archived' => 0,
-                'orderby' => 'start_date',
-                'order' => 'ASC',
                 'start_date_from' => current_time('mysql'),
             ]
         );

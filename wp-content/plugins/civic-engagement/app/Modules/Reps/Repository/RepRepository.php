@@ -179,6 +179,37 @@ class RepRepository extends BaseRepository
     }
 
     /**
+     * Update mutable administrative representation metadata.
+     *
+     * Submitted snapshots remain unchanged.
+     *
+     * @param int $id Rep ID.
+     * @param string $status Administrative status.
+     * @param string $internalComment Internal comment.
+     * @return bool True when the update succeeds.
+     */
+    public function updateAdministrativeDetails(int $id, string $status, string $internalComment): bool
+    {
+        if ($id <= 0 || '' === trim($status)) {
+            return false;
+        }
+
+        $updated = $this->wpdb->update(
+            $this->table,
+            [
+                'status' => trim($status),
+                'internal_comment' => $internalComment,
+                'updated_at' => current_time('mysql'),
+            ],
+            ['id' => $id],
+            ['%s', '%s', '%s'],
+            ['%d']
+        );
+
+        return false !== $updated;
+    }
+
+    /**
      * Keep only known insert columns.
      *
      * @param array<string, mixed> $data Raw insert data.

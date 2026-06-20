@@ -27,8 +27,7 @@ Admin can:
 * create thread,
 * configure response fields,
 * publish/unpublish,
-* export responses,
-* create schedule from thread.
+* configure a starting response count.
 
 ---
 
@@ -69,6 +68,8 @@ Admin can:
   * area
   * comment
 * Email/phone/address remain private.
+* Displayed response count is the starting response count plus actual submitted responses.
+* Public response rendering is disabled by default.
 
 ---
 

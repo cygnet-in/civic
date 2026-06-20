@@ -52,6 +52,8 @@ class ScheduleRepository extends BaseRepository
         'details' => '%s',
         'status' => '%s',
         'internal_comment' => '%s',
+        'recent_update' => '%s',
+        'priority' => '%d',
         'is_public' => '%d',
         'is_archived' => '%d',
         'start_date' => '%s',
@@ -74,6 +76,8 @@ class ScheduleRepository extends BaseRepository
         'details' => '%s',
         'status' => '%s',
         'internal_comment' => '%s',
+        'recent_update' => '%s',
+        'priority' => '%d',
         'is_public' => '%d',
         'is_archived' => '%d',
         'start_date' => '%s',
@@ -199,7 +203,7 @@ class ScheduleRepository extends BaseRepository
     {
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildScheduleFilters($args);
-        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'DESC');
+        $order = $this->buildScheduleOrder($args);
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
@@ -228,7 +232,7 @@ class ScheduleRepository extends BaseRepository
             $where['values'] = array_merge($where['values'], $search['values']);
         }
 
-        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'DESC');
+        $order = $this->buildScheduleOrder($args);
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
@@ -371,6 +375,7 @@ class ScheduleRepository extends BaseRepository
             'is_archived',
             'start_date',
             'end_date',
+            'priority',
             'created_at',
             'updated_at',
         ];
@@ -389,5 +394,20 @@ class ScheduleRepository extends BaseRepository
             'internal_comment',
             'source_type',
         ];
+    }
+
+    /**
+     * Build schedule ordering with priority as the default sort key.
+     *
+     * @param array<string, mixed> $args Query arguments.
+     * @return string Safe order clause.
+     */
+    private function buildScheduleOrder(array $args): string
+    {
+        if (isset($args['orderby']) && '' !== trim((string) $args['orderby'])) {
+            return $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'priority', 'DESC');
+        }
+
+        return 'priority DESC, start_date ASC';
     }
 }

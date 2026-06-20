@@ -137,6 +137,7 @@ class ThreadCreatePage
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
         $this->renderTextarea('content', __('Content', 'civic-engagement'), $values, $errors, 8);
         $this->renderStatusSelect($values, $errors);
+        $this->renderNumberInput('starting_response_count', __('Starting Response Count', 'civic-engagement'), $values, $errors);
         $this->renderResponseEnabledField($values);
         echo '</tbody></table>';
         submit_button(__('Create Consultation', 'civic-engagement'));
@@ -197,13 +198,32 @@ class ThreadCreatePage
         $status = (string) ($values['status'] ?? 'draft');
 
         echo '<tr>';
-        echo '<th scope="row"><label for="civic-thread-status">' . esc_html__('Status', 'civic-engagement') . '</label></th>';
+        echo '<th scope="row"><label for="civic-thread-status">' . esc_html__('Publication Status', 'civic-engagement') . '</label></th>';
         echo '<td>';
         echo '<select id="civic-thread-status" name="civic_thread[status]">';
         echo '<option value="draft"' . selected($status, 'draft', false) . '>' . esc_html__('Draft', 'civic-engagement') . '</option>';
         echo '<option value="published"' . selected($status, 'published', false) . '>' . esc_html__('Published', 'civic-engagement') . '</option>';
         echo '</select>';
         $this->renderFieldError('status', $errors);
+        echo '</td>';
+        echo '</tr>';
+    }
+
+    /**
+     * Render a non-negative number input.
+     *
+     * @param string $key Field key.
+     * @param string $label Field label.
+     * @param array<string, mixed> $values Form values.
+     * @param array<string, string> $errors Validation errors.
+     * @return void
+     */
+    private function renderNumberInput(string $key, string $label, array $values, array $errors): void
+    {
+        echo '<tr>';
+        echo '<th scope="row"><label for="civic-thread-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
+        echo '<td><input class="small-text" id="civic-thread-' . esc_attr($key) . '" name="civic_thread[' . esc_attr($key) . ']" type="number" min="0" step="1" value="' . esc_attr((string) ($values[$key] ?? 0)) . '">';
+        $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
     }
@@ -300,6 +320,7 @@ class ThreadCreatePage
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
             'content' => sanitize_textarea_field($this->requestValue($data, 'content')),
             'status' => sanitize_text_field($this->requestValue($data, 'status')),
+            'starting_response_count' => absint($this->requestValue($data, 'starting_response_count')),
             'response_enabled' => !empty($data['response_enabled']) ? 1 : 0,
         ];
     }
@@ -372,6 +393,7 @@ class ThreadCreatePage
             'description' => $values['content'],
             'response_enabled' => $values['response_enabled'],
             'is_public' => 'published' === $values['status'] ? 1 : 0,
+            'starting_response_count' => $values['starting_response_count'],
             'created_by' => get_current_user_id(),
             'status' => $values['status'],
         ];
@@ -406,6 +428,7 @@ class ThreadCreatePage
             'summary' => '',
             'content' => '',
             'status' => 'draft',
+            'starting_response_count' => 0,
             'response_enabled' => 1,
         ];
     }

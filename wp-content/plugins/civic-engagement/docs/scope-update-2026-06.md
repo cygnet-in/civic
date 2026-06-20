@@ -43,15 +43,11 @@ Current focus:
 
 Replace:
 
-```text
 Title
-```
 
 with:
 
-```text
 Subject
-```
 
 ### Mandatory Fields
 
@@ -76,31 +72,7 @@ Support:
 
 No image galleries.
 
----
-
-## Consultations
-
-### Button Label
-
-Replace:
-
-```text
-Respond to this Consultation
-```
-
-with:
-
-```text
-Have Your Say
-```
-
-### Public Responses
-
-Disable public response listings by default.
-
-Moderation functionality remains available.
-
-### Administrative Status
+### Administrative Status Tracking
 
 Add:
 
@@ -109,9 +81,11 @@ Add:
 
 Suggested statuses:
 
+* New
 * Seen
 * In Progress
 * Completed
+* Closed
 
 No workflow automation.
 
@@ -119,21 +93,64 @@ No audit trail.
 
 No history tracking.
 
+Status applies to the individual Representation.
+
+---
+
+## Consultations
+
+### Button Label
+
+Replace:
+
+Respond to this Consultation
+
+with:
+
+Have Your Say
+
+### Public Responses
+
+Disable public response listings by default.
+
+Moderation functionality remains available.
+
 ### Response Count Offset
 
 Add configurable field:
 
-```text
 starting_response_count
-```
 
 Displayed count:
 
-```text
-starting_response_count
-+
-actual_responses_received
-```
+starting_response_count + actual_responses_received
+
+---
+
+## Consultation Responses
+
+### Administrative Status Tracking
+
+Add:
+
+* Status
+* Internal Comment
+
+Suggested statuses:
+
+* New
+* Seen
+* In Progress
+* Completed
+* Closed
+
+No workflow automation.
+
+No audit trail.
+
+No history tracking.
+
+Status applies to the individual Consultation Response.
 
 ---
 
@@ -141,7 +158,11 @@ actual_responses_received
 
 ### Volunteer Area
 
-Remove field.
+No code change required.
+
+The client was referring to an Event Custom Field in sample data rather than a core Event module field.
+
+The field may be removed from the relevant event configuration where appropriate.
 
 ### Participant Limits
 
@@ -157,9 +178,7 @@ Current version allows unrestricted registrations.
 
 Add editable field:
 
-```text
 recent_update
-```
 
 Visible in public schedule listing.
 
@@ -167,15 +186,11 @@ Visible in public schedule listing.
 
 Rename:
 
-```text
 End Date
-```
 
 to:
 
-```text
 Status Date
-```
 
 ### Priority
 
@@ -246,6 +261,8 @@ Consultations, Events and Schedules require separate review for:
 
 No commitment has been made regarding implementation approach.
 
+Representation image upload remains part of the current release.
+
 ---
 
 ## Schedule Comments
@@ -253,6 +270,8 @@ No commitment has been made regarding implementation approach.
 Public schedule comments require separate review.
 
 Not included in current release.
+
+If implemented in the future, status tracking requirements will be reviewed separately.
 
 ---
 
@@ -270,25 +289,19 @@ Final URL structure has not been agreed.
 
 Options under consideration:
 
-```text
 /civic/event/{slug}
 
 /civic/schedule/{slug}
 
 /civic/consultation/{slug}
-```
 
 or
 
-```text
 /civic/{slug}
-```
 
 Root-level routing:
 
-```text
 /{slug}
-```
 
 is not recommended because it may conflict with:
 
@@ -300,9 +313,7 @@ is not recommended because it may conflict with:
 
 If module-independent URLs are chosen:
 
-```text
 /civic/{slug}
-```
 
 then global slug uniqueness must be enforced across:
 
@@ -338,15 +349,13 @@ The following items require client confirmation before implementation:
 
 # Development Order
 
-1. Subject label
-2. Mandatory Name and Email
-3. WhatsApp support
-4. Status + Internal Comment
-5. Response Count Offset
-6. Recent Update
-7. Priority
-8. Consent Management
-9. Representation Image Upload
-10. UI Refinement
-11. Client Review
-12. Routing / Media Decisions
+1. Administrative status tracking for Representations
+2. Administrative status tracking for Consultation Responses
+3. Response Count Offset
+4. Recent Update
+5. Priority
+6. Consent Management
+7. Representation Image Upload
+8. UI Refinement
+9. Client Review
+10. Routing / Media Decisions

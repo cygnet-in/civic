@@ -118,10 +118,12 @@ class ThreadDetailShortcode
             return (string) ob_get_clean();
         }
 
+        $actualResponseCount = $this->responses->countByThreadId((int) ($thread['id'] ?? 0));
+        $responseCount = max(0, (int) ($thread['starting_response_count'] ?? 0)) + $actualResponseCount;
         $publicResponses = $showPublicResponses
             ? $this->publicResponses((int) ($thread['id'] ?? 0))
             : ['items' => [], 'total' => 0];
-        $this->renderThread($thread, $publicResponses, $showPublicResponses);
+        $this->renderThread($thread, $publicResponses, $showPublicResponses, $responseCount);
         $this->renderResponseFormSection($thread);
 
         if ($showPublicResponses) {
@@ -139,9 +141,15 @@ class ThreadDetailShortcode
      * @param array<string, mixed> $thread Thread row.
      * @param array<string, mixed> $publicResponses Public response result.
      * @param bool $showPublicResponses Whether public responses are enabled.
+     * @param int $responseCount Displayed response count.
      * @return void
      */
-    private function renderThread(array $thread, array $publicResponses, bool $showPublicResponses): void
+    private function renderThread(
+        array $thread,
+        array $publicResponses,
+        bool $showPublicResponses,
+        int $responseCount
+    ): void
     {
         echo '<article class="civic-card civic-thread-detail__content">';
         echo '<div class="civic-card__content">';
@@ -160,7 +168,7 @@ class ThreadDetailShortcode
         $this->renderMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
         $this->renderMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
         echo '</dl>';
-        $this->renderActionLinks($thread, $publicResponses, $showPublicResponses);
+        $this->renderActionLinks($thread, $publicResponses, $showPublicResponses, $responseCount);
         echo '</div>';
         echo '</article>';
     }
@@ -171,15 +179,21 @@ class ThreadDetailShortcode
      * @param array<string, mixed> $thread Thread row.
      * @param array<string, mixed> $publicResponses Public response result.
      * @param bool $showPublicResponses Whether public responses are enabled.
+     * @param int $responseCount Displayed response count.
      * @return void
      */
-    private function renderActionLinks(array $thread, array $publicResponses, bool $showPublicResponses): void
+    private function renderActionLinks(
+        array $thread,
+        array $publicResponses,
+        bool $showPublicResponses,
+        int $responseCount
+    ): void
     {
-        $total = $showPublicResponses && isset($publicResponses['total'])
+        $publicResponseTotal = $showPublicResponses && isset($publicResponses['total'])
             ? (int) $publicResponses['total']
             : 0;
 
-        if (empty($thread['response_enabled']) && $total <= 0) {
+        if (empty($thread['response_enabled']) && $responseCount <= 0) {
             return;
         }
 
@@ -189,12 +203,16 @@ class ThreadDetailShortcode
             echo '<a href="#civic-thread-response-form">' . esc_html__('Have Your Say', 'civic-engagement') . '</a>';
         }
 
-        if ($total > 0) {
+        if (!empty($thread['response_enabled']) || $responseCount > 0) {
             if (!empty($thread['response_enabled'])) {
                 echo ' | ';
             }
 
-            echo '<a href="#civic-thread-public-responses">' . esc_html(sprintf(__('View Responses (%d)', 'civic-engagement'), $total)) . '</a>';
+            if ($showPublicResponses && $publicResponseTotal > 0) {
+                echo '<a href="#civic-thread-public-responses">' . esc_html(sprintf(__('Responses Received (%d)', 'civic-engagement'), $responseCount)) . '</a>';
+            } else {
+                echo '<span class="civic-thread-detail__response-count">' . esc_html(sprintf(__('Responses Received (%d)', 'civic-engagement'), $responseCount)) . '</span>';
+            }
         }
 
         echo '</p>';

@@ -89,6 +89,7 @@ class ThreadDetailPage
         $this->renderDetailRow(__('Summary', 'civic-engagement'), (string) ($thread['summary'] ?? ''));
         $this->renderDetailRow(__('Description', 'civic-engagement'), (string) ($thread['description'] ?? ''));
         $this->renderDetailRow(__('Status', 'civic-engagement'), (string) ($thread['status'] ?? ''));
+        $this->renderDetailRow(__('Starting Response Count', 'civic-engagement'), (string) ($thread['starting_response_count'] ?? 0));
         $this->renderDetailRow(__('Response Enabled', 'civic-engagement'), $this->yesNo($thread['response_enabled'] ?? 0));
         $this->renderDetailRow(__('Public', 'civic-engagement'), $this->yesNo($thread['is_public'] ?? 0));
         $this->renderDetailRow(__('Created By', 'civic-engagement'), $this->userDisplayName($thread['created_by'] ?? 0));

@@ -168,6 +168,7 @@ Stores public representation submissions.
 | map_lat                 | optional latitude    |
 | map_lng                 | optional longitude   |
 | status                  | workflow status      |
+| internal_comment        | admin-only comment   |
 | created_at              | submission timestamp |
 | updated_at              | update timestamp     |
 
@@ -200,6 +201,7 @@ Stores consultation thread definitions.
 | description      | thread description                           |
 | response_enabled | allow participation                          |
 | is_public        | visibility                                   |
+| starting_response_count | count offset added to received responses |
 | created_by       | admin user                                   |
 | start_date       | start date                                   |
 | end_date         | end date                                     |
@@ -405,6 +407,8 @@ Examples:
 | details          | details                  |
 | status           | status                   | ENUM ('open',    'pending',    'scheduled',    'completed',    'cancelled')
 | internal_comment | admin-only comment       |
+| recent_update    | public-facing latest update |
+| priority         | sort priority             |
 | is_public        | visibility               |
 | start_date       | start                    |
 | end_date         | end                      |
@@ -466,6 +470,7 @@ Recommended indexes:
 
 * INDEX(start_date)
 * INDEX(is_public)
+* INDEX(priority, start_date)
 
 ---
 

@@ -157,6 +157,7 @@ class ThreadEditPage
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
         $this->renderTextarea('description', __('Description', 'civic-engagement'), $values, $errors, 8);
         $this->renderStatusSelect($values, $errors);
+        $this->renderNumberInput('starting_response_count', __('Starting Response Count', 'civic-engagement'), $values, $errors);
         $this->renderResponseEnabledField($values);
         $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
@@ -234,13 +235,32 @@ class ThreadEditPage
         $status = (string) ($values['status'] ?? 'draft');
 
         echo '<tr>';
-        echo '<th scope="row"><label for="civic-thread-status">' . esc_html__('Status', 'civic-engagement') . '</label></th>';
+        echo '<th scope="row"><label for="civic-thread-status">' . esc_html__('Publication Status', 'civic-engagement') . '</label></th>';
         echo '<td>';
         echo '<select id="civic-thread-status" name="civic_thread[status]">';
         echo '<option value="draft"' . selected($status, 'draft', false) . '>' . esc_html__('Draft', 'civic-engagement') . '</option>';
         echo '<option value="published"' . selected($status, 'published', false) . '>' . esc_html__('Published', 'civic-engagement') . '</option>';
         echo '</select>';
         $this->renderFieldError('status', $errors);
+        echo '</td>';
+        echo '</tr>';
+    }
+
+    /**
+     * Render a non-negative number input.
+     *
+     * @param string $key Field key.
+     * @param string $label Field label.
+     * @param array<string, mixed> $values Form values.
+     * @param array<string, string> $errors Validation errors.
+     * @return void
+     */
+    private function renderNumberInput(string $key, string $label, array $values, array $errors): void
+    {
+        echo '<tr>';
+        echo '<th scope="row"><label for="civic-thread-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
+        echo '<td><input class="small-text" id="civic-thread-' . esc_attr($key) . '" name="civic_thread[' . esc_attr($key) . ']" type="number" min="0" step="1" value="' . esc_attr((string) ($values[$key] ?? 0)) . '">';
+        $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
     }
@@ -338,6 +358,7 @@ class ThreadEditPage
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
             'description' => sanitize_textarea_field($this->requestValue($data, 'description')),
             'status' => sanitize_text_field($this->requestValue($data, 'status')),
+            'starting_response_count' => absint($this->requestValue($data, 'starting_response_count')),
             'response_enabled' => !empty($data['response_enabled']) ? 1 : 0,
             'start_date' => sanitize_text_field($this->requestValue($data, 'start_date')),
             'end_date' => sanitize_text_field($this->requestValue($data, 'end_date')),
@@ -414,6 +435,7 @@ class ThreadEditPage
             'start_date' => $values['start_date'],
             'end_date' => $values['end_date'],
             'status' => $values['status'],
+            'starting_response_count' => $values['starting_response_count'],
         ];
     }
 
@@ -430,6 +452,7 @@ class ThreadEditPage
             'summary' => (string) ($thread['summary'] ?? ''),
             'description' => (string) ($thread['description'] ?? ''),
             'status' => (string) ($thread['status'] ?? 'draft'),
+            'starting_response_count' => isset($thread['starting_response_count']) ? (int) $thread['starting_response_count'] : 0,
             'response_enabled' => !empty($thread['response_enabled']) ? 1 : 0,
             'start_date' => $this->dateFormValue($thread['start_date'] ?? null),
             'end_date' => $this->dateFormValue($thread['end_date'] ?? null),

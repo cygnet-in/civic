@@ -110,6 +110,10 @@ class ScheduleDetailShortcode
             echo '<div class="civic-card__details civic-schedule-detail__details">' . wpautop(esc_html((string) $schedule['details'])) . '</div>';
         }
 
+        if (!empty($schedule['recent_update'])) {
+            echo '<p class="civic-card__recent-update civic-schedule-detail__recent-update"><strong>' . esc_html__('Recent Update:', 'civic-engagement') . '</strong> ' . esc_html((string) $schedule['recent_update']) . '</p>';
+        }
+
         echo '<p class="civic-card__date civic-schedule-detail__date">';
         echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
         echo 'From <span class="civic-schedule-detail__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedule-detail__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span>';

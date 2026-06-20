@@ -209,8 +209,10 @@ class ScheduleEditPage
         $this->renderTypeSelect($values, $errors);
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
         $this->renderTextarea('details', __('Details', 'civic-engagement'), $values, $errors, 6);
+        $this->renderTextarea('recent_update', __('Recent Update', 'civic-engagement'), $values, $errors, 4);
         $this->renderStatusSelect($values, $errors);
         $this->renderTextarea('internal_comment', __('Internal Comment', 'civic-engagement'), $values, $errors, 5);
+        $this->renderNumberInput('priority', __('Priority', 'civic-engagement'), $values, $errors);
         $this->renderCheckbox('is_public', __('Public', 'civic-engagement'), __('Make this schedule visible publicly', 'civic-engagement'), $values);
         $this->renderCheckbox('is_archived', __('Archived', 'civic-engagement'), __('Mark this schedule as archived', 'civic-engagement'), $values);
         $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
@@ -254,7 +256,9 @@ class ScheduleEditPage
             __('Type', 'civic-engagement') => (string) ($schedule['type'] ?? ''),
             __('Title', 'civic-engagement') => (string) ($schedule['title'] ?? ''),
             __('Details', 'civic-engagement') => (string) ($schedule['details'] ?? ''),
+            __('Recent Update', 'civic-engagement') => (string) ($schedule['recent_update'] ?? ''),
             __('Status', 'civic-engagement') => (string) ($schedule['status'] ?? ''),
+            __('Priority', 'civic-engagement') => (string) ($schedule['priority'] ?? 0),
             __('Internal Comment', 'civic-engagement') => (string) ($schedule['internal_comment'] ?? ''),
             __('Public', 'civic-engagement') => !empty($schedule['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),
             __('Archived', 'civic-engagement') => !empty($schedule['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),
@@ -530,8 +534,10 @@ class ScheduleEditPage
             'type' => sanitize_key($this->requestValue($data, 'type')),
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
             'details' => sanitize_textarea_field($this->requestValue($data, 'details')),
+            'recent_update' => sanitize_textarea_field($this->requestValue($data, 'recent_update')),
             'status' => sanitize_key($this->requestValue($data, 'status')),
             'internal_comment' => sanitize_textarea_field($this->requestValue($data, 'internal_comment')),
+            'priority' => absint($this->requestValue($data, 'priority')),
             'is_public' => !empty($data['is_public']) ? 1 : 0,
             'is_archived' => !empty($data['is_archived']) ? 1 : 0,
             'start_date' => sanitize_text_field($this->requestValue($data, 'start_date')),
@@ -612,8 +618,10 @@ class ScheduleEditPage
             'type' => $values['type'],
             'title' => $values['title'],
             'details' => $values['details'],
+            'recent_update' => $values['recent_update'],
             'status' => $values['status'],
             'internal_comment' => $values['internal_comment'],
+            'priority' => $values['priority'],
             'is_public' => $values['is_public'] ? 1 : 0,
             'is_archived' => $values['is_archived'] ? 1 : 0,
             'start_date' => $values['start_date'],
@@ -640,8 +648,10 @@ class ScheduleEditPage
             'type' => (string) ($schedule['type'] ?? 'meeting'),
             'title' => (string) ($schedule['title'] ?? ''),
             'details' => (string) ($schedule['details'] ?? ''),
+            'recent_update' => (string) ($schedule['recent_update'] ?? ''),
             'status' => (string) ($schedule['status'] ?? 'open'),
             'internal_comment' => (string) ($schedule['internal_comment'] ?? ''),
+            'priority' => isset($schedule['priority']) ? (int) $schedule['priority'] : 0,
             'is_public' => !empty($schedule['is_public']) ? 1 : 0,
             'is_archived' => !empty($schedule['is_archived']) ? 1 : 0,
             'start_date' => $this->dateFormValue($schedule['start_date'] ?? null),
@@ -664,8 +674,10 @@ class ScheduleEditPage
             'type' => 'meeting',
             'title' => '',
             'details' => '',
+            'recent_update' => '',
             'status' => 'open',
             'internal_comment' => '',
+            'priority' => 0,
             'is_public' => 0,
             'is_archived' => 0,
             'start_date' => '',

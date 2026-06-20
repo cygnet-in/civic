@@ -188,6 +188,26 @@ class ThreadResponseRepository extends BaseRepository
     }
 
     /**
+     * Count all responses received for a consultation.
+     *
+     * @param int $threadId Consultation ID.
+     * @return int Response count.
+     */
+    public function countByThreadId(int $threadId): int
+    {
+        if ($threadId <= 0) {
+            return 0;
+        }
+
+        return (int) $this->wpdb->get_var(
+            $this->prepare(
+                "SELECT COUNT(*) FROM {$this->table} WHERE thread_id = %d",
+                [$threadId]
+            )
+        );
+    }
+
+    /**
      * Search thread responses by snapshot and response data.
      *
      * Supported args: page, per_page, thread_id, contact_id, is_public, orderby,

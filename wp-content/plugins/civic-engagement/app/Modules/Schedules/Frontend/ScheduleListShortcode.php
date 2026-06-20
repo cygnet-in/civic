@@ -73,8 +73,6 @@ class ScheduleListShortcode
                 'per_page' => 20,
                 'is_public' => 1,
                 'is_archived' => 0,
-                'orderby' => 'start_date',
-                'order' => 'ASC',
             ]
         );
         $items = isset($result['items']) && is_array($result['items']) ? $result['items'] : [];
@@ -120,6 +118,10 @@ class ScheduleListShortcode
 
         if (!empty($schedule['details'])) {
             echo '<p class="civic-card__details civic-schedules__details">' . esc_html($this->shortDetails((string) $schedule['details'])) . '</p>';
+        }
+
+        if (!empty($schedule['recent_update'])) {
+            echo '<p class="civic-card__recent-update civic-schedules__recent-update">' . esc_html((string) $schedule['recent_update']) . '</p>';
         }
 
         echo '<p class="civic-card__actions civic-schedules__actions">';

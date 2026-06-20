@@ -88,8 +88,6 @@ class SchedulesListPage
         $args = [
             'page' => $page,
             'per_page' => 20,
-            'orderby' => 'start_date',
-            'order' => 'DESC',
         ];
 
         if ('' !== $search) {
@@ -147,6 +145,7 @@ class SchedulesListPage
         echo '<th scope="col">' . esc_html__('Title', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Type', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Status', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Priority', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Public', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Archived', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Start Date', 'civic-engagement') . '</th>';
@@ -155,7 +154,7 @@ class SchedulesListPage
         echo '<tbody>';
 
         if (empty($items)) {
-            echo '<tr><td colspan="8">' . esc_html__('No schedules found.', 'civic-engagement') . '</td></tr>';
+            echo '<tr><td colspan="9">' . esc_html__('No schedules found.', 'civic-engagement') . '</td></tr>';
         }
 
         foreach ($items as $item) {
@@ -181,6 +180,7 @@ class SchedulesListPage
         echo '<td>' . esc_html((string) ($item['title'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['type'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['status'] ?? '')) . '</td>';
+        echo '<td>' . esc_html((string) ($item['priority'] ?? 0)) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['start_date'] ?? null)) . '</td>';

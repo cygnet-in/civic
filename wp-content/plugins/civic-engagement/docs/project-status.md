@@ -153,9 +153,14 @@ Implemented:
 
 * custom fields
 * response moderation
-* public response display
+* response count display
 * response counts
 * anchor navigation
+
+Administrative refinements:
+
+* configurable starting response count
+* public response rendering disabled by default
 
 Important Rule:
 

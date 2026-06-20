@@ -57,6 +57,8 @@ Admin can:
 * archive schedules,
 * set public/private visibility,
 * add internal comments,
+* add a recent public update,
+* set a simple sorting priority,
 * add history notes,
 * create schedules from representations or consultations in the future.
 
@@ -67,7 +69,7 @@ Admin can:
 * Only public schedules are visible on the frontend.
 * Archived schedules are hidden from active listings.
 * Private schedules remain admin-only.
-* Public schedules are displayed in ascending date order.
+* Public schedules are ordered by priority, then start date.
 
 ---
 
@@ -80,6 +82,8 @@ Admin can:
 * details
 * status
 * internal_comment
+* recent_update
+* priority
 * is_public
 * is_archived
 * start_date

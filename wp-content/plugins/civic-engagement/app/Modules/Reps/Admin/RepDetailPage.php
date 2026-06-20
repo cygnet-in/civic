@@ -17,6 +17,21 @@ use CivicPlatform\Services\RepService;
 class RepDetailPage
 {
     /**
+     * Administrative update action.
+     */
+    private const ACTION = 'civic_rep_administration_update';
+
+    /**
+     * Nonce action.
+     */
+    private const NONCE_ACTION = 'civic_rep_administration';
+
+    /**
+     * Nonce field name.
+     */
+    private const NONCE_FIELD = 'civic_rep_administration_nonce';
+
+    /**
      * Required capability for viewing rep details.
      */
     private const CAPABILITY = 'manage_civic_reps';
@@ -82,9 +97,17 @@ class RepDetailPage
             return;
         }
 
+        $response = $this->processAdministrationUpdate($repId);
+
+        if (!empty($response['success'])) {
+            $rep = $this->reps->findById($repId) ?: $rep;
+        }
+
         $activities = $this->activitiesForRep($rep);
 
+        $this->renderMessage($response);
         $this->renderSummary($rep);
+        $this->renderAdministrationForm($rep);
         $this->renderSnapshot($rep);
         $this->renderActivities($activities);
 
@@ -107,6 +130,117 @@ class RepDetailPage
         $this->renderDetailRow(__('Status', 'civic-engagement'), (string) ($rep['status'] ?? ''));
         $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($rep['created_at'] ?? null));
         echo '</tbody></table>';
+    }
+
+    /**
+     * Render mutable administrative representation fields.
+     *
+     * @param array<string, mixed> $rep Rep row.
+     * @return void
+     */
+    private function renderAdministrationForm(array $rep): void
+    {
+        $repId = isset($rep['id']) ? (int) $rep['id'] : 0;
+        $status = (string) ($rep['status'] ?? 'new');
+
+        echo '<h2>' . esc_html__('Administration', 'civic-engagement') . '</h2>';
+        echo '<form method="post">';
+        wp_nonce_field(self::NONCE_ACTION . $repId, self::NONCE_FIELD);
+        echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
+        echo '<table class="form-table" role="presentation"><tbody>';
+        echo '<tr><th scope="row"><label for="civic-rep-status">' . esc_html__('Status', 'civic-engagement') . '</label></th>';
+        echo '<td><select id="civic-rep-status" name="civic_rep_administration[status]">';
+
+        foreach (['new', 'pending', 'in_progress', 'scheduled', 'resolved', 'closed'] as $option) {
+            echo '<option value="' . esc_attr($option) . '"' . selected($status, $option, false) . '>' . esc_html(ucwords(str_replace('_', ' ', $option))) . '</option>';
+        }
+
+        echo '</select></td></tr>';
+        echo '<tr><th scope="row"><label for="civic-rep-internal-comment">' . esc_html__('Internal Comment', 'civic-engagement') . '</label></th>';
+        echo '<td><textarea class="large-text" id="civic-rep-internal-comment" name="civic_rep_administration[internal_comment]" rows="4">' . esc_textarea((string) ($rep['internal_comment'] ?? '')) . '</textarea></td></tr>';
+        echo '</tbody></table>';
+        submit_button(__('Save Administration Details', 'civic-engagement'));
+        echo '</form>';
+    }
+
+    /**
+     * Process an administrative metadata update.
+     *
+     * @param int $repId Rep ID.
+     * @return array{success: bool, message: string}
+     */
+    private function processAdministrationUpdate(int $repId): array
+    {
+        if ('POST' !== strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? ''))) {
+            return ['success' => false, 'message' => ''];
+        }
+
+        $action = isset($_POST['civic_action']) ? wp_unslash($_POST['civic_action']) : '';
+
+        if (is_array($action) || is_object($action) || self::ACTION !== $action) {
+            return ['success' => false, 'message' => ''];
+        }
+
+        if (!$this->hasValidNonce($repId)) {
+            return ['success' => false, 'message' => __('Security check failed. Please try again.', 'civic-engagement')];
+        }
+
+        $data = isset($_POST['civic_rep_administration']) ? wp_unslash($_POST['civic_rep_administration']) : [];
+        $data = is_array($data) ? $data : [];
+        $status = isset($data['status']) && !is_array($data['status']) && !is_object($data['status'])
+            ? sanitize_key((string) $data['status'])
+            : '';
+        $internalComment = isset($data['internal_comment']) && !is_array($data['internal_comment']) && !is_object($data['internal_comment'])
+            ? sanitize_textarea_field((string) $data['internal_comment'])
+            : '';
+
+        if (!in_array($status, ['new', 'pending', 'in_progress', 'scheduled', 'resolved', 'closed'], true)) {
+            return ['success' => false, 'message' => __('Status is invalid.', 'civic-engagement')];
+        }
+
+        if (!$this->reps->updateAdministrativeDetails($repId, $status, $internalComment)) {
+            return ['success' => false, 'message' => __('The representation could not be updated.', 'civic-engagement')];
+        }
+
+        return ['success' => true, 'message' => __('Administration details updated successfully.', 'civic-engagement')];
+    }
+
+    /**
+     * Validate the administration form nonce.
+     *
+     * @param int $repId Rep ID.
+     * @return bool True when valid.
+     */
+    private function hasValidNonce(int $repId): bool
+    {
+        if (!isset($_POST[self::NONCE_FIELD])) {
+            return false;
+        }
+
+        $nonce = wp_unslash($_POST[self::NONCE_FIELD]);
+
+        if (is_array($nonce) || is_object($nonce)) {
+            return false;
+        }
+
+        return (bool) wp_verify_nonce(sanitize_text_field((string) $nonce), self::NONCE_ACTION . $repId);
+    }
+
+    /**
+     * Render an administration update message.
+     *
+     * @param array{success: bool, message: string} $response Update response.
+     * @return void
+     */
+    private function renderMessage(array $response): void
+    {
+        if ('' === $response['message']) {
+            return;
+        }
+
+        $class = $response['success'] ? 'notice notice-success' : 'notice notice-error';
+
+        echo '<div class="' . esc_attr($class) . '"><p>' . esc_html($response['message']) . '</p></div>';
     }
 
     /**

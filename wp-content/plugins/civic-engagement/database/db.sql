@@ -88,6 +88,7 @@ CREATE TABLE `wp_civic_reps` (
   `map_lat` decimal(10,7) DEFAULT NULL,
   `map_lng` decimal(10,7) DEFAULT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'submitted',
+  `internal_comment` longtext DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -110,8 +111,10 @@ CREATE TABLE `wp_civic_schedules` (
     'scheduled',
     'completed',
     'cancelled'
-) NOT NULL DEFAULT 'pending',
+  ) NOT NULL DEFAULT 'pending',
   `internal_comment` longtext DEFAULT NULL,
+  `recent_update` longtext DEFAULT NULL,
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `is_public` tinyint(1) NOT NULL DEFAULT 0,
   `is_archived` tinyint(1) NOT NULL DEFAULT 0,
   `start_date` datetime DEFAULT NULL,
@@ -150,6 +153,7 @@ CREATE TABLE `wp_civic_threads` (
   `description` longtext DEFAULT NULL,
   `response_enabled` tinyint(4) NOT NULL DEFAULT 1,
   `is_public` tinyint(1) NOT NULL DEFAULT 0,
+  `starting_response_count` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `created_by` bigint(20) UNSIGNED DEFAULT NULL,
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
@@ -308,3 +312,6 @@ ADD UNIQUE KEY uniq_event_field (thread_id, field_key);
 
 ALTER TABLE wp_civic_electoral_areas
 ADD UNIQUE KEY uniq_electoral_slug (slug);
+
+ALTER TABLE wp_civic_schedules
+ADD KEY idx_schedule_priority_start_date (priority, start_date);

@@ -119,6 +119,19 @@ class RepService
     }
 
     /**
+     * Update mutable administrative representation metadata.
+     *
+     * @param int $id Rep ID.
+     * @param string $status Administrative status.
+     * @param string $internalComment Internal comment.
+     * @return bool True when the update succeeds.
+     */
+    public function updateAdministrativeDetails(int $id, string $status, string $internalComment): bool
+    {
+        return $this->reps->updateAdministrativeDetails($id, $status, $internalComment);
+    }
+
+    /**
      * Normalize workflow input into simple scalar values.
      *
      * @param array<string, mixed> $data Raw workflow data.

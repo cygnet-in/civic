@@ -62,15 +62,14 @@ Admin can:
 
 * list reps,
 * search/filter reps,
-* edit reps,
-* export reps,
-* create schedule from rep.
+* update administrative status and internal comment.
 
 ---
 
 # Important Rules
 
 * Snapshot data must remain unchanged even if contact data later changes.
+* Administrative status/comment do not alter submitted snapshots.
 * Email is the primary unique identifier.
 * Public users cannot edit reps after submission.
 

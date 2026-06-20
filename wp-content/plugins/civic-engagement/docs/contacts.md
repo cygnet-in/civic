@@ -26,6 +26,10 @@ This is NOT a public user account system.
 * address
 * Eircode
 * electoral area
+* email consent
+* call consent
+* SMS consent
+* post consent
 
 ---
 
@@ -43,6 +47,9 @@ then:
 2. If exists:
 
    * update latest contact details.
+   * promote consent values from No to Yes only.
+   * retain existing positive consent when an option is unselected.
+   * update the consent timestamp only when a consent value is promoted.
 3. If not:
 
    * create new contact.
@@ -68,7 +75,8 @@ Admin can:
 
 * search users,
 * paginate users,
-* open user detail page.
+* filter contacts by consent type,
+* export filtered contacts including consent fields.
 
 ---
 
@@ -93,6 +101,7 @@ Activity table columns:
 * Snapshot data remains with activities.
 * Latest contact data stored separately.
 * Email is primary identity field.
+* Consent values are stored only on the latest contact record and are cumulative: they may be promoted from No to Yes, but are never revoked by an unchecked public form option.
 
 ---
 

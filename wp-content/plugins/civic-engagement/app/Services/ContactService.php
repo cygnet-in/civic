@@ -57,10 +57,11 @@ class ContactService
         }
 
         $createData = $this->mapContactData($data, $email, true);
-        $updateData = $this->mapContactData($data, $email, false);
         $existing = $this->contacts->findByEmail($email);
 
         if (is_array($existing)) {
+            $updateData = $this->mapContactData($data, $email, false);
+            $updateData = $this->promoteConsent($updateData, $existing);
             $updated = empty($updateData)
                 ? false
                 : $this->contacts->updateLatestDetails((int) $existing['id'], $updateData);
@@ -107,6 +108,40 @@ class ContactService
     }
 
     /**
+     * Get a paginated contact listing.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed>
+     */
+    public function getPaginated(array $args = []): array
+    {
+        return $this->contacts->getPaginated($args);
+    }
+
+    /**
+     * Search contacts by keyword.
+     *
+     * @param string $keyword Search keyword.
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed>
+     */
+    public function search(string $keyword, array $args = []): array
+    {
+        return $this->contacts->search($keyword, $args);
+    }
+
+    /**
+     * Get contacts for export.
+     *
+     * @param array<string, mixed> $args Export arguments.
+     * @return array<int, array<string, mixed>>
+     */
+    public function getForExport(array $args = []): array
+    {
+        return $this->contacts->getForExport($args);
+    }
+
+    /**
      * Map workflow contact data to latest contact columns.
      *
      * @param array<string, mixed> $data Raw workflow data.
@@ -134,7 +169,63 @@ class ContactService
             }
         }
 
+        $consentFields = [
+            'consent_email',
+            'consent_call',
+            'consent_sms',
+            'consent_post',
+        ];
+        $hasConsent = $includeMissing;
+
+        foreach ($consentFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $hasConsent = true;
+            }
+
+            if ($includeMissing || array_key_exists($field, $data)) {
+                $mapped[$field] = !empty($data[$field]) ? 1 : 0;
+            }
+        }
+
+        if ($hasConsent) {
+            $mapped['consent_updated_at'] = current_time('mysql');
+        }
+
         return $mapped;
+    }
+
+    /**
+     * Retain existing consent and only promote submitted consent from no to yes.
+     *
+     * @param array<string, mixed> $updateData Mapped latest contact data.
+     * @param array<string, mixed> $existing Existing contact record.
+     * @return array<string, mixed>
+     */
+    private function promoteConsent(array $updateData, array $existing): array
+    {
+        $consentFields = [
+            'consent_email',
+            'consent_call',
+            'consent_sms',
+            'consent_post',
+        ];
+        $promoted = false;
+
+        foreach ($consentFields as $field) {
+            $submitted = !empty($updateData[$field]);
+            unset($updateData[$field]);
+
+            if ($submitted && empty($existing[$field])) {
+                $updateData[$field] = 1;
+                $promoted = true;
+            }
+        }
+
+        if (!$promoted) {
+            unset($updateData['consent_updated_at']);
+        }
+
+        return $updateData;
     }
 
     /**

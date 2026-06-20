@@ -18,6 +18,11 @@ CREATE TABLE `wp_civic_contacts` (
   `latest_address` text DEFAULT NULL,
   `latest_eircode` varchar(50) DEFAULT NULL,
   `latest_electoral_area` varchar(255) DEFAULT NULL,
+  `consent_email` tinyint(1) NOT NULL DEFAULT 0,
+  `consent_call` tinyint(1) NOT NULL DEFAULT 0,
+  `consent_sms` tinyint(1) NOT NULL DEFAULT 0,
+  `consent_post` tinyint(1) NOT NULL DEFAULT 0,
+  `consent_updated_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -199,7 +204,11 @@ ALTER TABLE `wp_civic_activities`
 
 ALTER TABLE `wp_civic_contacts`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uniq_email` (`email`);
+  ADD UNIQUE KEY `uniq_email` (`email`),
+  ADD KEY `idx_contact_consent_email` (`consent_email`),
+  ADD KEY `idx_contact_consent_call` (`consent_call`),
+  ADD KEY `idx_contact_consent_sms` (`consent_sms`),
+  ADD KEY `idx_contact_consent_post` (`consent_post`);
 
 ALTER TABLE `wp_civic_electoral_areas`
   ADD PRIMARY KEY (`id`);

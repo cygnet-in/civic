@@ -134,6 +134,14 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
             <?php endif; ?>
         </p>
 
+        <fieldset class="civic-rep-form__field">
+            <legend><?php echo esc_html__('I agree to be contacted by:', 'civic-engagement'); ?></legend>
+            <label><input type="checkbox" name="civic_rep[consent_email]" value="1" <?php checked(!empty($values['consent_email'])); ?>> <?php echo esc_html__('Email', 'civic-engagement'); ?></label>
+            <label><input type="checkbox" name="civic_rep[consent_call]" value="1" <?php checked(!empty($values['consent_call'])); ?>> <?php echo esc_html__('Call', 'civic-engagement'); ?></label>
+            <label><input type="checkbox" name="civic_rep[consent_sms]" value="1" <?php checked(!empty($values['consent_sms'])); ?>> <?php echo esc_html__('SMS', 'civic-engagement'); ?></label>
+            <label><input type="checkbox" name="civic_rep[consent_post]" value="1" <?php checked(!empty($values['consent_post'])); ?>> <?php echo esc_html__('Post', 'civic-engagement'); ?></label>
+        </fieldset>
+
         <input type="hidden" name="civic_rep[map_lat]" value="<?php echo esc_attr((string) ($values['map_lat'] ?? '')); ?>">
         <input type="hidden" name="civic_rep[map_lng]" value="<?php echo esc_attr((string) ($values['map_lng'] ?? '')); ?>">
 

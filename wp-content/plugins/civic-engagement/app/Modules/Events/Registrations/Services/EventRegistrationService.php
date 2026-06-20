@@ -139,6 +139,10 @@ class EventRegistrationService
             'address' => $this->stringValue($data['address'] ?? ''),
             'eircode' => $this->stringValue($data['eircode'] ?? ''),
             'electoral_area' => $this->stringValue($data['electoral_area'] ?? ''),
+            'consent_email' => !empty($data['consent_email']) ? 1 : 0,
+            'consent_call' => !empty($data['consent_call']) ? 1 : 0,
+            'consent_sms' => !empty($data['consent_sms']) ? 1 : 0,
+            'consent_post' => !empty($data['consent_post']) ? 1 : 0,
             'registration_data' => is_array($data['registration_data'] ?? null) ? $data['registration_data'] : [],
         ];
     }

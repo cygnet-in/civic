@@ -134,6 +134,10 @@ class ThreadResponseService
             'eircode' => $this->stringValue($data['eircode'] ?? ''),
             'electoral_area_id' => isset($data['electoral_area_id']) ? (int) $data['electoral_area_id'] : 0,
             'electoral_area' => $this->stringValue($data['electoral_area'] ?? ''),
+            'consent_email' => !empty($data['consent_email']) ? 1 : 0,
+            'consent_call' => !empty($data['consent_call']) ? 1 : 0,
+            'consent_sms' => !empty($data['consent_sms']) ? 1 : 0,
+            'consent_post' => !empty($data['consent_post']) ? 1 : 0,
             'response_text' => $this->stringValue($data['response_text'] ?? ''),
             'custom_fields' => $this->customFields($data['custom_fields'] ?? []),
         ];

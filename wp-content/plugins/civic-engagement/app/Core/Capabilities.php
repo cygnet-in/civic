@@ -44,6 +44,11 @@ class Capabilities
     private const VIEW_ACTIVITIES = 'view_civic_activities';
 
     /**
+     * Contact management capability.
+     */
+    private const MANAGE_CONTACTS = 'manage_civic_contacts';
+
+    /**
      * Register initial roles and capabilities.
      *
      * @return void
@@ -74,6 +79,7 @@ class Capabilities
                     self::MANAGE_EVENTS => true,
                     self::MANAGE_SCHEDULES => true,
                     self::VIEW_ACTIVITIES => true,
+                    self::MANAGE_CONTACTS => true,
                 ]
             );
 
@@ -85,6 +91,7 @@ class Capabilities
         $role->add_cap(self::MANAGE_EVENTS);
         $role->add_cap(self::MANAGE_SCHEDULES);
         $role->add_cap(self::VIEW_ACTIVITIES);
+        $role->add_cap(self::MANAGE_CONTACTS);
     }
 
     /**
@@ -105,5 +112,6 @@ class Capabilities
         $role->add_cap(self::MANAGE_EVENTS);
         $role->add_cap(self::MANAGE_SCHEDULES);
         $role->add_cap(self::VIEW_ACTIVITIES);
+        $role->add_cap(self::MANAGE_CONTACTS);
     }
 }

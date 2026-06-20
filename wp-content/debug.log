@@ -447,3 +447,25 @@ Stack trace:
 [20-Jun-2026 05:18:00 UTC]   Automatic plugin updates complete.
 [20-Jun-2026 05:18:01 UTC] Automatic updates complete.
 [20-Jun-2026 06:58:16 UTC] WordPress database error Unknown column 'priority' in 'order clause' for query SELECT * FROM wp_civic_schedules WHERE is_public = 1 AND is_archived = 0 AND start_date >= '2026-06-20 06:58:16' ORDER BY priority DESC, start_date ASC LIMIT 5 OFFSET 0 made by require('wp-blog-header.php'), require_once('wp-includes/template-loader.php'), include('/themes/generatepress/page.php'), generate_construct_sidebars, get_sidebar, locate_template, load_template, require_once('/themes/generatepress/sidebar.php'), dynamic_sidebar, WP_Widget->display_callback, CivicPlatform\Modules\Schedules\Frontend\UpcomingSchedulesWidget->widget, CivicPlatform\Modules\Schedules\Repository\ScheduleRepository->getPaginated, CivicPlatform\Modules\Schedules\Repository\ScheduleRepository->getPagedResults
+[20-Jun-2026 07:40:28 UTC] PHP Fatal error:  Uncaught Error: Class "CivicPlatform\Modules\Users\ContactsModule" not found in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php:86
+Stack trace:
+#0 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#1 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#2 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#3 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#4 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#5 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#6 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#7 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php on line 86
+[20-Jun-2026 07:42:29 UTC] PHP Fatal error:  Uncaught Error: Class "CivicPlatform\Modules\Users\ContactsModule" not found in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php:86
+Stack trace:
+#0 E:\htdocs\civic\wp-includes\class-wp-hook.php(341): {closure}('')
+#1 E:\htdocs\civic\wp-includes\class-wp-hook.php(365): WP_Hook->apply_filters(NULL, Array)
+#2 E:\htdocs\civic\wp-includes\plugin.php(522): WP_Hook->do_action(Array)
+#3 E:\htdocs\civic\wp-settings.php(622): do_action('plugins_loaded')
+#4 E:\htdocs\civic\wp-config.php(104): require_once('E:\\htdocs\\civic...')
+#5 E:\htdocs\civic\wp-load.php(50): require_once('E:\\htdocs\\civic...')
+#6 E:\htdocs\civic\wp-admin\admin-ajax.php(22): require_once('E:\\htdocs\\civic...')
+#7 {main}
+  thrown in E:\htdocs\civic\wp-content\plugins\civic-engagement\civic-engagement.php on line 86

@@ -102,6 +102,7 @@ class EventRegistrationForm
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
         $this->renderTextField('eircode', __('Eircode', 'civic-engagement'), (string) $values['eircode'], $errors, false);
         $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
+        $this->renderConsentFields($values);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
 
         echo '<p>';
@@ -225,6 +226,25 @@ class EventRegistrationForm
 
         echo '</select>';
         echo '</p>';
+    }
+
+    /**
+     * Render contact consent options.
+     *
+     * @param array<string, mixed> $values Current form values.
+     * @return void
+     */
+    private function renderConsentFields(array $values): void
+    {
+        echo '<fieldset class="civic-event-registration-form__consent">';
+        echo '<legend>' . esc_html__('I agree to be contacted by:', 'civic-engagement') . '</legend>';
+
+        foreach (['email' => 'Email', 'call' => 'Call', 'sms' => 'SMS', 'post' => 'Post'] as $key => $label) {
+            $field = 'consent_' . $key;
+            echo '<label><input type="checkbox" name="civic_event_registration[' . esc_attr($field) . ']" value="1"' . checked(!empty($values[$field]), true, false) . '> ' . esc_html($label) . '</label> ';
+        }
+
+        echo '</fieldset>';
     }
 
     /**
@@ -414,6 +434,10 @@ class EventRegistrationForm
             'eircode' => sanitize_text_field($this->requestValue($data, 'eircode')),
             'electoral_area_id' => $electoralAreaId,
             'electoral_area' => $this->electoralAreaName($electoralAreaId),
+            'consent_email' => !empty($data['consent_email']) ? 1 : 0,
+            'consent_call' => !empty($data['consent_call']) ? 1 : 0,
+            'consent_sms' => !empty($data['consent_sms']) ? 1 : 0,
+            'consent_post' => !empty($data['consent_post']) ? 1 : 0,
             'custom_fields' => $customFields,
             'registration_data' => [
                 'custom_fields' => $customFields,
@@ -651,6 +675,10 @@ class EventRegistrationForm
             'eircode' => '',
             'electoral_area_id' => 0,
             'electoral_area' => '',
+            'consent_email' => 0,
+            'consent_call' => 0,
+            'consent_sms' => 0,
+            'consent_post' => 0,
             'custom_fields' => [],
             'registration_data' => [
                 'custom_fields' => [],

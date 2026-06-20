@@ -216,6 +216,18 @@ Add consent option to public forms.
 
 Store consent against contact record.
 
+## Consent Management
+
+Consent is treated as cumulative and may only be promoted from No to Yes in V1.
+
+When an existing contact submits a new form:
+
+- A positive selection promotes the matching consent flag only when it is currently No.
+- Blank or unselected options do not revoke or otherwise overwrite previously granted consent.
+- The consent timestamp changes only when a flag is promoted.
+
+Formal opt-out and unsubscribe functionality is outside the scope of the current release and will be handled by a future communication module.
+
 ### Consent Filtering
 
 Allow filtering contacts by consent status.

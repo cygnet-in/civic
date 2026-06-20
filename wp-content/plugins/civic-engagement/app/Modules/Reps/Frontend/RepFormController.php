@@ -183,6 +183,10 @@ class RepFormController
             'details' => $this->sanitizeTextarea($this->requestValue($requestData, 'details')),
             'map_lat' => $this->sanitizeCoordinate($this->requestValue($requestData, 'map_lat')),
             'map_lng' => $this->sanitizeCoordinate($this->requestValue($requestData, 'map_lng')),
+            'consent_email' => !empty($requestData['consent_email']) ? 1 : 0,
+            'consent_call' => !empty($requestData['consent_call']) ? 1 : 0,
+            'consent_sms' => !empty($requestData['consent_sms']) ? 1 : 0,
+            'consent_post' => !empty($requestData['consent_post']) ? 1 : 0,
         ];
     }
 
@@ -275,6 +279,10 @@ class RepFormController
             'details' => '',
             'map_lat' => '',
             'map_lng' => '',
+            'consent_email' => 0,
+            'consent_call' => 0,
+            'consent_sms' => 0,
+            'consent_post' => 0,
         ];
     }
 

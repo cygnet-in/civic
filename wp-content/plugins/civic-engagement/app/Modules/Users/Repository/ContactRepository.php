@@ -27,6 +27,11 @@ class ContactRepository extends BaseRepository
         'latest_address' => '%s',
         'latest_eircode' => '%s',
         'latest_electoral_area' => '%s',
+        'consent_email' => '%d',
+        'consent_call' => '%d',
+        'consent_sms' => '%d',
+        'consent_post' => '%d',
+        'consent_updated_at' => '%s',
         'created_at' => '%s',
         'updated_at' => '%s',
     ];
@@ -43,6 +48,11 @@ class ContactRepository extends BaseRepository
         'latest_address' => '%s',
         'latest_eircode' => '%s',
         'latest_electoral_area' => '%s',
+        'consent_email' => '%d',
+        'consent_call' => '%d',
+        'consent_sms' => '%d',
+        'consent_post' => '%d',
+        'consent_updated_at' => '%s',
         'updated_at' => '%s',
     ];
 
@@ -178,7 +188,8 @@ class ContactRepository extends BaseRepository
     /**
      * Get a paginated contact listing.
      *
-     * Supported args: page, per_page, orderby, order.
+     * Supported args: page, per_page, consent_email, consent_call,
+     * consent_sms, consent_post, orderby, order.
      *
      * @param array<string, mixed> $args Listing arguments.
      * @return array<string, mixed> Paginated result set and metadata.
@@ -186,15 +197,17 @@ class ContactRepository extends BaseRepository
     public function getPaginated(array $args = []): array
     {
         $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildContactFilters($args);
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'updated_at', 'DESC');
 
-        return $this->getPagedResults([], [], $order, $pagination);
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
 
     /**
      * Search contacts by keyword with pagination.
      *
-     * Supported args: page, per_page, orderby, order.
+     * Supported args: page, per_page, consent_email, consent_call,
+     * consent_sms, consent_post, orderby, order.
      *
      * @param string $keyword Search keyword.
      * @param array<string, mixed> $args Search arguments.
@@ -209,12 +222,41 @@ class ContactRepository extends BaseRepository
         }
 
         $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildContactFilters($args);
         $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'updated_at', 'DESC');
 
-        $whereSql = '' === $search['sql'] ? [] : [$search['sql']];
+        if ('' !== $search['sql']) {
+            $where['sql'][] = $search['sql'];
+            $where['values'] = array_merge($where['values'], $search['values']);
+        }
 
-        return $this->getPagedResults($whereSql, $search['values'], $order, $pagination);
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Get contacts for export using the same supported filters as listings.
+     *
+     * @param array<string, mixed> $args Export arguments.
+     * @return array<int, array<string, mixed>> Contact rows.
+     */
+    public function getForExport(array $args = []): array
+    {
+        $where = $this->buildContactFilters($args);
+        $search = isset($args['search']) ? trim((string) $args['search']) : '';
+
+        if ('' !== $search) {
+            $searchClause = $this->buildSearchClause($search, $this->getSearchColumns());
+            $where['sql'][] = $searchClause['sql'];
+            $where['values'] = array_merge($where['values'], $searchClause['values']);
+        }
+
+        $whereClause = $this->buildWhereSql($where['sql']);
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'updated_at', 'DESC');
+        $sql = "SELECT * FROM {$this->table}{$whereClause} ORDER BY {$order}";
+        $items = $this->wpdb->get_results($this->prepare($sql, $where['values']), ARRAY_A);
+
+        return is_array($items) ? $items : [];
     }
 
     /**
@@ -274,6 +316,25 @@ class ContactRepository extends BaseRepository
     }
 
     /**
+     * Build supported consent filters.
+     *
+     * @param array<string, mixed> $args Filter arguments.
+     * @return array{sql: array<int, string>, values: array<int, mixed>}
+     */
+    private function buildContactFilters(array $args): array
+    {
+        return $this->buildFilterClause(
+            $args,
+            [
+                'consent_email' => ['column' => 'consent_email', 'format' => '%d'],
+                'consent_call' => ['column' => 'consent_call', 'format' => '%d'],
+                'consent_sms' => ['column' => 'consent_sms', 'format' => '%d'],
+                'consent_post' => ['column' => 'consent_post', 'format' => '%d'],
+            ]
+        );
+    }
+
+    /**
      * Get safe columns accepted for ordering.
      *
      * @return array<int, string>
@@ -286,6 +347,11 @@ class ContactRepository extends BaseRepository
             'latest_name',
             'latest_eircode',
             'latest_electoral_area',
+            'consent_email',
+            'consent_call',
+            'consent_sms',
+            'consent_post',
+            'consent_updated_at',
             'created_at',
             'updated_at',
         ];

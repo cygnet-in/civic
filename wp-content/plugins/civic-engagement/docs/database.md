@@ -82,6 +82,11 @@ This is NOT a login/account table.
 | latest_address        | latest known address      |
 | latest_eircode        | latest known Eircode      |
 | latest_electoral_area | latest known area         |
+| consent_email         | email contact consent     |
+| consent_call          | call contact consent      |
+| consent_sms           | SMS contact consent       |
+| consent_post          | post contact consent      |
+| consent_updated_at    | latest consent promotion  |
 | created_at            | created timestamp         |
 | updated_at            | last update timestamp     |
 
@@ -446,6 +451,10 @@ Recommended indexes:
 ## civic_contacts
 
 * UNIQUE(email)
+* INDEX(consent_email)
+* INDEX(consent_call)
+* INDEX(consent_sms)
+* INDEX(consent_post)
 
 ## civic_activities
 

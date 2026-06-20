@@ -1,21 +1,23 @@
 # Current Development Stage
 
-Current Milestone:
-Testing and Theme/UI Integration
+Milestone: Post Client Review Refinements Completed
 
-Completed:
-- Representations
-- Consultations
-- Events
-- Schedules
-- Public Pages
-- Custom Fields
-- Admin Navigation Cleanup
+Implemented:
+- Subject label
+- Mandatory name/email
+- WhatsApp sync
+- Have Your Say
+- Response count offset
+- Representation status/comment
+- Schedule recent update
+- Schedule priority
+- Consent management V1
 
 Deferred:
-- Slug Routing
-- Exports
-- Frontend Administration
+- Representation image upload
+- Routing/slugs
+- Media support
+- Schedule comments
 
 ---
 
@@ -59,6 +61,12 @@ Important Rule:
 Contact records may change over time.
 
 Submission records must preserve immutable snapshots.
+
+Consent Management V1:
+
+* email, call, SMS, and post consent stored on contacts
+* consent is cumulative: public forms promote No to Yes and cannot revoke existing consent
+* consent filtering and CSV export available in contact administration
 
 ---
 

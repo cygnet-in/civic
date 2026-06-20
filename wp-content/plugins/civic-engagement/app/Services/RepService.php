@@ -154,6 +154,10 @@ class RepService
             'details' => $this->stringValue($data['details'] ?? ''),
             'map_lat' => $this->numericValue($data['map_lat'] ?? null),
             'map_lng' => $this->numericValue($data['map_lng'] ?? null),
+            'consent_email' => !empty($data['consent_email']) ? 1 : 0,
+            'consent_call' => !empty($data['consent_call']) ? 1 : 0,
+            'consent_sms' => !empty($data['consent_sms']) ? 1 : 0,
+            'consent_post' => !empty($data['consent_post']) ? 1 : 0,
             'status' => $this->stringValue($data['status'] ?? 'new'),
         ];
     }

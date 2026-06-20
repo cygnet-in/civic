@@ -15,6 +15,7 @@ use CivicPlatform\Modules\Events\EventsModule;
 use CivicPlatform\Modules\Reps\RepsModule;
 use CivicPlatform\Modules\Schedules\SchedulesModule;
 use CivicPlatform\Modules\Threads\ThreadsModule;
+use CivicPlatform\Modules\Users\ContactsModule;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -81,6 +82,9 @@ add_action(
 
         $schedulesModule = new SchedulesModule($wpdb);
         $schedulesModule->register();
+
+        $contactsModule = new ContactsModule($wpdb);
+        $contactsModule->register();
 
         $capabilities = new Capabilities();
         $capabilities->register();

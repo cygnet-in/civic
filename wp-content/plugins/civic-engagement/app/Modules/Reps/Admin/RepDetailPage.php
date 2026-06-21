@@ -107,6 +107,7 @@ class RepDetailPage
 
         $this->renderMessage($response);
         $this->renderSummary($rep);
+        $this->renderImage($rep);
         $this->renderAdministrationForm($rep);
         $this->renderSnapshot($rep);
         $this->renderActivities($activities);
@@ -161,6 +162,33 @@ class RepDetailPage
         echo '</tbody></table>';
         submit_button(__('Save Administration Details', 'civic-engagement'));
         echo '</form>';
+    }
+
+    /**
+     * Render the uploaded representation image when one is attached.
+     *
+     * @param array<string, mixed> $rep Rep row.
+     * @return void
+     */
+    private function renderImage(array $rep): void
+    {
+        $attachmentId = isset($rep['image_attachment_id']) ? (int) $rep['image_attachment_id'] : 0;
+
+        if ($attachmentId <= 0) {
+            return;
+        }
+
+        $thumbnailUrl = wp_get_attachment_image_url($attachmentId, 'thumbnail');
+        $fullUrl = wp_get_attachment_url($attachmentId);
+
+        if (!is_string($thumbnailUrl) || '' === $thumbnailUrl || !is_string($fullUrl) || '' === $fullUrl) {
+            return;
+        }
+
+        echo '<h2>' . esc_html__('Image', 'civic-engagement') . '</h2>';
+        echo '<p><a href="' . esc_url($fullUrl) . '" target="_blank" rel="noopener">';
+        echo '<img src="' . esc_url($thumbnailUrl) . '" alt="' . esc_attr__('Uploaded representation image', 'civic-engagement') . '">';
+        echo '</a></p>';
     }
 
     /**

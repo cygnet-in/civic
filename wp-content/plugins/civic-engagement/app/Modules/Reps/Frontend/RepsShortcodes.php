@@ -19,12 +19,16 @@ class RepsShortcodes
      */
     private RepFormController $formController;
 
+    private RepDetailShortcode $detailShortcode;
+
     /**
      * @param RepFormController $formController Rep form controller.
+     * @param RepDetailShortcode $detailShortcode Rep detail shortcode.
      */
-    public function __construct(RepFormController $formController)
+    public function __construct(RepFormController $formController, RepDetailShortcode $detailShortcode)
     {
         $this->formController = $formController;
+        $this->detailShortcode = $detailShortcode;
     }
 
     /**
@@ -35,6 +39,7 @@ class RepsShortcodes
     public function register(): void
     {
         add_shortcode('civic_rep_form', [$this, 'renderRepForm']);
+        add_shortcode('civic_rep_detail', [$this->detailShortcode, 'render']);
     }
 
     /**

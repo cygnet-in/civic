@@ -10,6 +10,7 @@ use CivicPlatform\Modules\Reps\Admin\RepDetailPage;
 use CivicPlatform\Modules\Reps\Admin\RepsAdmin;
 use CivicPlatform\Modules\Reps\Admin\RepsListPage;
 use CivicPlatform\Modules\Reps\Frontend\RepFormController;
+use CivicPlatform\Modules\Reps\Frontend\RepDetailShortcode;
 use CivicPlatform\Modules\Reps\Frontend\RepsShortcodes;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
@@ -48,7 +49,10 @@ class RepsModule
      */
     public function register(): void
     {
-        $shortcodes = new RepsShortcodes($this->createFormController());
+        $shortcodes = new RepsShortcodes(
+            $this->createFormController(),
+            new RepDetailShortcode($this->createRepService())
+        );
         $shortcodes->register();
 
         $admin = new RepsAdmin($this->createListPage(), $this->createDetailPage());

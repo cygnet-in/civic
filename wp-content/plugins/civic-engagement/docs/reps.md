@@ -14,7 +14,7 @@ Users can submit civic issues, requests, or complaints.
 * No ticket tracking.
 * No public dashboard.
 * Lightweight map support only.
-* Reps remain private.
+* Contact snapshots remain private.
 
 ---
 
@@ -52,7 +52,9 @@ Users can submit civic issues, requests, or complaints.
 
 4. Store snapshot data in civic_reps.
 
-5. Create civic_activities entry.
+5. If an image is provided, create one WordPress Media Library attachment and store its attachment ID on the representation.
+
+6. Create civic_activities entry.
 
 ---
 
@@ -63,6 +65,7 @@ Admin can:
 * list reps,
 * search/filter reps,
 * update administrative status and internal comment.
+* view an uploaded representation image as a thumbnail linking to the full image.
 
 ---
 
@@ -72,6 +75,8 @@ Admin can:
 * Administrative status/comment do not alter submitted snapshots.
 * Email is the primary unique identifier.
 * Public users cannot edit reps after submission.
+* Representations support one optional JPG, JPEG, PNG, or WebP image. The Media Library attachment ID is stored in `image_attachment_id`.
+* Public representation detail output excludes all contact snapshots.
 
 ---
 

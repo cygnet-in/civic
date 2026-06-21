@@ -90,6 +90,7 @@ CREATE TABLE `wp_civic_reps` (
   `electoral_area_snapshot` varchar(255) DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `details` longtext DEFAULT NULL,
+  `image_attachment_id` bigint(20) UNSIGNED DEFAULT NULL,
   `map_lat` decimal(10,7) DEFAULT NULL,
   `map_lng` decimal(10,7) DEFAULT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'submitted',

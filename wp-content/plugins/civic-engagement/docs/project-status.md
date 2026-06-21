@@ -12,9 +12,9 @@ Implemented:
 - Schedule recent update
 - Schedule priority
 - Consent management V1
+- Representation image upload V1
 
 Deferred:
-- Representation image upload
 - Routing/slugs
 - Media support
 - Schedule comments
@@ -121,6 +121,7 @@ Status: Operational
 Public Features:
 
 * representation submission
+* representation detail shortcode with optional image
 
 Admin Features:
 
@@ -128,6 +129,7 @@ Admin Features:
 * search
 * pagination
 * detail view
+* uploaded image thumbnail linking to the full image
 
 Important Rule:
 

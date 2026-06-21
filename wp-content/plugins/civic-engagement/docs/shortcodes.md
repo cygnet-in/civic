@@ -141,6 +141,18 @@ Purpose:
 
 ---
 
+### `[civic_rep_detail]`
+
+Purpose:
+
+* public representation detail display, including the optional uploaded image
+
+Supports attributes:
+
+* `rep_id="42"`
+
+---
+
 ## Threads Module
 
 ### `[civic_threads]`

@@ -55,7 +55,8 @@ class RepService
      * Submit a representation.
      *
      * Expected workflow keys include name, email, phone, whatsapp, address,
-     * eircode, electoral_area, title, details, map_lat, map_lng, and status.
+     * eircode, electoral_area, title, details, image_attachment_id, map_lat,
+     * map_lng, and status.
      *
      * Return shape:
      * [
@@ -152,6 +153,7 @@ class RepService
             ),
             'title' => $this->stringValue($data['title'] ?? ''),
             'details' => $this->stringValue($data['details'] ?? ''),
+            'image_attachment_id' => $this->positiveInteger($data['image_attachment_id'] ?? 0),
             'map_lat' => $this->numericValue($data['map_lat'] ?? null),
             'map_lng' => $this->numericValue($data['map_lng'] ?? null),
             'consent_email' => !empty($data['consent_email']) ? 1 : 0,
@@ -185,6 +187,10 @@ class RepService
             'details' => $data['details'],
             'status' => $data['status'],
         ];
+
+        if ($data['image_attachment_id'] > 0) {
+            $repData['image_attachment_id'] = $data['image_attachment_id'];
+        }
 
         if (null !== $data['map_lat']) {
             $repData['map_lat'] = $data['map_lat'];
@@ -264,6 +270,21 @@ class RepService
         }
 
         return (float) $value;
+    }
+
+    /**
+     * Normalize a positive integer value.
+     *
+     * @param mixed $value Raw value.
+     * @return int Positive integer, or zero when invalid.
+     */
+    private function positiveInteger($value): int
+    {
+        if (is_array($value) || is_object($value) || !is_numeric($value)) {
+            return 0;
+        }
+
+        return max(0, (int) $value);
     }
 
     /**

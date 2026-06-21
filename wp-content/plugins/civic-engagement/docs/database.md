@@ -170,6 +170,7 @@ Stores public representation submissions.
 | electoral_area_snapshot | submitted area       |
 | title                   | rep title            |
 | details                 | rep details          |
+| image_attachment_id     | WordPress attachment ID for the optional representation image |
 | map_lat                 | optional latitude    |
 | map_lng                 | optional longitude   |
 | status                  | workflow status      |

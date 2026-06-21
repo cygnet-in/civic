@@ -31,6 +31,7 @@ class RepRepository extends BaseRepository
         'electoral_area_snapshot' => '%s',
         'title' => '%s',
         'details' => '%s',
+        'image_attachment_id' => '%d',
         'map_lat' => '%f',
         'map_lng' => '%f',
         'status' => '%s',

@@ -29,7 +29,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
         </div>
     <?php endif; ?>
 
-    <form method="post" action="<?php echo esc_url(get_permalink()); ?>" class="civic-rep-form__form">
+    <form method="post" action="<?php echo esc_url(get_permalink()); ?>" class="civic-rep-form__form" enctype="multipart/form-data">
         <?php wp_nonce_field($nonceAction, $nonceField); ?>
         <input type="hidden" name="civic_action" value="<?php echo esc_attr($formAction); ?>">
 
@@ -131,6 +131,14 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
             <textarea id="civic-rep-details" name="civic_rep[details]" rows="6" required><?php echo esc_textarea((string) ($values['details'] ?? '')); ?></textarea>
             <?php if (isset($errors['details'])) : ?>
                 <span class="civic-rep-form__error"><?php echo esc_html($errors['details']); ?></span>
+            <?php endif; ?>
+        </p>
+
+        <p class="civic-rep-form__field">
+            <label for="civic-rep-image"><?php echo esc_html__('Image', 'civic-engagement'); ?></label>
+            <input id="civic-rep-image" name="civic_rep[image]" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+            <?php if (isset($errors['image'])) : ?>
+                <span class="civic-rep-form__error"><?php echo esc_html($errors['image']); ?></span>
             <?php endif; ?>
         </p>
 

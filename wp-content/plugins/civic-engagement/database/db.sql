@@ -27,6 +27,18 @@ CREATE TABLE `wp_civic_contacts` (
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `wp_civic_media` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `entity_type` varchar(50) NOT NULL,
+  `entity_id` bigint(20) UNSIGNED NOT NULL,
+  `attachment_id` bigint(20) UNSIGNED NOT NULL,
+  `caption` text DEFAULT NULL,
+  `sort_order` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `wp_civic_electoral_areas` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -211,6 +223,11 @@ ALTER TABLE `wp_civic_contacts`
   ADD KEY `idx_contact_consent_sms` (`consent_sms`),
   ADD KEY `idx_contact_consent_post` (`consent_post`);
 
+ALTER TABLE `wp_civic_media`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_entity_sort` (`entity_type`,`entity_id`,`sort_order`),
+  ADD KEY `idx_attachment_id` (`attachment_id`);
+
 ALTER TABLE `wp_civic_electoral_areas`
   ADD PRIMARY KEY (`id`);
 
@@ -259,6 +276,9 @@ ALTER TABLE `wp_civic_activities`
 
 ALTER TABLE `wp_civic_contacts`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+ALTER TABLE `wp_civic_media`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `wp_civic_electoral_areas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;

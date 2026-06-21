@@ -60,6 +60,7 @@ Admin can:
 * add a recent public update,
 * set a simple sorting priority,
 * add history notes,
+* add multiple schedule images and captions,
 * create schedules from representations or consultations in the future.
 
 ---
@@ -70,6 +71,7 @@ Admin can:
 * Archived schedules are hidden from active listings.
 * Private schedules remain admin-only.
 * Public schedules are ordered by priority, then start date.
+* The first schedule image is displayed as the listing thumbnail; detail pages show the primary image and remaining images as selectable thumbnails.
 
 ---
 

@@ -8,6 +8,8 @@ use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
+use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Renders and processes the schedule add/edit admin page.
@@ -77,6 +79,10 @@ class ScheduleEditPage
      */
     private DateHelper $dates;
 
+    private MediaService $media;
+
+    private MediaAdminPanel $mediaPanel;
+
     /**
      * @param ScheduleRepository $schedules Schedule repository.
      * @param ScheduleService $service Schedule service.
@@ -87,13 +93,16 @@ class ScheduleEditPage
         ScheduleRepository $schedules,
         ScheduleService $service,
         ScheduleNoteRepository $notes,
-        DateHelper $dates
+        DateHelper $dates,
+        MediaService $media
     )
     {
         $this->schedules = $schedules;
         $this->service = $service;
         $this->notes = $notes;
         $this->dates = $dates;
+        $this->media = $media;
+        $this->mediaPanel = new MediaAdminPanel($media);
     }
 
     /**
@@ -115,6 +124,10 @@ class ScheduleEditPage
         echo '<div class="wrap">';
         echo '<h1>' . esc_html($this->pageTitle($scheduleId, $isView)) . '</h1>';
         echo '<p><a href="' . esc_url($this->listUrl()) . '">' . esc_html__('Back to Schedules', 'civic-engagement') . '</a></p>';
+
+        if (!empty($_GET['media_error'])) {
+            echo '<div class="notice notice-error"><p>' . esc_html__('The schedule was created, but one or more images could not be uploaded.', 'civic-engagement') . '</p></div>';
+        }
 
         if ($scheduleId > 0 && !is_array($schedule)) {
             $this->renderNotFound();
@@ -176,6 +189,11 @@ class ScheduleEditPage
                 return $this->buildResponse(true, false, 'The schedule could not be updated.', $values, [], 'schedule_update_failed');
             }
 
+            $media = $this->synchronizeMedia($scheduleId);
+            if (!empty($media['errors'])) {
+                return $this->buildResponse(true, false, implode(' ', $media['errors']), $values, ['media' => implode(' ', $media['errors'])], 'media_save_failed');
+            }
+
             $this->redirectToList(['updated' => 1]);
         }
 
@@ -187,6 +205,11 @@ class ScheduleEditPage
 
         if ($newScheduleId <= 0) {
             return $this->buildResponse(true, false, 'The schedule could not be created.', $values, [], 'schedule_create_failed');
+        }
+
+        $media = $this->synchronizeMedia($newScheduleId);
+        if (!empty($media['errors'])) {
+            $this->redirectToEditWithMediaError($newScheduleId);
         }
 
         $this->redirectToList(['created' => 1]);
@@ -202,7 +225,7 @@ class ScheduleEditPage
      */
     private function renderForm(int $scheduleId, array $values, array $errors): void
     {
-        echo '<form method="post">';
+        echo '<form method="post" enctype="multipart/form-data">';
         wp_nonce_field(self::NONCE_ACTION . $scheduleId, self::NONCE_FIELD);
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
@@ -219,6 +242,7 @@ class ScheduleEditPage
         $this->renderTextInput('end_date', __('Status Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('history_note', __('History Note', 'civic-engagement'), $values, $errors, 4);
         echo '</tbody></table>';
+        $this->mediaPanel->render('schedule', $scheduleId);
         submit_button($scheduleId > 0 ? __('Update Schedule', 'civic-engagement') : __('Create Schedule', 'civic-engagement'));
         echo '</form>';
     }
@@ -565,6 +589,15 @@ class ScheduleEditPage
         return is_array($data) ? $data : [];
     }
 
+    /** @return array{errors: array<int, string>, created: int} */
+    private function synchronizeMedia(int $scheduleId): array
+    {
+        $request = isset($_POST['civic_media']) ? wp_unslash($_POST['civic_media']) : [];
+        $uploads = isset($_FILES['civic_media']) && is_array($_FILES['civic_media']) ? $_FILES['civic_media'] : [];
+
+        return $this->media->synchronize('schedule', $scheduleId, is_array($request) ? $request : [], $uploads, get_current_user_id());
+    }
+
     /**
      * Get a scalar request value.
      *
@@ -801,6 +834,20 @@ class ScheduleEditPage
             array_merge(['page' => 'civic-schedules'], $args),
             admin_url('admin.php')
         );
+    }
+
+    /** Redirect a newly created schedule back to its edit page after a media error. */
+    private function redirectToEditWithMediaError(int $scheduleId): void
+    {
+        $url = add_query_arg(['media_error' => 1], $this->editUrl($scheduleId));
+
+        if (!headers_sent()) {
+            wp_safe_redirect($url);
+            exit;
+        }
+
+        echo '<script>window.location.href = ' . wp_json_encode($url) . ';</script>';
+        exit;
     }
 
     /**

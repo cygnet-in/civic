@@ -24,8 +24,10 @@ use CivicPlatform\Modules\Events\Registrations\Admin\EventRegistrationDetailPage
 use CivicPlatform\Modules\Events\Registrations\Admin\EventRegistrationsListPage;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
+use CivicPlatform\Repositories\MediaRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Bootstraps the Events module.
@@ -68,14 +70,16 @@ class EventsModule
 
         $shortcode = new EventListShortcode(
             new EventRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            $this->createMediaService()
         );
         $shortcode->register();
 
         $detailShortcode = new EventDetailShortcode(
             new EventRepository($this->wpdb),
             new DateHelper(),
-            $this->createRegistrationForm()
+            $this->createRegistrationForm(),
+            $this->createMediaService()
         );
         $detailShortcode->register();
     }
@@ -118,7 +122,8 @@ class EventsModule
     {
         return new EventEditPage(
             new EventRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            $this->createMediaService()
         );
     }
 
@@ -204,5 +209,10 @@ class EventsModule
             new ContactService(new ContactRepository($this->wpdb)),
             new ActivityService(new ActivityRepository($this->wpdb))
         );
+    }
+
+    private function createMediaService(): MediaService
+    {
+        return new MediaService(new MediaRepository($this->wpdb));
     }
 }

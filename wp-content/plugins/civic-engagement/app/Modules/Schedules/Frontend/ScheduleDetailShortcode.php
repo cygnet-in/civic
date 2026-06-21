@@ -6,6 +6,8 @@ namespace CivicPlatform\Modules\Schedules\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
+use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Registers and renders the public schedule detail shortcode.
@@ -26,14 +28,17 @@ class ScheduleDetailShortcode
      */
     private DateHelper $dates;
 
+    private MediaService $media;
+
     /**
      * @param ScheduleRepository $schedules Schedule repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ScheduleRepository $schedules, DateHelper $dates)
+    public function __construct(ScheduleRepository $schedules, DateHelper $dates, MediaService $media)
     {
         $this->schedules = $schedules;
         $this->dates = $dates;
+        $this->media = $media;
     }
 
     /**
@@ -103,6 +108,7 @@ class ScheduleDetailShortcode
         echo '<article class="civic-card civic-schedule-detail__content">';
         echo '<div class="civic-card__content">';
         echo '<h1 class="civic-card-detail__title civic-schedule-detail__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h1>';
+        echo MediaRenderer::gallery($this->media->getByEntity('schedule', (int) ($schedule['id'] ?? 0)), 'schedule-' . (int) ($schedule['id'] ?? 0));
         echo '<p class="civic-card__type civic-schedule-detail__type"><strong>' . esc_html__('Type:', 'civic-engagement') . '</strong> ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
         echo '<p class="civic-card__status civic-schedule-detail__status"><strong>' . esc_html__('Status:', 'civic-engagement') . '</strong> ' . esc_html($this->statusLabel((string) ($schedule['status'] ?? ''))) . '</p>';
 

@@ -170,6 +170,10 @@ Not included.
 
 Current version allows unrestricted registrations.
 
+### Civic Media Support
+
+Consultations, Events, and Schedules support multiple WordPress Media Library images with captions. The first image is the primary public image; later images appear as selectable thumbnails.
+
 ---
 
 ## Schedules
@@ -261,21 +265,6 @@ Implement CAPTCHA or equivalent spam-prevention mechanism.
 ---
 
 # Deferred Until Core Enhancements Are Complete
-
-## Media Support
-
-Consultations, Events and Schedules require separate review for:
-
-* Single image
-* Multiple images
-* Galleries
-* Video support
-
-No commitment has been made regarding implementation approach.
-
-Representation image upload remains part of the current release.
-
----
 
 ## Schedule Comments
 

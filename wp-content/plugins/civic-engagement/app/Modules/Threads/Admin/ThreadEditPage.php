@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Admin;
 
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Renders and processes the consultation edit admin page.
@@ -41,12 +43,18 @@ class ThreadEditPage
      */
     private ThreadRepository $threads;
 
+    private MediaService $media;
+
+    private MediaAdminPanel $mediaPanel;
+
     /**
      * @param ThreadRepository $threads Thread repository.
      */
-    public function __construct(ThreadRepository $threads)
+    public function __construct(ThreadRepository $threads, MediaService $media)
     {
         $this->threads = $threads;
+        $this->media = $media;
+        $this->mediaPanel = new MediaAdminPanel($media);
     }
 
     /**
@@ -115,6 +123,11 @@ class ThreadEditPage
             return $this->buildResponse(true, false, 'The consultation could not be updated.', $values, [], 'thread_update_failed');
         }
 
+        $media = $this->synchronizeMedia('consultation', $threadId);
+        if (!empty($media['errors'])) {
+            return $this->buildResponse(true, false, implode(' ', $media['errors']), $values, ['media' => implode(' ', $media['errors'])], 'media_save_failed');
+        }
+
         return $this->buildResponse(true, true, 'Consultation updated successfully.', [], [], null);
     }
 
@@ -148,7 +161,7 @@ class ThreadEditPage
      */
     private function renderForm(int $threadId, array $thread, array $values, array $errors): void
     {
-        echo '<form method="post">';
+        echo '<form method="post" enctype="multipart/form-data">';
         wp_nonce_field(self::NONCE_ACTION . $threadId, self::NONCE_FIELD);
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
@@ -162,6 +175,7 @@ class ThreadEditPage
         $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
         echo '</tbody></table>';
+        $this->mediaPanel->render('consultation', $threadId);
         submit_button(__('Update Consultation', 'civic-engagement'));
         echo '</form>';
     }
@@ -379,6 +393,15 @@ class ThreadEditPage
         $data = wp_unslash($_POST['civic_thread']);
 
         return is_array($data) ? $data : [];
+    }
+
+    /** @return array{errors: array<int, string>, created: int} */
+    private function synchronizeMedia(string $entityType, int $entityId): array
+    {
+        $request = isset($_POST['civic_media']) ? wp_unslash($_POST['civic_media']) : [];
+        $uploads = isset($_FILES['civic_media']) && is_array($_FILES['civic_media']) ? $_FILES['civic_media'] : [];
+
+        return $this->media->synchronize($entityType, $entityId, is_array($request) ? $request : [], $uploads, get_current_user_id());
     }
 
     /**

@@ -146,6 +146,28 @@ Stores public representation submissions.
 
 ---
 
+# Table: wp_civic_media
+
+## Purpose
+
+Stores ordered WordPress Media Library image associations for consultations, events, and schedules.
+
+## Fields
+
+| Field | Purpose |
+| --- | --- |
+| id | media association ID |
+| entity_type | consultation, event, or schedule |
+| entity_id | associated civic entity ID |
+| attachment_id | WordPress attachment ID |
+| caption | optional public image caption |
+| sort_order | stable display order; first image is primary |
+| created_by | administrator who added the image |
+| created_at | creation timestamp |
+| updated_at | last caption update timestamp |
+
+---
+
 ## Important Rules
 
 * Snapshot user data must remain unchanged.
@@ -456,6 +478,11 @@ Recommended indexes:
 * INDEX(consent_call)
 * INDEX(consent_sms)
 * INDEX(consent_post)
+
+## civic_media
+
+* INDEX(entity_type, entity_id, sort_order)
+* INDEX(attachment_id)
 
 ## civic_activities
 

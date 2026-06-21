@@ -9,6 +9,8 @@ use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Threads\Responses\Frontend\ThreadResponseForm;
+use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Registers and renders the public consultation detail shortcode.
@@ -53,6 +55,8 @@ class ThreadDetailShortcode
      */
     private ThreadResponseForm $responseForm;
 
+    private MediaService $media;
+
     /**
      * @param ThreadRepository $threads Thread repository.
      * @param ThreadResponseRepository $responses Thread response repository.
@@ -65,13 +69,15 @@ class ThreadDetailShortcode
         ThreadResponseRepository $responses,
         ThreadFieldRepository $fields,
         DateHelper $dates,
-        ThreadResponseForm $responseForm
+        ThreadResponseForm $responseForm,
+        MediaService $media
     ) {
         $this->threads = $threads;
         $this->responses = $responses;
         $this->fields = $fields;
         $this->dates = $dates;
         $this->responseForm = $responseForm;
+        $this->media = $media;
     }
 
     /**
@@ -123,7 +129,7 @@ class ThreadDetailShortcode
         $publicResponses = $showPublicResponses
             ? $this->publicResponses((int) ($thread['id'] ?? 0))
             : ['items' => [], 'total' => 0];
-        $this->renderThread($thread, $publicResponses, $showPublicResponses, $responseCount);
+        $this->renderThread($thread, $publicResponses, $showPublicResponses, $responseCount, $this->media->getByEntity('consultation', (int) ($thread['id'] ?? 0)));
         $this->renderResponseFormSection($thread);
 
         if ($showPublicResponses) {
@@ -148,12 +154,14 @@ class ThreadDetailShortcode
         array $thread,
         array $publicResponses,
         bool $showPublicResponses,
-        int $responseCount
+        int $responseCount,
+        array $media
     ): void
     {
         echo '<article class="civic-card civic-thread-detail__content">';
         echo '<div class="civic-card__content">';
         echo '<h1 class="civic-card-detail__title civic-thread-detail__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h1>';
+        echo MediaRenderer::gallery($media, 'consultation-' . (int) ($thread['id'] ?? 0));
 
         if (!empty($thread['summary'])) {
             echo '<p class="civic-card__summary civic-thread-detail__summary">' . esc_html((string) $thread['summary']) . '</p>';

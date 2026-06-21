@@ -29,6 +29,7 @@ Admin can:
 * configure registration fields,
 * export participants,
 * close/unpublish events.
+* add multiple event images and captions.
 
 ---
 

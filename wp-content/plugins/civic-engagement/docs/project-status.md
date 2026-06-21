@@ -13,10 +13,10 @@ Implemented:
 - Schedule priority
 - Consent management V1
 - Representation image upload V1
+- Civic media support V1
 
 Deferred:
 - Routing/slugs
-- Media support
 - Schedule comments
 
 ---
@@ -166,6 +166,7 @@ Implemented:
 * response count display
 * response counts
 * anchor navigation
+* multiple image media support
 
 Administrative refinements:
 
@@ -248,6 +249,7 @@ Implemented:
 * search
 * pagination
 * registration detail view
+* multiple image media support
 
 ### Event Custom Fields
 

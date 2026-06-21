@@ -6,6 +6,8 @@ namespace CivicPlatform\Modules\Events\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
+use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Renders and processes the event add/edit admin page.
@@ -49,14 +51,20 @@ class EventEditPage
      */
     private DateHelper $dates;
 
+    private MediaService $media;
+
+    private MediaAdminPanel $mediaPanel;
+
     /**
      * @param EventRepository $events Event repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(EventRepository $events, DateHelper $dates)
+    public function __construct(EventRepository $events, DateHelper $dates, MediaService $media)
     {
         $this->events = $events;
         $this->dates = $dates;
+        $this->media = $media;
+        $this->mediaPanel = new MediaAdminPanel($media);
     }
 
     /**
@@ -78,6 +86,10 @@ class EventEditPage
         echo '<div class="wrap">';
         echo '<h1>' . esc_html($this->pageTitle($eventId, $isView)) . '</h1>';
         echo '<p><a href="' . esc_url($this->listUrl()) . '">' . esc_html__('Back to Events', 'civic-engagement') . '</a></p>';
+
+        if (!empty($_GET['media_error'])) {
+            echo '<div class="notice notice-error"><p>' . esc_html__('The event was created, but one or more images could not be uploaded.', 'civic-engagement') . '</p></div>';
+        }
 
         if ($eventId > 0 && !is_array($event)) {
             $this->renderNotFound();
@@ -133,6 +145,11 @@ class EventEditPage
                 return $this->buildResponse(true, false, 'The event could not be updated.', $values, [], 'event_update_failed');
             }
 
+            $media = $this->synchronizeMedia($eventId);
+            if (!empty($media['errors'])) {
+                return $this->buildResponse(true, false, implode(' ', $media['errors']), $values, ['media' => implode(' ', $media['errors'])], 'media_save_failed');
+            }
+
             $url = $this->listUrl(['updated' => 1]);
             if (!headers_sent()) {
                 wp_safe_redirect($url);
@@ -147,6 +164,11 @@ class EventEditPage
 
         if ($newEventId <= 0) {
             return $this->buildResponse(true, false, 'The event could not be created.', $values, [], 'event_create_failed');
+        }
+
+        $media = $this->synchronizeMedia($newEventId);
+        if (!empty($media['errors'])) {
+            $this->redirectToEditWithMediaError($newEventId);
         }
 
         $url = $this->listUrl(['created' => 1]);
@@ -169,7 +191,7 @@ class EventEditPage
      */
     private function renderForm(int $eventId, array $values, array $errors): void
     {
-        echo '<form method="post">';
+        echo '<form method="post" enctype="multipart/form-data">';
         wp_nonce_field(self::NONCE_ACTION . $eventId, self::NONCE_FIELD);
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
@@ -184,6 +206,7 @@ class EventEditPage
         $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
         $this->renderStatusSelect($values, $errors);
         echo '</tbody></table>';
+        $this->mediaPanel->render('event', $eventId);
         submit_button($eventId > 0 ? __('Update Event', 'civic-engagement') : __('Create Event', 'civic-engagement'));
         echo '</form>';
     }
@@ -457,6 +480,15 @@ class EventEditPage
         return is_array($data) ? $data : [];
     }
 
+    /** @return array{errors: array<int, string>, created: int} */
+    private function synchronizeMedia(int $eventId): array
+    {
+        $request = isset($_POST['civic_media']) ? wp_unslash($_POST['civic_media']) : [];
+        $uploads = isset($_FILES['civic_media']) && is_array($_FILES['civic_media']) ? $_FILES['civic_media'] : [];
+
+        return $this->media->synchronize('event', $eventId, is_array($request) ? $request : [], $uploads, get_current_user_id());
+    }
+
     /**
      * Get a scalar request value.
      *
@@ -699,6 +731,20 @@ class EventEditPage
             array_merge(['page' => 'civic-events'], $args),
             admin_url('admin.php')
         );
+    }
+
+    /** Redirect a newly created event back to its edit page after a media error. */
+    private function redirectToEditWithMediaError(int $eventId): void
+    {
+        $url = add_query_arg(['media_error' => 1], $this->editUrl($eventId));
+
+        if (!headers_sent()) {
+            wp_safe_redirect($url);
+            exit;
+        }
+
+        echo '<script>window.location.href = ' . wp_json_encode($url) . ';</script>';
+        exit;
     }
 
     /**

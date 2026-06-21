@@ -6,6 +6,8 @@ namespace CivicPlatform\Modules\Events\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
+use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Registers and renders the public events listing shortcode.
@@ -29,14 +31,17 @@ class EventListShortcode
      */
     private DateHelper $dates;
 
+    private MediaService $media;
+
     /**
      * @param EventRepository $events Event repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(EventRepository $events, DateHelper $dates)
+    public function __construct(EventRepository $events, DateHelper $dates, MediaService $media)
     {
         $this->events = $events;
         $this->dates = $dates;
+        $this->media = $media;
     }
 
     /**
@@ -113,7 +118,7 @@ class EventListShortcode
         $eventId = isset($event['id']) ? (int) $event['id'] : 0;
 
         echo '<article class="civic-card civic-events__item">';
-        echo '<div class="civic-card__media"></div>';
+        echo MediaRenderer::listThumbnail($this->media->getPrimary('event', $eventId));
         echo '<div class="civic-card__content">';
         echo '<h2 class="civic-card__title civic-events__title">' . esc_html((string) ($event['title'] ?? '')) . '</h2>';
 

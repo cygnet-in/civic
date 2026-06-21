@@ -6,6 +6,8 @@ namespace CivicPlatform\Modules\Threads\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Registers and renders the public threads listing shortcode.
@@ -29,14 +31,17 @@ class ThreadsListShortcode
      */
     private DateHelper $dates;
 
+    private MediaService $media;
+
     /**
      * @param ThreadRepository $threads Thread repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadRepository $threads, DateHelper $dates)
+    public function __construct(ThreadRepository $threads, DateHelper $dates, MediaService $media)
     {
         $this->threads = $threads;
         $this->dates = $dates;
+        $this->media = $media;
     }
 
     /**
@@ -113,7 +118,7 @@ class ThreadsListShortcode
         $threadId = isset($thread['id']) ? (int) $thread['id'] : 0;
 
         echo '<article class="civic-card civic-threads__item">';
-        echo '<div class="civic-card__media"></div>';
+        echo MediaRenderer::listThumbnail($this->media->getPrimary('consultation', $threadId));
         echo '<div class="civic-card__content">';
         echo '<h2 class="civic-card__title civic-threads__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h2>';
 

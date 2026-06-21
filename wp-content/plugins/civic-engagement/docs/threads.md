@@ -28,6 +28,7 @@ Admin can:
 * configure response fields,
 * publish/unpublish,
 * configure a starting response count.
+* add multiple consultation images and captions.
 
 ---
 
@@ -70,6 +71,7 @@ Admin can:
 * Email/phone/address remain private.
 * Displayed response count is the starting response count plus actual submitted responses.
 * Public response rendering is disabled by default.
+* The first consultation image is displayed as the listing thumbnail; detail pages show the primary image and remaining images as selectable thumbnails.
 
 ---
 

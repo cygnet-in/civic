@@ -7,6 +7,8 @@ namespace CivicPlatform\Modules\Events\Frontend;
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 use CivicPlatform\Modules\Events\Registrations\Frontend\EventRegistrationForm;
+use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Registers and renders the public event detail shortcode.
@@ -37,6 +39,8 @@ class EventDetailShortcode
      */
     private EventRegistrationForm $registrationForm;
 
+    private MediaService $media;
+
     /**
      * @param EventRepository $events Event repository.
      * @param DateHelper $dates Date helper.
@@ -45,11 +49,13 @@ class EventDetailShortcode
     public function __construct(
         EventRepository $events,
         DateHelper $dates,
-        EventRegistrationForm $registrationForm
+        EventRegistrationForm $registrationForm,
+        MediaService $media
     ) {
         $this->events = $events;
         $this->dates = $dates;
         $this->registrationForm = $registrationForm;
+        $this->media = $media;
     }
 
     /**
@@ -111,6 +117,7 @@ class EventDetailShortcode
         echo '<article class="civic-card civic-event-detail__content">';
         echo '<div class="civic-card__content">';
         echo '<h1 class="civic-card-detail__title civic-event-detail__title">' . esc_html((string) ($event['title'] ?? '')) . '</h1>';
+        echo MediaRenderer::gallery($this->media->getByEntity('event', (int) ($event['id'] ?? 0)), 'event-' . (int) ($event['id'] ?? 0));
 
         if (!empty($event['summary'])) {
             echo '<p class="civic-card__summary civic-event-detail__summary">' . esc_html((string) $event['summary']) . '</p>';

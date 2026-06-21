@@ -26,8 +26,10 @@ use CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService;
 use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
+use CivicPlatform\Repositories\MediaRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Bootstraps the Threads module.
@@ -70,7 +72,7 @@ class ThreadsModule
         );
         $admin->register();
 
-        $shortcode = new ThreadsListShortcode(new ThreadRepository($this->wpdb), new DateHelper());
+        $shortcode = new ThreadsListShortcode(new ThreadRepository($this->wpdb), new DateHelper(), $this->createMediaService());
         $shortcode->register();
 
         $detailShortcode = new ThreadDetailShortcode(
@@ -82,7 +84,8 @@ class ThreadsModule
                 $this->createThreadResponseService(),
                 new ThreadFieldRepository($this->wpdb),
                 new ElectoralAreaRepository($this->wpdb)
-            )
+            ),
+            $this->createMediaService()
         );
         $detailShortcode->register();
     }
@@ -184,7 +187,7 @@ class ThreadsModule
      */
     private function createEditPage(): ThreadEditPage
     {
-        return new ThreadEditPage(new ThreadRepository($this->wpdb));
+        return new ThreadEditPage(new ThreadRepository($this->wpdb), $this->createMediaService());
     }
 
     /**
@@ -212,5 +215,10 @@ class ThreadsModule
             new ContactService(new ContactRepository($this->wpdb)),
             new ActivityService(new ActivityRepository($this->wpdb))
         );
+    }
+
+    private function createMediaService(): MediaService
+    {
+        return new MediaService(new MediaRepository($this->wpdb));
     }
 }

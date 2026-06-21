@@ -88,6 +88,60 @@
     margin-bottom: 0;
 }
 
+.civic-card__media {
+    margin: 0 0 18px;
+}
+
+.civic-card__media img {
+    display: block;
+    width: 160px;
+    height: 108px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.civic-media-gallery {
+    margin: 0 0 24px;
+}
+
+.civic-media-gallery__primary {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.civic-media-gallery__caption {
+    margin: 8px 0 0;
+    color: var(--civic-text-light);
+}
+
+.civic-media-gallery__thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.civic-media-gallery__thumbnail {
+    width: 72px;
+    height: 56px;
+    padding: 0;
+    border: 1px solid var(--civic-border);
+    border-radius: 6px;
+    background: #fff;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.civic-media-gallery__thumbnail img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* =====================================================
    Meta Information
 ===================================================== */

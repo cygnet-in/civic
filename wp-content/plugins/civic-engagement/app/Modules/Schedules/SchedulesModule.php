@@ -14,6 +14,8 @@ use CivicPlatform\Modules\Schedules\Frontend\ScheduleListShortcode;
 use CivicPlatform\Modules\Schedules\Frontend\UpcomingSchedulesWidget;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
+use CivicPlatform\Repositories\MediaRepository;
+use CivicPlatform\Services\MediaService;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
 
 /**
@@ -53,13 +55,15 @@ class SchedulesModule
 
         $shortcode = new ScheduleListShortcode(
             new ScheduleRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            $this->createMediaService()
         );
         $shortcode->register();
 
         $detailShortcode = new ScheduleDetailShortcode(
             new ScheduleRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            $this->createMediaService()
         );
         $detailShortcode->register();
     }
@@ -106,7 +110,13 @@ class SchedulesModule
             $repository,
             new ScheduleService($repository, new ScheduleNoteRepository($this->wpdb)),
             new ScheduleNoteRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            $this->createMediaService()
         );
+    }
+
+    private function createMediaService(): MediaService
+    {
+        return new MediaService(new MediaRepository($this->wpdb));
     }
 }

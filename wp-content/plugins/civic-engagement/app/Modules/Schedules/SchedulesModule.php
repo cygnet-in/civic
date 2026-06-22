@@ -93,7 +93,8 @@ class SchedulesModule
     {
         return new SchedulesListPage(
             new ScheduleRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            $this->createMediaService()
         );
     }
 

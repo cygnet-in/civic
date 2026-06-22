@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Schedules\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
@@ -265,6 +266,7 @@ class ScheduleEditPage
         }
 
         echo '</tbody></table>';
+        $this->mediaPanel->renderReadOnly('schedule', $scheduleId);
     }
 
     /**
@@ -277,11 +279,11 @@ class ScheduleEditPage
     {
         return [
             __('ID', 'civic-engagement') => (string) ($schedule['id'] ?? ''),
-            __('Type', 'civic-engagement') => (string) ($schedule['type'] ?? ''),
+            __('Type', 'civic-engagement') => StatusLabelHelper::format($schedule['type'] ?? ''),
             __('Title', 'civic-engagement') => (string) ($schedule['title'] ?? ''),
             __('Details', 'civic-engagement') => (string) ($schedule['details'] ?? ''),
             __('Recent Update', 'civic-engagement') => (string) ($schedule['recent_update'] ?? ''),
-            __('Status', 'civic-engagement') => (string) ($schedule['status'] ?? ''),
+            __('Status', 'civic-engagement') => StatusLabelHelper::format($schedule['status'] ?? ''),
             __('Priority', 'civic-engagement') => (string) ($schedule['priority'] ?? 0),
             __('Internal Comment', 'civic-engagement') => (string) ($schedule['internal_comment'] ?? ''),
             __('Public', 'civic-engagement') => !empty($schedule['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement'),

@@ -125,6 +125,23 @@ class ThreadRepository extends BaseRepository
         return is_array($row) ? $row : null;
     }
 
+    /** @param array<int, int> $ids @return array<int, string> */
+    public function getTitlesByIds(array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('absint', $ids))));
+        if (empty($ids)) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($ids), '%d'));
+        $rows = $this->wpdb->get_results($this->prepare("SELECT id, title FROM {$this->table} WHERE id IN ({$placeholders})", $ids), ARRAY_A);
+        $titles = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $titles[(int) ($row['id'] ?? 0)] = (string) ($row['title'] ?? '');
+        }
+        return $titles;
+    }
+
     /**
      * Find a published public thread by ID.
      *

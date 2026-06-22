@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Reps\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
 
 /**
@@ -160,7 +161,7 @@ class RepsListPage
         echo '<td>' . esc_html((string) $id) . '</td>';
         echo '<td>' . esc_html((string) ($item['name_snapshot'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['email_snapshot'] ?? '')) . '</td>';
-        echo '<td>' . esc_html((string) ($item['status'] ?? '')) . '</td>';
+        echo '<td>' . esc_html(StatusLabelHelper::format($item['status'] ?? '')) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['created_at'] ?? null)) . '</td>';
         echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a></td>';
         echo '</tr>';

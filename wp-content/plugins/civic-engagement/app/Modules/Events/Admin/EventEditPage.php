@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Events\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Services\MediaService;
@@ -233,10 +234,11 @@ class EventEditPage
         $this->renderDetailRow(__('Registrations', 'civic-engagement'), !empty($event['registration_enabled']) ? __('Enabled', 'civic-engagement') : __('Disabled', 'civic-engagement'));
         $this->renderDetailRow(__('Start Date', 'civic-engagement'), $this->dates->formatDateTime($event['start_date'] ?? null));
         $this->renderDetailRow(__('End Date', 'civic-engagement'), $this->dates->formatDateTime($event['end_date'] ?? null));
-        $this->renderDetailRow(__('Status', 'civic-engagement'), (string) ($event['status'] ?? ''));
+        $this->renderDetailRow(__('Status', 'civic-engagement'), StatusLabelHelper::format($event['status'] ?? ''));
         $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($event['created_at'] ?? null));
         $this->renderDetailRow(__('Updated At', 'civic-engagement'), $this->dates->formatDateTime($event['updated_at'] ?? null));
         echo '</tbody></table>';
+        $this->mediaPanel->renderReadOnly('event', $eventId);
     }
 
     /**

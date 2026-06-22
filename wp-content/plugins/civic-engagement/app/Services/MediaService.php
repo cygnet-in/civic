@@ -45,6 +45,17 @@ class MediaService
     }
 
     /**
+     * @param array<int, int> $entityIds Entity IDs.
+     * @return array<int, int> Media counts keyed by entity ID.
+     */
+    public function getCountsByEntityIds(string $entityType, array $entityIds): array
+    {
+        return in_array($entityType, self::ENTITY_TYPES, true)
+            ? $this->media->getCountsByEntityIds($entityType, $entityIds)
+            : [];
+    }
+
+    /**
      * Apply caption changes, association deletes, and optional uploaded images.
      *
      * @param array<string, mixed> $requestData Namespaced civic_media POST data.

@@ -86,7 +86,8 @@ class EventRegistrationsListPage
         echo '<h1>' . esc_html($this->pageTitle($eventId, $event)) . '</h1>';
         echo '<p>' . esc_html(sprintf(_n('%d registration', '%d registrations', $total, 'civic-engagement'), $total)) . '</p>';
         $this->renderSearchForm($search, $eventId);
-        $this->renderTable($items);
+        $eventIds = array_map(static fn(array $item): int => (int) ($item['event_id'] ?? 0), $items);
+        $this->renderTable($items, $this->events->getTitlesByIds($eventIds));
         $this->renderPagination($page, $totalPages, $search, $eventId);
         echo '</div>';
     }
@@ -147,12 +148,12 @@ class EventRegistrationsListPage
      * @param array<int, array<string, mixed>> $items Registration rows.
      * @return void
      */
-    private function renderTable(array $items): void
+    private function renderTable(array $items, array $eventTitles): void
     {
         echo '<table class="widefat fixed striped">';
         echo '<thead><tr>';
         echo '<th scope="col">' . esc_html__('ID', 'civic-engagement') . '</th>';
-        echo '<th scope="col">' . esc_html__('Event ID', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Event', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Name', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Email', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Phone', 'civic-engagement') . '</th>';
@@ -167,7 +168,7 @@ class EventRegistrationsListPage
         }
 
         foreach ($items as $item) {
-            $this->renderRow($item);
+            $this->renderRow($item, $eventTitles);
         }
 
         echo '</tbody>';
@@ -180,14 +181,14 @@ class EventRegistrationsListPage
      * @param array<string, mixed> $item Registration row.
      * @return void
      */
-    private function renderRow(array $item): void
+    private function renderRow(array $item, array $eventTitles): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
         $eventId = isset($item['event_id']) ? (int) $item['event_id'] : 0;
 
         echo '<tr>';
         echo '<td>' . esc_html((string) $id) . '</td>';
-        echo '<td>' . esc_html((string) $eventId) . '</td>';
+        echo '<td>' . esc_html($eventTitles[$eventId] ?? '') . '</td>';
         echo '<td>' . esc_html((string) ($item['name_snapshot'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['email_snapshot'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['phone_snapshot'] ?? '')) . '</td>';

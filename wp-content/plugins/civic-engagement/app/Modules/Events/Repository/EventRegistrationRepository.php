@@ -122,6 +122,32 @@ class EventRegistrationRepository extends BaseRepository
     }
 
     /**
+     * Get registration counts for a set of events with one grouped query.
+     *
+     * @param array<int, int> $eventIds Event IDs.
+     * @return array<int, int> Counts keyed by event ID.
+     */
+    public function getCountsByEventIds(array $eventIds): array
+    {
+        $eventIds = array_values(array_unique(array_filter(array_map('absint', $eventIds))));
+
+        if (empty($eventIds)) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($eventIds), '%d'));
+        $sql = "SELECT event_id, COUNT(*) AS item_count FROM {$this->table} WHERE event_id IN ({$placeholders}) GROUP BY event_id";
+        $rows = $this->wpdb->get_results($this->prepare($sql, $eventIds), ARRAY_A);
+        $counts = [];
+
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $counts[(int) ($row['event_id'] ?? 0)] = (int) ($row['item_count'] ?? 0);
+        }
+
+        return $counts;
+    }
+
+    /**
      * Get a paginated registration listing.
      *
      * Supported args: page, per_page, event_id, contact_id, orderby, order.

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
+use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Renders the admin consultation listing.
@@ -38,15 +41,19 @@ class ThreadsListPage
      * @var DateHelper
      */
     private DateHelper $dates;
+    private ThreadResponseRepository $responses;
+    private MediaService $media;
 
     /**
      * @param ThreadRepository $threads Thread repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadRepository $threads, DateHelper $dates)
+    public function __construct(ThreadRepository $threads, DateHelper $dates, ThreadResponseRepository $responses, MediaService $media)
     {
         $this->threads = $threads;
         $this->dates = $dates;
+        $this->responses = $responses;
+        $this->media = $media;
     }
 
     /**
@@ -70,7 +77,8 @@ class ThreadsListPage
         echo '<h1 class="wp-heading-inline">' . esc_html__('Consultations', 'civic-engagement') . '</h1>';
         echo ' <a href="' . esc_url($this->addUrl()) . '" class="page-title-action">' . esc_html__('Add Consultation', 'civic-engagement') . '</a>';
         $this->renderSearchForm($search);
-        $this->renderTable($items);
+        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
+        $this->renderTable($items, $this->responses->getCountsByThreadIds($ids), $this->media->getCountsByEntityIds('consultation', $ids));
         $this->renderPagination($page, $totalPages, $search);
         echo '</div>';
     }
@@ -122,7 +130,7 @@ class ThreadsListPage
      * @param array<int, array<string, mixed>> $items Thread rows.
      * @return void
      */
-    private function renderTable(array $items): void
+    private function renderTable(array $items, array $responseCounts, array $mediaCounts): void
     {
         echo '<table class="widefat fixed striped">';
         echo '<thead><tr>';
@@ -131,6 +139,7 @@ class ThreadsListPage
         echo '<th scope="col">' . esc_html__('Slug', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Status', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Responses', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Images', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Created By', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Created', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Actions', 'civic-engagement') . '</th>';
@@ -138,11 +147,11 @@ class ThreadsListPage
         echo '<tbody>';
 
         if (empty($items)) {
-            echo '<tr><td colspan="8">' . esc_html__('No threads found.', 'civic-engagement') . '</td></tr>';
+            echo '<tr><td colspan="9">' . esc_html__('No threads found.', 'civic-engagement') . '</td></tr>';
         }
 
         foreach ($items as $item) {
-            $this->renderRow($item);
+            $this->renderRow($item, $responseCounts, $mediaCounts);
         }
 
         echo '</tbody>';
@@ -155,7 +164,7 @@ class ThreadsListPage
      * @param array<string, mixed> $item Thread row.
      * @return void
      */
-    private function renderRow(array $item): void
+    private function renderRow(array $item, array $responseCounts, array $mediaCounts): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
 
@@ -163,11 +172,12 @@ class ThreadsListPage
         echo '<td>' . esc_html((string) $id) . '</td>';
         echo '<td>' . esc_html((string) ($item['title'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['slug'] ?? '')) . '</td>';
-        echo '<td>' . esc_html((string) ($item['status'] ?? '')) . '</td>';
+        echo '<td>' . esc_html(StatusLabelHelper::format($item['status'] ?? '')) . '</td>';
         echo '<td>' . esc_html(!empty($item['response_enabled']) ? __('Enabled', 'civic-engagement') : __('Disabled', 'civic-engagement')) . '</td>';
+        echo '<td>' . esc_html((string) ($mediaCounts[$id] ?? 0)) . '</td>';
         echo '<td>' . esc_html($this->userDisplayName($item['created_by'] ?? 0)) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['created_at'] ?? null)) . '</td>';
-        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->fieldsUrl($id)) . '">' . esc_html__('Fields', 'civic-engagement') . '</a> | <a href="' . esc_url($this->responsesUrl($id)) . '">' . esc_html__('Responses', 'civic-engagement') . '</a></td>';
+        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->fieldsUrl($id)) . '">' . esc_html__('Fields', 'civic-engagement') . '</a> | <a href="' . esc_url($this->responsesUrl($id)) . '">' . esc_html(sprintf(__('View Responses (%d)', 'civic-engagement'), (int) ($responseCounts[$id] ?? 0))) . '</a></td>';
         echo '</tr>';
     }
 

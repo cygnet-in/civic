@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Schedules\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Renders the admin schedule listing.
@@ -38,15 +40,17 @@ class SchedulesListPage
      * @var DateHelper
      */
     private DateHelper $dates;
+    private MediaService $media;
 
     /**
      * @param ScheduleRepository $schedules Schedule repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ScheduleRepository $schedules, DateHelper $dates)
+    public function __construct(ScheduleRepository $schedules, DateHelper $dates, MediaService $media)
     {
         $this->schedules = $schedules;
         $this->dates = $dates;
+        $this->media = $media;
     }
 
     /**
@@ -71,7 +75,8 @@ class SchedulesListPage
         echo ' <a href="' . esc_url($this->addUrl()) . '" class="page-title-action">' . esc_html__('Add New', 'civic-engagement') . '</a>';
         $this->renderNotices();
         $this->renderSearchForm($search);
-        $this->renderTable($items);
+        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
+        $this->renderTable($items, $this->media->getCountsByEntityIds('schedule', $ids));
         $this->renderPagination($page, $totalPages, $search);
         echo '</div>';
     }
@@ -137,7 +142,7 @@ class SchedulesListPage
      * @param array<int, array<string, mixed>> $items Schedule rows.
      * @return void
      */
-    private function renderTable(array $items): void
+    private function renderTable(array $items, array $mediaCounts): void
     {
         echo '<table class="widefat fixed striped">';
         echo '<thead><tr>';
@@ -149,16 +154,17 @@ class SchedulesListPage
         echo '<th scope="col">' . esc_html__('Public', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Archived', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Start Date', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Images', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Actions', 'civic-engagement') . '</th>';
         echo '</tr></thead>';
         echo '<tbody>';
 
         if (empty($items)) {
-            echo '<tr><td colspan="9">' . esc_html__('No schedules found.', 'civic-engagement') . '</td></tr>';
+            echo '<tr><td colspan="10">' . esc_html__('No schedules found.', 'civic-engagement') . '</td></tr>';
         }
 
         foreach ($items as $item) {
-            $this->renderRow($item);
+            $this->renderRow($item, $mediaCounts);
         }
 
         echo '</tbody>';
@@ -171,19 +177,20 @@ class SchedulesListPage
      * @param array<string, mixed> $item Schedule row.
      * @return void
      */
-    private function renderRow(array $item): void
+    private function renderRow(array $item, array $mediaCounts): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
 
         echo '<tr>';
         echo '<td>' . esc_html((string) $id) . '</td>';
         echo '<td>' . esc_html((string) ($item['title'] ?? '')) . '</td>';
-        echo '<td>' . esc_html((string) ($item['type'] ?? '')) . '</td>';
-        echo '<td>' . esc_html((string) ($item['status'] ?? '')) . '</td>';
+        echo '<td>' . esc_html(StatusLabelHelper::format($item['type'] ?? '')) . '</td>';
+        echo '<td>' . esc_html(StatusLabelHelper::format($item['status'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['priority'] ?? 0)) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['start_date'] ?? null)) . '</td>';
+        echo '<td>' . esc_html((string) ($mediaCounts[$id] ?? 0)) . '</td>';
         echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a></td>';
         echo '</tr>';
     }

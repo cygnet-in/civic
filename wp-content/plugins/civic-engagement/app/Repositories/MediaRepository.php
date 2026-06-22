@@ -116,4 +116,30 @@ class MediaRepository extends BaseRepository
 
         return null === $max ? 0 : ((int) $max + 1);
     }
+
+    /**
+     * Get media counts for a set of entity IDs with one grouped query.
+     *
+     * @param array<int, int> $entityIds Entity IDs.
+     * @return array<int, int> Counts keyed by entity ID.
+     */
+    public function getCountsByEntityIds(string $entityType, array $entityIds): array
+    {
+        $entityIds = array_values(array_unique(array_filter(array_map('absint', $entityIds))));
+
+        if ('' === $entityType || empty($entityIds)) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($entityIds), '%d'));
+        $sql = "SELECT entity_id, COUNT(*) AS item_count FROM {$this->table} WHERE entity_type = %s AND entity_id IN ({$placeholders}) GROUP BY entity_id";
+        $rows = $this->wpdb->get_results($this->prepare($sql, array_merge([$entityType], $entityIds)), ARRAY_A);
+        $counts = [];
+
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $counts[(int) ($row['entity_id'] ?? 0)] = (int) ($row['item_count'] ?? 0);
+        }
+
+        return $counts;
+    }
 }

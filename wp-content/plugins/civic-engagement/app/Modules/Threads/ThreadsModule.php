@@ -112,7 +112,12 @@ class ThreadsModule
      */
     private function createListPage(): ThreadsListPage
     {
-        return new ThreadsListPage(new ThreadRepository($this->wpdb), new DateHelper());
+        return new ThreadsListPage(
+            new ThreadRepository($this->wpdb),
+            new DateHelper(),
+            new ThreadResponseRepository($this->wpdb),
+            $this->createMediaService()
+        );
     }
 
     /**
@@ -177,7 +182,7 @@ class ThreadsModule
      */
     private function createDetailPage(): ThreadDetailPage
     {
-        return new ThreadDetailPage(new ThreadRepository($this->wpdb), new DateHelper());
+        return new ThreadDetailPage(new ThreadRepository($this->wpdb), new DateHelper(), $this->createMediaService());
     }
 
     /**

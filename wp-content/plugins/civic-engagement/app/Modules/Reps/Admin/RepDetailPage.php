@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Reps\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\RepService;
 
@@ -128,7 +129,7 @@ class RepDetailPage
         $this->renderDetailRow(__('Rep ID', 'civic-engagement'), (string) ($rep['id'] ?? ''));
         $this->renderDetailRow(__('Subject', 'civic-engagement'), (string) ($rep['title'] ?? ''));
         $this->renderDetailRow(__('Message', 'civic-engagement'), (string) ($rep['details'] ?? ''));
-        $this->renderDetailRow(__('Status', 'civic-engagement'), (string) ($rep['status'] ?? ''));
+        $this->renderDetailRow(__('Status', 'civic-engagement'), StatusLabelHelper::format($rep['status'] ?? ''));
         $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($rep['created_at'] ?? null));
         echo '</tbody></table>';
     }

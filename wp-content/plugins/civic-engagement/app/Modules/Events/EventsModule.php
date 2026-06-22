@@ -109,7 +109,9 @@ class EventsModule
     {
         return new EventsListPage(
             new EventRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            new EventRegistrationRepository($this->wpdb),
+            $this->createMediaService()
         );
     }
 

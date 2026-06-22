@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Helpers\StatusLabelHelper;
+use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Services\MediaService;
 
 /**
  * Renders a single consultation detail page.
@@ -33,15 +36,17 @@ class ThreadDetailPage
      * @var DateHelper
      */
     private DateHelper $dates;
+    private MediaAdminPanel $mediaPanel;
 
     /**
      * @param ThreadRepository $threads Thread repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadRepository $threads, DateHelper $dates)
+    public function __construct(ThreadRepository $threads, DateHelper $dates, MediaService $media)
     {
         $this->threads = $threads;
         $this->dates = $dates;
+        $this->mediaPanel = new MediaAdminPanel($media);
     }
 
     /**
@@ -70,6 +75,7 @@ class ThreadDetailPage
         }
 
         $this->renderDetails($thread);
+        $this->mediaPanel->renderReadOnly('consultation', (int) ($thread['id'] ?? 0));
 
         echo '</div>';
     }
@@ -88,7 +94,7 @@ class ThreadDetailPage
         $this->renderDetailRow(__('Slug', 'civic-engagement'), (string) ($thread['slug'] ?? ''));
         $this->renderDetailRow(__('Summary', 'civic-engagement'), (string) ($thread['summary'] ?? ''));
         $this->renderDetailRow(__('Description', 'civic-engagement'), (string) ($thread['description'] ?? ''));
-        $this->renderDetailRow(__('Status', 'civic-engagement'), (string) ($thread['status'] ?? ''));
+        $this->renderDetailRow(__('Status', 'civic-engagement'), StatusLabelHelper::format($thread['status'] ?? ''));
         $this->renderDetailRow(__('Starting Response Count', 'civic-engagement'), (string) ($thread['starting_response_count'] ?? 0));
         $this->renderDetailRow(__('Response Enabled', 'civic-engagement'), $this->yesNo($thread['response_enabled'] ?? 0));
         $this->renderDetailRow(__('Public', 'civic-engagement'), $this->yesNo($thread['is_public'] ?? 0));

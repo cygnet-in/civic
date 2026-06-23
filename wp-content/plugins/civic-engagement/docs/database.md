@@ -337,7 +337,7 @@ Stores event definitions.
 | -----------          | -------------                                |
 | id                   | event ID                                     |
 | title                | event title                                  |
-| slug                 | public shareable consultation URL identifier |
+| slug                 | public shareable event URL identifier        |
 | summary              | Summary of the event                         |
 | description          | details                                      |
 | location             | location                                     |
@@ -432,6 +432,7 @@ Examples:
 | id               | schedule ID              |
 | type             | schedule type            | ENUM(    'meeting',    'motion',    question',    'rep_followup',    'public_announcement',    'other')
 | title            | heading                  |
+| slug             | public shareable schedule URL identifier |
 | details          | details                  |
 | status           | status                   | ENUM ('open',    'pending',    'scheduled',    'completed',    'cancelled')
 | internal_comment | admin-only comment       |
@@ -540,22 +541,20 @@ Possible future additions:
 
 Public civic entities may use editable slugs for public-facing shareable URLs.
 
-Examples:
+Canonical public URLs use module prefixes:
 
-- /housing
-- /dub
-- /transport-plan
+- `/consultation/{slug}`
+- `/event/{slug}`
+- `/schedule/{slug}`
 
 Rules:
 
-- slugs must be globally unique across public civic entities
-- slugs are editable by administrators
-- slugs are initially suggested from titles
-- slugs should be lowercase
-- spaces and special characters should be normalized
-- frontend validation may assist users
-- SlugService is the authoritative layer for uniqueness enforcement
-- repositories must not assume local/module-only slug uniqueness
+- slugs must be unique within their own module table
+- slugs are initially generated from titles and administrators may edit event and schedule slugs
+- slugs should be lowercase, with spaces and special characters normalized
+- public slug lookups must enforce each module's visibility rules
+- numeric ID detail URLs remain supported temporarily and redirect permanently to their canonical slug URL
+- global slug uniqueness and root-level slug routing are not implemented
 
 ---
 

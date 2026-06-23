@@ -111,7 +111,10 @@ class ThreadDetailShortcode
         );
         $showPublicResponses = '1' === (string) $atts['show_public_responses'];
 
-        $thread = $this->threads->findPublicById($this->threadId());
+        $slug = $this->slug();
+        $thread = '' !== $slug
+            ? $this->threads->findPublicBySlug($slug)
+            : $this->threads->findPublicById($this->threadId());
 
         ob_start();
 
@@ -471,5 +474,12 @@ class ThreadDetailShortcode
         }
 
         return absint($threadId);
+    }
+
+    private function slug(): string
+    {
+        $slug = get_query_var('civic_slug');
+
+        return is_scalar($slug) ? sanitize_title((string) $slug) : '';
     }
 }

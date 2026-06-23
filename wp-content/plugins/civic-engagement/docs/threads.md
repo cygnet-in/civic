@@ -85,22 +85,16 @@ Admin can:
 
 ## Public Consultation URLs
 
-Consultations support public shareable URLs.
-
-Examples:
-
-- /housing
-- /dub
-- /community-meeting
+Consultations support public shareable URLs using `/consultation/{slug}`.
 
 The admin workflow should:
 
 - suggest slug values from titles
-- allow manual slug editing
-- validate slug uniqueness
+- generate slugs from titles during creation
+- validate slug uniqueness within consultations
 - preserve stable public URLs after creation where possible
 
-Slug validation and uniqueness are managed centrally through SlugService.
+Numeric ID detail URLs are retained temporarily and redirect to the canonical URL. Consultation slugs remain stable after creation.
 
 ---
 

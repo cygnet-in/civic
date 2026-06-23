@@ -17,9 +17,9 @@ Implemented:
 - Civic dashboard V1
 - Civic admin cleanup V1
 - Civic account cleanup V1
+- Canonical slug routing V1
 
 Deferred:
-- Routing/slugs
 - Schedule comments
 
 ---
@@ -300,9 +300,6 @@ Using stable field keys.
 
 ## Technical
 
-* slug routing
-* rewrite rules
-* permalink integration
 * frontend administration
 * performance optimisation
 
@@ -313,8 +310,7 @@ Using stable field keys.
 1. Deliver prototype for client testing.
 2. Gather workflow feedback.
 3. Revisit deferred enhancements.
-4. Implement slug routing.
-5. Begin frontend administration phase.
+4. Begin frontend administration phase.
 
 ---
 

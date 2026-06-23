@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Events\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
 use CivicPlatform\Services\MediaService;
@@ -134,7 +135,7 @@ class EventListShortcode
         echo '<p class="civic-card__status civic-events__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
 
         echo '<p class="civic-card__actions civic-events__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl($eventId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($event['slug'] ?? ''), $eventId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
         echo '</div>';
         echo '</article>';
@@ -159,8 +160,12 @@ class EventListShortcode
      * @param int $eventId Event ID.
      * @return string Read-more URL.
      */
-    private function readMoreUrl(int $eventId, int $detailPageId): string
+    private function readMoreUrl(string $slug, int $eventId, int $detailPageId): string
     {
+        if ('' !== $slug) {
+            return CanonicalSlugRouter::url('event', $slug);
+        }
+
         return add_query_arg(
             ['event_id' => $eventId],
             get_permalink($detailPageId)

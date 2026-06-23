@@ -90,6 +90,7 @@ Admin can:
 * is_archived
 * start_date
 * end_date
+* slug
 
 ## System Fields
 
@@ -103,6 +104,10 @@ Admin can:
 
 * source_type and source_id are reserved for future "Create Schedule from Representation/Consultation" functionality.
 * created_by is automatically populated from the logged-in user.
+
+## Public Schedule URLs
+
+Public schedules use `/schedule/{slug}`. Slugs are generated from titles when schedules are created, may be edited by administrators, and are unique within schedules. Only public, non-archived schedules resolve through this route. Numeric ID detail URLs remain temporarily supported and redirect to the canonical URL.
 
 ---
 

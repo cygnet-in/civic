@@ -71,19 +71,13 @@ Admin can:
 
 ## Public Event URLs
 
-Consultations are intended to support public shareable URLs.
-
-Examples:
-
-- /housing
-- /dub
-- /transport-plan
+Events support public shareable URLs using `/event/{slug}`.
 
 The admin workflow should:
 
 - suggest slug values from titles
 - allow manual slug editing
-- validate slug uniqueness
+- validate slug uniqueness within events
 - preserve stable public URLs after creation where possible
 
-Slug uniqueness must always be enforced in the repository layer.
+Only public published events resolve through public slug URLs. Numeric ID detail URLs are retained temporarily and redirect to the canonical URL.

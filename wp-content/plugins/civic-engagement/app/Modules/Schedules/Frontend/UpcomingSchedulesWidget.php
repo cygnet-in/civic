@@ -6,6 +6,7 @@ namespace CivicPlatform\Modules\Schedules\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\FrontendPageResolver;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 
 /**
@@ -150,11 +151,14 @@ class UpcomingSchedulesWidget extends \WP_Widget
     private function renderItem(array $item, string $detailUrl): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
+        $slug = (string) ($item['slug'] ?? '');
         $title = (string) ($item['title'] ?? '');
 
         echo '<li class="civic-widget__item">';
 
-        if ('' !== $detailUrl && $id > 0) {
+        if ('' !== $slug) {
+            echo '<a href="' . esc_url(CanonicalSlugRouter::url('schedule', $slug)) . '">' . esc_html($title) . '</a>';
+        } elseif ('' !== $detailUrl && $id > 0) {
             echo '<a href="' . esc_url(add_query_arg(['schedule_id' => $id], $detailUrl)) . '">' . esc_html($title) . '</a>';
         } else {
             echo esc_html($title);

@@ -9,7 +9,6 @@ class AccountAdmin
 {
     private const CAPABILITY = 'manage_civic_reps';
     private const PAGE_SLUG = 'civic-account';
-    private const LOGOUT_SLUG = 'civic-account-logout';
 
     private ChangePasswordPage $passwordPage;
 
@@ -54,8 +53,7 @@ class AccountAdmin
             __('Logout', 'civic-engagement'),
             __('Logout', 'civic-engagement'),
             self::CAPABILITY,
-            self::LOGOUT_SLUG,
-            [$this, 'logout']
+            wp_logout_url(home_url('/'))
         );
     }
 
@@ -63,13 +61,6 @@ class AccountAdmin
     {
         $this->ensureRestrictedCivicUser();
         $this->passwordPage->render();
-    }
-
-    public function logout(): void
-    {
-        $this->ensureRestrictedCivicUser();
-        wp_safe_redirect(wp_logout_url(admin_url()));
-        exit;
     }
 
     public function hideProfileMenu(): void

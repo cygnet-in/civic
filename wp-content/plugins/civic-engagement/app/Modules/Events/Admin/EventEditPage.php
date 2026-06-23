@@ -133,7 +133,7 @@ class EventEditPage
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $values, [], 'invalid_nonce');
         }
 
-        $errors = $this->validateValues($values);
+        $errors = $this->validateValues($values, $eventId);
 
         if (!empty($errors)) {
             return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
@@ -513,7 +513,7 @@ class EventEditPage
      * @param array<string, mixed> $values Sanitized values.
      * @return array<string, string> Validation errors.
      */
-    private function validateValues(array $values): array
+    private function validateValues(array $values, int $eventId = 0): array
     {
         $errors = [];
 
@@ -523,6 +523,12 @@ class EventEditPage
 
         if (!in_array($values['status'], ['draft', 'published', 'closed'], true)) {
             $errors['status'] = 'Status must be draft, published, or closed.';
+        }
+
+        $slug = $this->buildSlug((string) $values['slug'], (string) $values['title']);
+
+        if ($this->events->slugExists($slug, $eventId > 0 ? $eventId : null)) {
+            $errors['slug'] = 'An event with this URL slug already exists.';
         }
 
         return $errors;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
 use CivicPlatform\Services\MediaService;
@@ -129,7 +130,7 @@ class ThreadsListShortcode
         echo '<p class="civic-card__date civic-threads__date">' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</p>';
 
         echo '<p class="civic-card__actions civic-threads__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl($threadId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($thread['slug'] ?? ''), $threadId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
         echo '</div>';
         echo '</article>';
@@ -142,8 +143,12 @@ class ThreadsListShortcode
      * @param int $detailPageId Detail page ID.
      * @return string Read-more URL.
      */
-    private function readMoreUrl(int $threadId, int $detailPageId): string
+    private function readMoreUrl(string $slug, int $threadId, int $detailPageId): string
     {
+        if ('' !== $slug) {
+            return CanonicalSlugRouter::url('consultation', $slug);
+        }
+
         return add_query_arg(
             ['thread_id' => $threadId],
             $this->detailBaseUrl($detailPageId)

@@ -278,49 +278,13 @@ If implemented in the future, status tracking requirements will be reviewed sepa
 
 ## URL Routing
 
-Basic slug support already exists:
+Canonical Slug Routing V1 is implemented using module-prefixed URLs:
 
-* slug field
-* slug generation
-* slug storage
+* `/consultation/{slug}`
+* `/event/{slug}`
+* `/schedule/{slug}`
 
-Routing implementation remains deferred.
-
-Final URL structure has not been agreed.
-
-Options under consideration:
-
-/civic/event/{slug}
-
-/civic/schedule/{slug}
-
-/civic/consultation/{slug}
-
-or
-
-/civic/{slug}
-
-Root-level routing:
-
-/{slug}
-
-is not recommended because it may conflict with:
-
-* WordPress pages
-* WordPress posts
-* Categories
-* Plugins
-* Future website content
-
-If module-independent URLs are chosen:
-
-/civic/{slug}
-
-then global slug uniqueness must be enforced across:
-
-* Consultations
-* Events
-* Schedules
+Slug uniqueness is enforced only within each module. Public routing resolves only publicly visible records, and legacy numeric ID URLs redirect permanently to the canonical route. Root-level routing, a global slug registry, and short URLs remain outside the current scope.
 
 ---
 
@@ -342,7 +306,6 @@ The following items are not currently planned:
 
 The following items require client confirmation before implementation:
 
-* Final URL structure
 * Media strategy for consultations/events/schedules
 * Public schedule comments
 
@@ -359,4 +322,4 @@ The following items require client confirmation before implementation:
 7. Representation Image Upload
 8. UI Refinement
 9. Client Review
-10. Routing / Media Decisions
+10. Routing follow-up / Media Decisions

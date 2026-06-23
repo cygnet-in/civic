@@ -13,14 +13,14 @@ class FrontendPageResolver
      * Find the first published page containing a shortcode.
      *
      * @param string $shortcode Shortcode tag without brackets.
-     * @return string Page URL, or empty string when not found.
+     * @return int Page ID, or 0 when not found.
      */
-    public function findPageUrlByShortcode(string $shortcode): string
+    public function findPageIdByShortcode(string $shortcode): int
     {
         $shortcode = trim($shortcode);
 
         if ('' === $shortcode) {
-            return '';
+            return 0;
         }
 
         $pages = get_posts(
@@ -39,15 +39,31 @@ class FrontendPageResolver
                 continue;
             }
 
-            if (!has_shortcode((string) $page->post_content, $shortcode)) {
-                continue;
+            if (has_shortcode((string) $page->post_content, $shortcode)) {
+                return (int) $page->ID;
             }
-
-            $url = get_permalink((int) $page->ID);
-
-            return is_string($url) ? $url : '';
         }
 
-        return '';
+        return 0;
+    }
+
+    /**
+     * Find the first published page containing a shortcode.
+     *
+     * @param string $shortcode Shortcode tag without brackets.
+     * @return string Page URL, or empty string when not found.
+     */
+    public function findPageUrlByShortcode(string $shortcode): string
+    {
+        $shortcode = trim($shortcode);
+
+        if ('' === $shortcode) {
+            return '';
+        }
+
+        $pageId = $this->findPageIdByShortcode($shortcode);
+        $url = $pageId > 0 ? get_permalink($pageId) : '';
+
+        return is_string($url) ? $url : '';
     }
 }

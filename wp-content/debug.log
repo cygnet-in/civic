@@ -483,3 +483,17 @@ Stack trace:
 [23-Jun-2026 06:56:32 UTC]   Automatic plugin updates starting...
 [23-Jun-2026 06:56:32 UTC]   Automatic plugin updates complete.
 [23-Jun-2026 06:56:33 UTC] Automatic updates complete.
+[23-Jun-2026 14:35:02 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:35:02 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[23-Jun-2026 14:35:05 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:35:05 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[23-Jun-2026 14:35:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:35:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[23-Jun-2026 14:36:44 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:36:44 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[23-Jun-2026 14:36:52 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:36:52 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[23-Jun-2026 14:36:54 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:36:54 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538
+[23-Jun-2026 14:37:41 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1535
+[23-Jun-2026 14:37:41 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at E:\htdocs\civic\wp-admin\menu-header.php:192) in E:\htdocs\civic\wp-includes\pluggable.php on line 1538

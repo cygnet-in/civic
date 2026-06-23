@@ -6,6 +6,7 @@ namespace CivicPlatform\Modules\Events\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\FrontendPageResolver;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 
 /**
@@ -150,11 +151,14 @@ class LatestEventsWidget extends \WP_Widget
     private function renderItem(array $item, string $detailUrl): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
+        $slug = (string) ($item['slug'] ?? '');
         $title = (string) ($item['title'] ?? '');
 
         echo '<li class="civic-widget__item">';
 
-        if ('' !== $detailUrl && $id > 0) {
+        if ('' !== $slug) {
+            echo '<a href="' . esc_url(CanonicalSlugRouter::url('event', $slug)) . '">' . esc_html($title) . '</a>';
+        } elseif ('' !== $detailUrl && $id > 0) {
             echo '<a href="' . esc_url(add_query_arg(['event_id' => $id], $detailUrl)) . '">' . esc_html($title) . '</a>';
         } else {
             echo esc_html($title);

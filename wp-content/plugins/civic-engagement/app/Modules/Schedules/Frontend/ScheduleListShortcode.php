@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Schedules\Frontend;
 
 use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
 use CivicPlatform\Services\MediaService;
@@ -130,7 +131,7 @@ class ScheduleListShortcode
         }
 
         echo '<p class="civic-card__actions civic-schedules__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl($scheduleId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($schedule['slug'] ?? ''), $scheduleId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
         echo '</p>';
         echo '</div>';
         echo '</article>';
@@ -143,8 +144,12 @@ class ScheduleListShortcode
      * @param int $detailPageId Detail page ID.
      * @return string Read-more URL.
      */
-    private function readMoreUrl(int $scheduleId, int $detailPageId): string
+    private function readMoreUrl(string $slug, int $scheduleId, int $detailPageId): string
     {
+        if ('' !== $slug) {
+            return CanonicalSlugRouter::url('schedule', $slug);
+        }
+
         return add_query_arg(
             ['schedule_id' => $scheduleId],
             get_permalink($detailPageId)

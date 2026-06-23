@@ -62,29 +62,25 @@ class ScheduleDetailShortcode
         unset($atts);
 
         $scheduleId = $this->scheduleId();
+        $slug = $this->slug();
 
         ob_start();
 
         echo '<div class="civic-schedule-detail">';
 
-        if ($scheduleId <= 0) {
+        if ($scheduleId <= 0 && '' === $slug) {
             echo '<p class="civic-schedule-detail__empty">' . esc_html__('No schedule selected.', 'civic-engagement') . '</p>';
             echo '</div>';
 
             return (string) ob_get_clean();
         }
 
-        $schedule = $this->schedules->findById($scheduleId);
+        $schedule = '' !== $slug
+            ? $this->schedules->findPublicBySlug($slug)
+            : $this->schedules->findPublicById($scheduleId);
 
         if (!is_array($schedule)) {
             echo '<p class="civic-schedule-detail__empty">' . esc_html__('Schedule not found.', 'civic-engagement') . '</p>';
-            echo '</div>';
-
-            return (string) ob_get_clean();
-        }
-
-        if (empty($schedule['is_public']) || !empty($schedule['is_archived'])) {
-            echo '<p class="civic-schedule-detail__empty">' . esc_html__('This schedule is not currently public.', 'civic-engagement') . '</p>';
             echo '</div>';
 
             return (string) ob_get_clean();
@@ -146,6 +142,13 @@ class ScheduleDetailShortcode
         }
 
         return absint($scheduleId);
+    }
+
+    private function slug(): string
+    {
+        $slug = get_query_var('civic_slug');
+
+        return is_scalar($slug) ? sanitize_title((string) $slug) : '';
     }
 
     /**

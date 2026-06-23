@@ -585,8 +585,8 @@ Rules:
 - spaces and special characters should be normalized
 - slugs should remain stable after publication where possible
 - frontend validation may assist users
-- SlugService is responsible for global uniqueness enforcement
-- repositories should not independently enforce public slug uniqueness
+- prefixed civic URLs use module-local uniqueness; global uniqueness is unnecessary
+- repositories should provide the authoritative module-local slug checks and public slug retrieval
 - frontend validation must never be treated as authoritative
 
 ---

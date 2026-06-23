@@ -78,7 +78,10 @@ class EventDetailShortcode
     {
         unset($atts);
 
-        $event = $this->events->findById($this->eventId());
+        $slug = $this->slug();
+        $event = '' !== $slug
+            ? $this->events->findPublicBySlug($slug)
+            : $this->events->findPublicById($this->eventId());
 
         ob_start();
 
@@ -86,13 +89,6 @@ class EventDetailShortcode
 
         if (!is_array($event)) {
             echo '<p class="civic-event-detail__empty">' . esc_html__('Event not found.', 'civic-engagement') . '</p>';
-            echo '</div>';
-
-            return (string) ob_get_clean();
-        }
-
-        if (empty($event['is_public'])) {
-            echo '<p class="civic-event-detail__empty">' . esc_html__('This event is not currently public.', 'civic-engagement') . '</p>';
             echo '</div>';
 
             return (string) ob_get_clean();
@@ -200,5 +196,12 @@ class EventDetailShortcode
         }
 
         return absint($eventId);
+    }
+
+    private function slug(): string
+    {
+        $slug = get_query_var('civic_slug');
+
+        return is_scalar($slug) ? sanitize_title((string) $slug) : '';
     }
 }

@@ -151,6 +151,7 @@ CREATE TABLE `wp_civic_schedules` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `type` enum('meeting','motion','question','rep_followup','public_announcement','other') NOT NULL,
   `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
   `details` longtext DEFAULT NULL,
   `status` enum('open','pending','scheduled','completed','cancelled') NOT NULL DEFAULT 'pending',
   `internal_comment` longtext DEFAULT NULL,
@@ -297,6 +298,7 @@ ALTER TABLE `wp_civic_reps`
 --
 ALTER TABLE `wp_civic_schedules`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_schedule_slug` (`slug`),
   ADD KEY `idx_start_date` (`start_date`),
   ADD KEY `idx_is_public` (`is_public`),
   ADD KEY `idx_public_start` (`is_public`,`start_date`),

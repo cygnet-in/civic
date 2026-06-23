@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Frontend;
 
 use CivicPlatform\Helpers\FrontendPageResolver;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 
 /**
@@ -139,11 +140,14 @@ class LatestConsultationsWidget extends \WP_Widget
     private function renderItem(array $item, string $detailUrl): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
+        $slug = (string) ($item['slug'] ?? '');
         $title = (string) ($item['title'] ?? '');
 
         echo '<li class="civic-widget__item">';
 
-        if ('' !== $detailUrl && $id > 0) {
+        if ('' !== $slug) {
+            echo '<a href="' . esc_url(CanonicalSlugRouter::url('consultation', $slug)) . '">' . esc_html($title) . '</a>';
+        } elseif ('' !== $detailUrl && $id > 0) {
             echo '<a href="' . esc_url(add_query_arg(['thread_id' => $id], $detailUrl)) . '">' . esc_html($title) . '</a>';
         } else {
             echo esc_html($title);

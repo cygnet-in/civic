@@ -125,6 +125,28 @@ class ThreadRepository extends BaseRepository
         return is_array($row) ? $row : null;
     }
 
+    /**
+     * Find a consultation by its module-local slug.
+     *
+     * @param string $slug Consultation slug.
+     * @return array<string, mixed>|null Consultation row or null when not found.
+     */
+    public function findBySlug(string $slug): ?array
+    {
+        $slug = sanitize_title($slug);
+
+        if ('' === $slug) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare("SELECT * FROM {$this->table} WHERE slug = %s LIMIT 1", [$slug]),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
     /** @param array<int, int> $ids @return array<int, string> */
     public function getTitlesByIds(array $ids): array
     {
@@ -163,6 +185,57 @@ class ThreadRepository extends BaseRepository
         );
 
         return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Find a published public consultation by slug.
+     *
+     * @param string $slug Consultation slug.
+     * @return array<string, mixed>|null Consultation row or null when unavailable.
+     */
+    public function findPublicBySlug(string $slug): ?array
+    {
+        $slug = sanitize_title($slug);
+
+        if ('' === $slug) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE slug = %s AND is_public = 1 AND status = %s LIMIT 1",
+                [$slug, 'published']
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Determine whether a slug is already used by another consultation.
+     *
+     * @param string $slug Consultation slug.
+     * @param int|null $excludeId Consultation ID to exclude.
+     * @return bool True when the slug exists.
+     */
+    public function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $slug = sanitize_title($slug);
+
+        if ('' === $slug) {
+            return false;
+        }
+
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE slug = %s";
+        $values = [$slug];
+
+        if (null !== $excludeId && $excludeId > 0) {
+            $sql .= ' AND id != %d';
+            $values[] = $excludeId;
+        }
+
+        return (int) $this->wpdb->get_var($this->prepare($sql, $values)) > 0;
     }
 
     /**

@@ -375,6 +375,10 @@ class ThreadCreatePage
             $errors['status'] = 'Status must be draft or published.';
         }
 
+        if ('' === $values['title'] || $this->threads->slugExists($this->buildSlug((string) $values['title']))) {
+            $errors['title'] = 'A consultation with this URL slug already exists.';
+        }
+
         return $errors;
     }
 

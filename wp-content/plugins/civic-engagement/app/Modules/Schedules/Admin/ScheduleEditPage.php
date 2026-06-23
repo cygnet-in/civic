@@ -172,7 +172,7 @@ class ScheduleEditPage
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $values, [], 'invalid_nonce');
         }
 
-        $errors = $this->validateValues($values);
+        $errors = $this->validateValues($values, $scheduleId);
 
         if (!empty($errors)) {
             return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
@@ -232,6 +232,7 @@ class ScheduleEditPage
         echo '<table class="form-table" role="presentation"><tbody>';
         $this->renderTypeSelect($values, $errors);
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
+        $this->renderTextInput('slug', __('Slug', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('details', __('Details', 'civic-engagement'), $values, $errors, 6);
         $this->renderTextarea('recent_update', __('Recent Update', 'civic-engagement'), $values, $errors, 4);
         $this->renderStatusSelect($values, $errors);
@@ -281,6 +282,7 @@ class ScheduleEditPage
             __('ID', 'civic-engagement') => (string) ($schedule['id'] ?? ''),
             __('Type', 'civic-engagement') => StatusLabelHelper::format($schedule['type'] ?? ''),
             __('Title', 'civic-engagement') => (string) ($schedule['title'] ?? ''),
+            __('Slug', 'civic-engagement') => (string) ($schedule['slug'] ?? ''),
             __('Details', 'civic-engagement') => (string) ($schedule['details'] ?? ''),
             __('Recent Update', 'civic-engagement') => (string) ($schedule['recent_update'] ?? ''),
             __('Status', 'civic-engagement') => StatusLabelHelper::format($schedule['status'] ?? ''),
@@ -343,6 +345,11 @@ class ScheduleEditPage
         echo '<tr>';
         echo '<th scope="row"><label for="civic-schedule-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
         echo '<td><input class="regular-text" id="civic-schedule-' . esc_attr($key) . '" name="civic_schedule[' . esc_attr($key) . ']" type="text" value="' . esc_attr((string) ($values[$key] ?? '')) . '"' . ($required ? ' required' : '') . '>';
+
+        if ('slug' === $key) {
+            echo '<p class="description">' . esc_html__('Leave blank to generate a slug from the title.', 'civic-engagement') . '</p>';
+        }
+
         $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
@@ -559,6 +566,7 @@ class ScheduleEditPage
         return [
             'type' => sanitize_key($this->requestValue($data, 'type')),
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
+            'slug' => sanitize_title($this->requestValue($data, 'slug')),
             'details' => sanitize_textarea_field($this->requestValue($data, 'details')),
             'recent_update' => sanitize_textarea_field($this->requestValue($data, 'recent_update')),
             'status' => sanitize_key($this->requestValue($data, 'status')),
@@ -622,7 +630,7 @@ class ScheduleEditPage
      * @param array<string, mixed> $values Sanitized values.
      * @return array<string, string> Validation errors.
      */
-    private function validateValues(array $values): array
+    private function validateValues(array $values, int $scheduleId = 0): array
     {
         $errors = [];
 
@@ -638,7 +646,29 @@ class ScheduleEditPage
             $errors['status'] = 'Status is invalid.';
         }
 
+        $slug = $this->buildSlug((string) $values['slug'], (string) $values['title']);
+
+        if ($this->schedules->slugExists($slug, $scheduleId > 0 ? $scheduleId : null)) {
+            $errors['slug'] = 'A schedule with this URL slug already exists.';
+        }
+
         return $errors;
+    }
+
+    /**
+     * Build a URL-safe schedule slug from a manual value or its title.
+     */
+    private function buildSlug(string $slug, string $title): string
+    {
+        $slug = sanitize_title($slug);
+
+        if ('' !== $slug) {
+            return $slug;
+        }
+
+        $slug = sanitize_title($title);
+
+        return '' !== $slug ? $slug : 'schedule-' . time();
     }
 
     /**
@@ -652,6 +682,7 @@ class ScheduleEditPage
         return [
             'type' => $values['type'],
             'title' => $values['title'],
+            'slug' => $this->buildSlug((string) $values['slug'], (string) $values['title']),
             'details' => $values['details'],
             'recent_update' => $values['recent_update'],
             'status' => $values['status'],
@@ -682,6 +713,7 @@ class ScheduleEditPage
         return [
             'type' => (string) ($schedule['type'] ?? 'meeting'),
             'title' => (string) ($schedule['title'] ?? ''),
+            'slug' => (string) ($schedule['slug'] ?? ''),
             'details' => (string) ($schedule['details'] ?? ''),
             'recent_update' => (string) ($schedule['recent_update'] ?? ''),
             'status' => (string) ($schedule['status'] ?? 'open'),
@@ -708,6 +740,7 @@ class ScheduleEditPage
         return [
             'type' => 'meeting',
             'title' => '',
+            'slug' => '',
             'details' => '',
             'recent_update' => '',
             'status' => 'open',

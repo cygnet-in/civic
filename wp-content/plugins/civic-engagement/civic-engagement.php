@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use CivicPlatform\Core\Capabilities;
+use CivicPlatform\Core\CanonicalSlugRouter;
 use CivicPlatform\Modules\Account\AccountModule;
 use CivicPlatform\Modules\Dashboard\DashboardModule;
 use CivicPlatform\Modules\Activities\ActivitiesModule;
@@ -58,6 +59,18 @@ register_activation_hook(
     static function (): void {
         $capabilities = new Capabilities();
         $capabilities->register();
+        global $wpdb;
+        if ($wpdb instanceof \wpdb) {
+            (new CanonicalSlugRouter($wpdb))->registerRewriteRules();
+            flush_rewrite_rules();
+        }
+    }
+);
+
+register_deactivation_hook(
+    __FILE__,
+    static function (): void {
+        flush_rewrite_rules();
     }
 );
 
@@ -90,6 +103,9 @@ add_action(
 
         $schedulesModule = new SchedulesModule($wpdb);
         $schedulesModule->register();
+
+        $slugRouter = new CanonicalSlugRouter($wpdb);
+        $slugRouter->register();
 
         $contactsModule = new ContactsModule($wpdb);
         $contactsModule->register();

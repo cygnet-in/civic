@@ -122,6 +122,7 @@ CREATE TABLE `wp_civic_schedules` (
     'other'
 ) NOT NULL,
   `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
   `details` longtext DEFAULT NULL,
   `status` enum(
     'open',
@@ -345,3 +346,6 @@ ADD UNIQUE KEY uniq_electoral_slug (slug);
 
 ALTER TABLE wp_civic_schedules
 ADD KEY idx_schedule_priority_start_date (priority, start_date);
+
+ALTER TABLE wp_civic_schedules
+ADD UNIQUE KEY uniq_schedule_slug (slug);

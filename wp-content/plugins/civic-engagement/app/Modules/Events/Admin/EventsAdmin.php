@@ -21,7 +21,7 @@ class EventsAdmin
     /**
      * Parent Civic Platform menu slug.
      */
-    private const PARENT_SLUG = 'civic-platform';
+    private const PARENT_SLUG = 'civic-events';
 
     /**
      * Event list page slug.
@@ -137,6 +137,16 @@ class EventsAdmin
      */
     public function registerMenus(): void
     {
+        add_menu_page(
+            __('Events', 'civic-engagement'),
+            __('Events', 'civic-engagement'),
+            self::CAPABILITY,
+            self::LIST_SLUG,
+            [$this, 'renderListPage'],
+            'dashicons-calendar-alt',
+            32
+        );
+
         add_submenu_page(
             self::PARENT_SLUG,
             __('Events', 'civic-engagement'),
@@ -176,7 +186,7 @@ class EventsAdmin
         add_submenu_page(
             self::PARENT_SLUG,
             __('Event Registrations', 'civic-engagement'),
-            __('Event Registrations', 'civic-engagement'),
+            __('Registrations', 'civic-engagement'),
             self::CAPABILITY,
             self::REGISTRATIONS_SLUG,
             [$this, 'renderRegistrationsPage']
@@ -205,7 +215,6 @@ class EventsAdmin
                 self::EDIT_SLUG,
                 self::FIELDS_SLUG,
                 self::FIELD_EDIT_SLUG,
-                self::REGISTRATIONS_SLUG,
                 self::REGISTRATION_DETAIL_SLUG,
             ]
         );

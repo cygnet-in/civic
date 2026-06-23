@@ -1,0 +1,36 @@
+.civic-dashboard__cards,
+.civic-dashboard__recent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    max-width: 1200px;
+}
+
+.civic-dashboard__card,
+.civic-dashboard__recent-section {
+    box-sizing: border-box;
+    padding: 18px;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.civic-dashboard__card h2,
+.civic-dashboard__recent-section h3 {
+    margin: 0 0 12px;
+}
+
+.civic-dashboard__count {
+    margin: 0 0 14px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.civic-dashboard__recent-heading {
+    margin-top: 32px;
+}
+
+.civic-dashboard__recent-section ul {
+    min-height: 100px;
+    margin: 0 0 14px 18px;
+}

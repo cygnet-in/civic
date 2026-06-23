@@ -19,7 +19,7 @@ class SchedulesAdmin
     /**
      * Parent Civic Platform menu slug.
      */
-    private const PARENT_SLUG = 'civic-platform';
+    private const PARENT_SLUG = 'civic-schedules';
 
     /**
      * Schedule list page slug.
@@ -73,6 +73,16 @@ class SchedulesAdmin
      */
     public function registerMenus(): void
     {
+        add_menu_page(
+            __('Schedules', 'civic-engagement'),
+            __('Schedules', 'civic-engagement'),
+            self::CAPABILITY,
+            self::LIST_SLUG,
+            [$this, 'renderListPage'],
+            'dashicons-clock',
+            33
+        );
+
         add_submenu_page(
             self::PARENT_SLUG,
             __('Schedules', 'civic-engagement'),

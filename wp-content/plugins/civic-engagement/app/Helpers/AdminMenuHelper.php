@@ -19,7 +19,7 @@ class AdminMenuHelper
     public static function hideSubmenuPages(string $parentSlug, array $menuSlugs): void
     {
         foreach ($menuSlugs as $menuSlug) {
-            //remove_submenu_page($parentSlug, $menuSlug);
+            remove_submenu_page($parentSlug, $menuSlug);
         }
     }
 }

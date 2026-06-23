@@ -10,7 +10,7 @@ namespace CivicPlatform\Modules\Users\Admin;
 class ContactsAdmin
 {
     private const CAPABILITY = 'manage_civic_contacts';
-    private const PARENT_SLUG = 'civic-platform';
+    private const PARENT_SLUG = 'civic-contacts';
     private const PAGE_SLUG = 'civic-contacts';
 
     private ContactsListPage $listPage;
@@ -28,7 +28,6 @@ class ContactsAdmin
     public function register(): void
     {
         add_action('admin_menu', [$this, 'registerMenus']);
-        add_action('admin_menu', [$this, 'hideMenu'], 999);
         add_action('admin_init', [$this, 'handleExport']);
     }
 
@@ -39,6 +38,16 @@ class ContactsAdmin
      */
     public function registerMenus(): void
     {
+        add_menu_page(
+            __('Contacts', 'civic-engagement'),
+            __('Contacts', 'civic-engagement'),
+            self::CAPABILITY,
+            self::PAGE_SLUG,
+            [$this, 'renderPage'],
+            'dashicons-groups',
+            34
+        );
+
         add_submenu_page(
             self::PARENT_SLUG,
             __('Contacts', 'civic-engagement'),
@@ -47,16 +56,6 @@ class ContactsAdmin
             self::PAGE_SLUG,
             [$this, 'renderPage']
         );
-    }
-
-    /**
-     * Hide the internal contact page after menus are registered.
-     *
-     * @return void
-     */
-    public function hideMenu(): void
-    {
-        remove_submenu_page(self::PARENT_SLUG, self::PAGE_SLUG);
     }
 
     /**

@@ -14,6 +14,9 @@ Implemented:
 - Consent management V1
 - Representation image upload V1
 - Civic media support V1
+- Civic dashboard V1
+- Civic admin cleanup V1
+- Civic account cleanup V1
 
 Deferred:
 - Routing/slugs

@@ -73,7 +73,7 @@ class RepsAdmin
     {
         add_menu_page(
             __('Representations', 'civic-engagement'),
-            __('Civic Platform', 'civic-engagement'),
+            __('Representations', 'civic-engagement'),
             self::CAPABILITY,
             self::MENU_SLUG,
             [$this, 'renderRepresentationsPage'],

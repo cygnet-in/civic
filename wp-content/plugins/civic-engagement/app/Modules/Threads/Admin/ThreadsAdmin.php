@@ -23,7 +23,7 @@ class ThreadsAdmin
     /**
      * Parent Civic Platform menu slug.
      */
-    private const PARENT_SLUG = 'civic-platform';
+    private const PARENT_SLUG = 'civic-threads';
 
     /**
      * Threads list page slug.
@@ -169,6 +169,16 @@ class ThreadsAdmin
      */
     public function registerMenus(): void
     {
+        add_menu_page(
+            __('Consultations', 'civic-engagement'),
+            __('Consultations', 'civic-engagement'),
+            self::CAPABILITY,
+            self::LIST_SLUG,
+            [$this, 'renderListPage'],
+            'dashicons-format-chat',
+            31
+        );
+
         add_submenu_page(
             self::PARENT_SLUG,
             __('Consultations', 'civic-engagement'),
@@ -208,7 +218,7 @@ class ThreadsAdmin
         add_submenu_page(
             self::PARENT_SLUG,
             __('Consultation Responses', 'civic-engagement'),
-            __('Thread Responses', 'civic-engagement'),
+            __('Responses', 'civic-engagement'),
             self::CAPABILITY,
             self::RESPONSES_SLUG,
             [$this, 'renderResponsesPage']
@@ -257,7 +267,6 @@ class ThreadsAdmin
                 self::EDIT_SLUG,
                 self::FIELDS_SLUG,
                 self::FIELD_EDIT_SLUG,
-                self::RESPONSES_SLUG,
                 self::RESPONSE_DETAIL_SLUG,
             ]
         );

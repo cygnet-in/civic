@@ -10,6 +10,8 @@
 declare(strict_types=1);
 
 use CivicPlatform\Core\Capabilities;
+use CivicPlatform\Modules\Account\AccountModule;
+use CivicPlatform\Modules\Dashboard\DashboardModule;
 use CivicPlatform\Modules\Activities\ActivitiesModule;
 use CivicPlatform\Modules\Events\EventsModule;
 use CivicPlatform\Modules\Reps\RepsModule;
@@ -67,6 +69,12 @@ add_action(
         if (!$wpdb instanceof \wpdb) {
             return;
         }
+
+        $dashboardModule = new DashboardModule($wpdb);
+        $dashboardModule->register();
+
+        $accountModule = new AccountModule();
+        $accountModule->register();
 
         $repsModule = new RepsModule($wpdb);
         $repsModule->register();

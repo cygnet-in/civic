@@ -25,9 +25,11 @@ use CivicPlatform\Modules\Events\Registrations\Admin\EventRegistrationsListPage;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Repositories\MediaRepository;
+use CivicPlatform\Repositories\ShortUrlRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\MediaService;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Bootstraps the Events module.
@@ -125,7 +127,8 @@ class EventsModule
         return new EventEditPage(
             new EventRepository($this->wpdb),
             new DateHelper(),
-            $this->createMediaService()
+            $this->createMediaService(),
+            $this->createShortUrlService()
         );
     }
 
@@ -216,5 +219,10 @@ class EventsModule
     private function createMediaService(): MediaService
     {
         return new MediaService(new MediaRepository($this->wpdb));
+    }
+
+    private function createShortUrlService(): ShortUrlService
+    {
+        return new ShortUrlService(new ShortUrlRepository($this->wpdb));
     }
 }

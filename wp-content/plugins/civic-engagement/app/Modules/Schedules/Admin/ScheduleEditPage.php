@@ -11,6 +11,7 @@ use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
 use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Services\MediaService;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Renders and processes the schedule add/edit admin page.
@@ -82,6 +83,8 @@ class ScheduleEditPage
 
     private MediaService $media;
 
+    private ShortUrlService $shortUrls;
+
     private MediaAdminPanel $mediaPanel;
 
     /**
@@ -95,7 +98,8 @@ class ScheduleEditPage
         ScheduleService $service,
         ScheduleNoteRepository $notes,
         DateHelper $dates,
-        MediaService $media
+        MediaService $media,
+        ShortUrlService $shortUrls
     )
     {
         $this->schedules = $schedules;
@@ -103,6 +107,7 @@ class ScheduleEditPage
         $this->notes = $notes;
         $this->dates = $dates;
         $this->media = $media;
+        $this->shortUrls = $shortUrls;
         $this->mediaPanel = new MediaAdminPanel($media);
     }
 
@@ -233,6 +238,7 @@ class ScheduleEditPage
         $this->renderTypeSelect($values, $errors);
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
         $this->renderTextInput('slug', __('Slug', 'civic-engagement'), $values, $errors, false);
+        $this->renderTextInput('short_code', __('Short URL Code', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('details', __('Details', 'civic-engagement'), $values, $errors, 6);
         $this->renderTextarea('recent_update', __('Recent Update', 'civic-engagement'), $values, $errors, 4);
         $this->renderStatusSelect($values, $errors);
@@ -278,7 +284,7 @@ class ScheduleEditPage
      */
     private function detailRows(array $schedule): array
     {
-        return [
+        $rows = [
             __('ID', 'civic-engagement') => (string) ($schedule['id'] ?? ''),
             __('Type', 'civic-engagement') => StatusLabelHelper::format($schedule['type'] ?? ''),
             __('Title', 'civic-engagement') => (string) ($schedule['title'] ?? ''),
@@ -296,6 +302,12 @@ class ScheduleEditPage
             __('Created At', 'civic-engagement') => $this->dates->formatDateTime($schedule['created_at'] ?? null),
             __('Updated At', 'civic-engagement') => $this->dates->formatDateTime($schedule['updated_at'] ?? null),
         ];
+
+        if ('' !== (string) ($schedule['short_code'] ?? '')) {
+            $rows[__('Short URL', 'civic-engagement')] = ShortUrlService::url((string) $schedule['short_code']);
+        }
+
+        return $rows;
     }
 
     /**
@@ -348,6 +360,13 @@ class ScheduleEditPage
 
         if ('slug' === $key) {
             echo '<p class="description">' . esc_html__('Leave blank to generate a slug from the title.', 'civic-engagement') . '</p>';
+        }
+
+        if ('short_code' === $key) {
+            echo '<p class="description">' . esc_html__('Optional. Use lowercase letters, numbers, and hyphens only.', 'civic-engagement') . '</p>';
+            if ('' !== (string) ($values[$key] ?? '')) {
+                echo '<p class="description"><code>' . esc_html(ShortUrlService::url((string) $values[$key])) . '</code></p>';
+            }
         }
 
         $this->renderFieldError($key, $errors);
@@ -567,6 +586,7 @@ class ScheduleEditPage
             'type' => sanitize_key($this->requestValue($data, 'type')),
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
             'slug' => sanitize_title($this->requestValue($data, 'slug')),
+            'short_code' => $this->shortUrls->normalize($this->requestValue($data, 'short_code')),
             'details' => sanitize_textarea_field($this->requestValue($data, 'details')),
             'recent_update' => sanitize_textarea_field($this->requestValue($data, 'recent_update')),
             'status' => sanitize_key($this->requestValue($data, 'status')),
@@ -652,6 +672,11 @@ class ScheduleEditPage
             $errors['slug'] = 'A schedule with this URL slug already exists.';
         }
 
+        $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'schedule', $scheduleId > 0 ? $scheduleId : null);
+        if (null !== $shortUrlError) {
+            $errors['short_code'] = $shortUrlError;
+        }
+
         return $errors;
     }
 
@@ -683,6 +708,7 @@ class ScheduleEditPage
             'type' => $values['type'],
             'title' => $values['title'],
             'slug' => $this->buildSlug((string) $values['slug'], (string) $values['title']),
+            'short_code' => $values['short_code'],
             'details' => $values['details'],
             'recent_update' => $values['recent_update'],
             'status' => $values['status'],
@@ -714,6 +740,7 @@ class ScheduleEditPage
             'type' => (string) ($schedule['type'] ?? 'meeting'),
             'title' => (string) ($schedule['title'] ?? ''),
             'slug' => (string) ($schedule['slug'] ?? ''),
+            'short_code' => (string) ($schedule['short_code'] ?? ''),
             'details' => (string) ($schedule['details'] ?? ''),
             'recent_update' => (string) ($schedule['recent_update'] ?? ''),
             'status' => (string) ($schedule['status'] ?? 'open'),
@@ -741,6 +768,7 @@ class ScheduleEditPage
             'type' => 'meeting',
             'title' => '',
             'slug' => '',
+            'short_code' => '',
             'details' => '',
             'recent_update' => '',
             'status' => 'open',

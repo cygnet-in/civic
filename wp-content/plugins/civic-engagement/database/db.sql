@@ -50,6 +50,7 @@ CREATE TABLE `wp_civic_events` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `short_code` varchar(100) DEFAULT NULL,
   `summary` varchar(500) NOT NULL,
   `description` longtext DEFAULT NULL,
   `location` varchar(500) DEFAULT NULL,
@@ -123,6 +124,7 @@ CREATE TABLE `wp_civic_schedules` (
 ) NOT NULL,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `short_code` varchar(100) DEFAULT NULL,
   `details` longtext DEFAULT NULL,
   `status` enum(
     'open',
@@ -168,6 +170,7 @@ CREATE TABLE `wp_civic_threads` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `short_code` varchar(100) DEFAULT NULL,
   `summary` varchar(500) NOT NULL,
   `description` longtext DEFAULT NULL,
   `response_enabled` tinyint(4) NOT NULL DEFAULT 1,
@@ -332,8 +335,14 @@ ALTER TABLE `wp_civic_thread_responses`
 ALTER TABLE wp_civic_threads
 ADD UNIQUE KEY uniq_thread_slug (slug);
 
+ALTER TABLE wp_civic_threads
+ADD UNIQUE KEY uniq_thread_short_code (short_code);
+
 ALTER TABLE wp_civic_events
 ADD UNIQUE KEY uniq_event_slug (slug);
+
+ALTER TABLE wp_civic_events
+ADD UNIQUE KEY uniq_event_short_code (short_code);
 
 ALTER TABLE wp_civic_event_fields
 ADD UNIQUE KEY uniq_event_field (event_id, field_key);
@@ -349,3 +358,6 @@ ADD KEY idx_schedule_priority_start_date (priority, start_date);
 
 ALTER TABLE wp_civic_schedules
 ADD UNIQUE KEY uniq_schedule_slug (slug);
+
+ALTER TABLE wp_civic_schedules
+ADD UNIQUE KEY uniq_schedule_short_code (short_code);

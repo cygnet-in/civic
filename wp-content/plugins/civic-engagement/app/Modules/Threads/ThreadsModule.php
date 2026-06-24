@@ -27,9 +27,11 @@ use CivicPlatform\Modules\Activities\Repository\ActivityRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Repositories\MediaRepository;
+use CivicPlatform\Repositories\ShortUrlRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\MediaService;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Bootstraps the Threads module.
@@ -192,7 +194,7 @@ class ThreadsModule
      */
     private function createEditPage(): ThreadEditPage
     {
-        return new ThreadEditPage(new ThreadRepository($this->wpdb), $this->createMediaService());
+        return new ThreadEditPage(new ThreadRepository($this->wpdb), $this->createMediaService(), $this->createShortUrlService());
     }
 
     /**
@@ -203,7 +205,8 @@ class ThreadsModule
     private function createCreatePage(): ThreadCreatePage
     {
         return new ThreadCreatePage(
-            new ThreadRepository($this->wpdb)
+            new ThreadRepository($this->wpdb),
+            $this->createShortUrlService()
         );
     }
 
@@ -225,5 +228,10 @@ class ThreadsModule
     private function createMediaService(): MediaService
     {
         return new MediaService(new MediaRepository($this->wpdb));
+    }
+
+    private function createShortUrlService(): ShortUrlService
+    {
+        return new ShortUrlService(new ShortUrlRepository($this->wpdb));
     }
 }

@@ -9,6 +9,7 @@ use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Services\MediaService;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Renders and processes the event add/edit admin page.
@@ -54,17 +55,20 @@ class EventEditPage
 
     private MediaService $media;
 
+    private ShortUrlService $shortUrls;
+
     private MediaAdminPanel $mediaPanel;
 
     /**
      * @param EventRepository $events Event repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(EventRepository $events, DateHelper $dates, MediaService $media)
+    public function __construct(EventRepository $events, DateHelper $dates, MediaService $media, ShortUrlService $shortUrls)
     {
         $this->events = $events;
         $this->dates = $dates;
         $this->media = $media;
+        $this->shortUrls = $shortUrls;
         $this->mediaPanel = new MediaAdminPanel($media);
     }
 
@@ -198,6 +202,7 @@ class EventEditPage
         echo '<table class="form-table" role="presentation"><tbody>';
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
         $this->renderTextInput('slug', __('Slug', 'civic-engagement'), $values, $errors, false);
+        $this->renderTextInput('short_code', __('Short URL Code', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
         $this->renderTextarea('description', __('Description', 'civic-engagement'), $values, $errors, 8);
         $this->renderTextInput('location', __('Location', 'civic-engagement'), $values, $errors, false);
@@ -227,6 +232,9 @@ class EventEditPage
         $this->renderDetailRow(__('ID', 'civic-engagement'), (string) ($event['id'] ?? ''));
         $this->renderDetailRow(__('Title', 'civic-engagement'), (string) ($event['title'] ?? ''));
         $this->renderDetailRow(__('Slug', 'civic-engagement'), (string) ($event['slug'] ?? ''));
+        if ('' !== (string) ($event['short_code'] ?? '')) {
+            $this->renderDetailRow(__('Short URL', 'civic-engagement'), ShortUrlService::url((string) $event['short_code']));
+        }
         $this->renderDetailRow(__('Summary', 'civic-engagement'), (string) ($event['summary'] ?? ''));
         $this->renderDetailRow(__('Description', 'civic-engagement'), (string) ($event['description'] ?? ''));
         $this->renderDetailRow(__('Location', 'civic-engagement'), (string) ($event['location'] ?? ''));
@@ -260,6 +268,13 @@ class EventEditPage
 
         if ('slug' === $key) {
             echo '<p class="description">' . esc_html__('Leave blank to generate a slug from the title.', 'civic-engagement') . '</p>';
+        }
+
+        if ('short_code' === $key) {
+            echo '<p class="description">' . esc_html__('Optional. Use lowercase letters, numbers, and hyphens only.', 'civic-engagement') . '</p>';
+            if ('' !== (string) ($values[$key] ?? '')) {
+                echo '<p class="description"><code>' . esc_html(ShortUrlService::url((string) $values[$key])) . '</code></p>';
+            }
         }
 
         $this->renderFieldError($key, $errors);
@@ -455,6 +470,7 @@ class EventEditPage
         return [
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
             'slug' => sanitize_title($this->requestValue($data, 'slug')),
+            'short_code' => $this->shortUrls->normalize($this->requestValue($data, 'short_code')),
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
             'description' => sanitize_textarea_field($this->requestValue($data, 'description')),
             'location' => sanitize_text_field($this->requestValue($data, 'location')),
@@ -531,6 +547,11 @@ class EventEditPage
             $errors['slug'] = 'An event with this URL slug already exists.';
         }
 
+        $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'event', $eventId > 0 ? $eventId : null);
+        if (null !== $shortUrlError) {
+            $errors['short_code'] = $shortUrlError;
+        }
+
         return $errors;
     }
 
@@ -545,6 +566,7 @@ class EventEditPage
         return [
             'title' => $values['title'],
             'slug' => $this->buildSlug((string) $values['slug'], (string) $values['title']),
+            'short_code' => $values['short_code'],
             'summary' => $values['summary'],
             'description' => $values['description'],
             'location' => $values['location'],
@@ -595,6 +617,7 @@ class EventEditPage
         return [
             'title' => (string) ($event['title'] ?? ''),
             'slug' => (string) ($event['slug'] ?? ''),
+            'short_code' => (string) ($event['short_code'] ?? ''),
             'summary' => (string) ($event['summary'] ?? ''),
             'description' => (string) ($event['description'] ?? ''),
             'location' => (string) ($event['location'] ?? ''),
@@ -616,6 +639,7 @@ class EventEditPage
         return [
             'title' => '',
             'slug' => '',
+            'short_code' => '',
             'summary' => '',
             'description' => '',
             'location' => '',

@@ -8,6 +8,7 @@ use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Services\ShortUrlService;
 use CivicPlatform\Services\MediaService;
 
 /**
@@ -92,6 +93,9 @@ class ThreadDetailPage
         $this->renderDetailRow(__('ID', 'civic-engagement'), (string) ($thread['id'] ?? ''));
         $this->renderDetailRow(__('Title', 'civic-engagement'), (string) ($thread['title'] ?? ''));
         $this->renderDetailRow(__('Slug', 'civic-engagement'), (string) ($thread['slug'] ?? ''));
+        if ('' !== (string) ($thread['short_code'] ?? '')) {
+            $this->renderDetailRow(__('Short URL', 'civic-engagement'), ShortUrlService::url((string) $thread['short_code']));
+        }
         $this->renderDetailRow(__('Summary', 'civic-engagement'), (string) ($thread['summary'] ?? ''));
         $this->renderDetailRow(__('Description', 'civic-engagement'), (string) ($thread['description'] ?? ''));
         $this->renderDetailRow(__('Status', 'civic-engagement'), StatusLabelHelper::format($thread['status'] ?? ''));

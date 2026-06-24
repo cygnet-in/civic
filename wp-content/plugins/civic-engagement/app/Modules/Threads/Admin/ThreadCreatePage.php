@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Admin;
 
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Renders and processes the consultation creation admin page.
@@ -41,12 +42,15 @@ class ThreadCreatePage
      */
     private ThreadRepository $threads;
 
+    private ShortUrlService $shortUrls;
+
     /**
      * @param ThreadRepository $threads Thread repository.
      */
-    public function __construct(ThreadRepository $threads)
+    public function __construct(ThreadRepository $threads, ShortUrlService $shortUrls)
     {
         $this->threads = $threads;
+        $this->shortUrls = $shortUrls;
     }
 
     /**
@@ -134,6 +138,7 @@ class ThreadCreatePage
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
+        $this->renderTextInput('short_code', __('Short URL Code', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
         $this->renderTextarea('content', __('Content', 'civic-engagement'), $values, $errors, 8);
         $this->renderStatusSelect($values, $errors);
@@ -160,9 +165,23 @@ class ThreadCreatePage
         echo '<th scope="row"><label for="civic-thread-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
         echo '<td>';
         echo '<input class="regular-text" id="civic-thread-' . esc_attr($key) . '" name="civic_thread[' . esc_attr($key) . ']" type="text" value="' . esc_attr((string) ($values[$key] ?? '')) . '"' . ($required ? ' required' : '') . '>';
+        $this->renderShortUrlDescription($key, (string) ($values[$key] ?? ''));
         $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
+    }
+
+    private function renderShortUrlDescription(string $key, string $shortCode): void
+    {
+        if ('short_code' !== $key) {
+            return;
+        }
+
+        echo '<p class="description">' . esc_html__('Optional. Use lowercase letters, numbers, and hyphens only.', 'civic-engagement') . '</p>';
+
+        if ('' !== $shortCode) {
+            echo '<p class="description"><code>' . esc_html(ShortUrlService::url($shortCode)) . '</code></p>';
+        }
     }
 
     /**
@@ -317,6 +336,7 @@ class ThreadCreatePage
 
         return [
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
+            'short_code' => $this->shortUrls->normalize($this->requestValue($data, 'short_code')),
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
             'content' => sanitize_textarea_field($this->requestValue($data, 'content')),
             'status' => sanitize_text_field($this->requestValue($data, 'status')),
@@ -375,6 +395,11 @@ class ThreadCreatePage
             $errors['status'] = 'Status must be draft or published.';
         }
 
+        $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'consultation');
+        if (null !== $shortUrlError) {
+            $errors['short_code'] = $shortUrlError;
+        }
+
         if ('' === $values['title'] || $this->threads->slugExists($this->buildSlug((string) $values['title']))) {
             $errors['title'] = 'A consultation with this URL slug already exists.';
         }
@@ -393,6 +418,7 @@ class ThreadCreatePage
         return [
             'title' => $values['title'],
             'slug' => $this->buildSlug((string) $values['title']),
+            'short_code' => $values['short_code'],
             'summary' => $values['summary'],
             'description' => $values['content'],
             'response_enabled' => $values['response_enabled'],
@@ -429,6 +455,7 @@ class ThreadCreatePage
     {
         return [
             'title' => '',
+            'short_code' => '',
             'summary' => '',
             'content' => '',
             'status' => 'draft',

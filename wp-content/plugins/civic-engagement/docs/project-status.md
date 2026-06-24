@@ -18,6 +18,7 @@ Implemented:
 - Civic admin cleanup V1
 - Civic account cleanup V1
 - Canonical slug routing V1
+- Short URL routing V1
 
 Deferred:
 - Schedule comments

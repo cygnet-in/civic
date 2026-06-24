@@ -15,7 +15,9 @@ use CivicPlatform\Modules\Schedules\Frontend\UpcomingSchedulesWidget;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Repositories\MediaRepository;
+use CivicPlatform\Repositories\ShortUrlRepository;
 use CivicPlatform\Services\MediaService;
+use CivicPlatform\Services\ShortUrlService;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
 
 /**
@@ -112,12 +114,18 @@ class SchedulesModule
             new ScheduleService($repository, new ScheduleNoteRepository($this->wpdb)),
             new ScheduleNoteRepository($this->wpdb),
             new DateHelper(),
-            $this->createMediaService()
+            $this->createMediaService(),
+            $this->createShortUrlService()
         );
     }
 
     private function createMediaService(): MediaService
     {
         return new MediaService(new MediaRepository($this->wpdb));
+    }
+
+    private function createShortUrlService(): ShortUrlService
+    {
+        return new ShortUrlService(new ShortUrlRepository($this->wpdb));
     }
 }

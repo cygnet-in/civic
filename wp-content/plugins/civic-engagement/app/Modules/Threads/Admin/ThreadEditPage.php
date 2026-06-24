@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Threads\Admin;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Services\MediaService;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Renders and processes the consultation edit admin page.
@@ -43,6 +44,8 @@ class ThreadEditPage
      */
     private ThreadRepository $threads;
 
+    private ShortUrlService $shortUrls;
+
     private MediaService $media;
 
     private MediaAdminPanel $mediaPanel;
@@ -50,10 +53,11 @@ class ThreadEditPage
     /**
      * @param ThreadRepository $threads Thread repository.
      */
-    public function __construct(ThreadRepository $threads, MediaService $media)
+    public function __construct(ThreadRepository $threads, MediaService $media, ShortUrlService $shortUrls)
     {
         $this->threads = $threads;
         $this->media = $media;
+        $this->shortUrls = $shortUrls;
         $this->mediaPanel = new MediaAdminPanel($media);
     }
 
@@ -111,7 +115,7 @@ class ThreadEditPage
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $values, [], 'invalid_nonce');
         }
 
-        $errors = $this->validateValues($values);
+        $errors = $this->validateValues($values, $threadId);
 
         if (!empty($errors)) {
             return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
@@ -166,6 +170,7 @@ class ThreadEditPage
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
         $this->renderReadOnlyRow(__('Slug', 'civic-engagement'), (string) ($thread['slug'] ?? ''));
+        $this->renderTextInput('short_code', __('Short URL Code', 'civic-engagement'), $values, $errors, false);
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
         $this->renderTextarea('description', __('Description', 'civic-engagement'), $values, $errors, 8);
@@ -211,6 +216,12 @@ class ThreadEditPage
         echo '<th scope="row"><label for="civic-thread-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
         echo '<td>';
         echo '<input class="regular-text" id="civic-thread-' . esc_attr($key) . '" name="civic_thread[' . esc_attr($key) . ']" type="text" value="' . esc_attr((string) ($values[$key] ?? '')) . '"' . ($required ? ' required' : '') . '>';
+        if ('short_code' === $key) {
+            echo '<p class="description">' . esc_html__('Optional. Use lowercase letters, numbers, and hyphens only.', 'civic-engagement') . '</p>';
+            if ('' !== (string) ($values[$key] ?? '')) {
+                echo '<p class="description"><code>' . esc_html(ShortUrlService::url((string) $values[$key])) . '</code></p>';
+            }
+        }
         $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
@@ -369,6 +380,7 @@ class ThreadEditPage
 
         return [
             'title' => sanitize_text_field($this->requestValue($data, 'title')),
+            'short_code' => $this->shortUrls->normalize($this->requestValue($data, 'short_code')),
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
             'description' => sanitize_textarea_field($this->requestValue($data, 'description')),
             'status' => sanitize_text_field($this->requestValue($data, 'status')),
@@ -426,7 +438,7 @@ class ThreadEditPage
      * @param array<string, mixed> $values Sanitized values.
      * @return array<string, string> Validation errors.
      */
-    private function validateValues(array $values): array
+    private function validateValues(array $values, int $threadId = 0): array
     {
         $errors = [];
 
@@ -436,6 +448,11 @@ class ThreadEditPage
 
         if (!in_array($values['status'], ['draft', 'published'], true)) {
             $errors['status'] = 'Status must be draft or published.';
+        }
+
+        $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'consultation', $threadId);
+        if (null !== $shortUrlError) {
+            $errors['short_code'] = $shortUrlError;
         }
 
         return $errors;
@@ -451,6 +468,7 @@ class ThreadEditPage
     {
         return [
             'title' => $values['title'],
+            'short_code' => $values['short_code'],
             'summary' => $values['summary'],
             'description' => $values['description'],
             'response_enabled' => $values['response_enabled'],
@@ -472,6 +490,7 @@ class ThreadEditPage
     {
         return [
             'title' => (string) ($thread['title'] ?? ''),
+            'short_code' => (string) ($thread['short_code'] ?? ''),
             'summary' => (string) ($thread['summary'] ?? ''),
             'description' => (string) ($thread['description'] ?? ''),
             'status' => (string) ($thread['status'] ?? 'draft'),

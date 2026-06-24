@@ -284,7 +284,11 @@ Canonical Slug Routing V1 is implemented using module-prefixed URLs:
 * `/event/{slug}`
 * `/schedule/{slug}`
 
-Slug uniqueness is enforced only within each module. Public routing resolves only publicly visible records, and legacy numeric ID URLs redirect permanently to the canonical route. Root-level routing, a global slug registry, and short URLs remain outside the current scope.
+Slug uniqueness is enforced only within each module. Public routing resolves only publicly visible records, and legacy numeric ID URLs redirect permanently to the canonical route. Root-level routing and a global slug registry remain outside the current scope.
+
+### Short URL Routing V1
+
+Short URLs are available for consultations, events, and schedules using `/go/{short_code}` by default. They redirect permanently to the relevant canonical slug URL. Short codes are optional, use lowercase letters, numbers, and hyphens, and are globally unique across the three modules. Prefix configuration, URL analytics, click tracking, QR codes, and bulk management remain deferred.
 
 ---
 

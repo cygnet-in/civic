@@ -589,6 +589,10 @@ Rules:
 - repositories should provide the authoritative module-local slug checks and public slug retrieval
 - frontend validation must never be treated as authoritative
 
+## Short URL Conventions
+
+Short URLs use a configurable prefix, currently `go`, and redirect to canonical module-prefixed slug URLs. Short-code validation belongs in `ShortUrlService`, with cross-module lookup delegated to `ShortUrlRepository`. Blank codes are stored as `NULL`; non-empty codes use lowercase letters, numbers, and hyphens and must be globally unique.
+
 ---
 
 ## Shared Civic Reference Data

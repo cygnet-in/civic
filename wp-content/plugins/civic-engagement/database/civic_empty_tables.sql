@@ -72,6 +72,7 @@ CREATE TABLE `wp_civic_events` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `short_code` varchar(100) DEFAULT NULL,
   `summary` varchar(500) NOT NULL,
   `description` longtext DEFAULT NULL,
   `location` varchar(500) DEFAULT NULL,
@@ -152,6 +153,7 @@ CREATE TABLE `wp_civic_schedules` (
   `type` enum('meeting','motion','question','rep_followup','public_announcement','other') NOT NULL,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `short_code` varchar(100) DEFAULT NULL,
   `details` longtext DEFAULT NULL,
   `status` enum('open','pending','scheduled','completed','cancelled') NOT NULL DEFAULT 'pending',
   `internal_comment` longtext DEFAULT NULL,
@@ -186,6 +188,7 @@ CREATE TABLE `wp_civic_threads` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `short_code` varchar(100) DEFAULT NULL,
   `summary` varchar(500) NOT NULL,
   `description` longtext DEFAULT NULL,
   `response_enabled` tinyint(4) NOT NULL DEFAULT 1,
@@ -267,6 +270,7 @@ ALTER TABLE `wp_civic_electoral_areas`
 ALTER TABLE `wp_civic_events`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_event_slug` (`slug`),
+  ADD UNIQUE KEY `uniq_event_short_code` (`short_code`),
   ADD KEY `idx_event_status` (`status`);
 
 --
@@ -299,6 +303,7 @@ ALTER TABLE `wp_civic_reps`
 ALTER TABLE `wp_civic_schedules`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_schedule_slug` (`slug`),
+  ADD UNIQUE KEY `uniq_schedule_short_code` (`short_code`),
   ADD KEY `idx_start_date` (`start_date`),
   ADD KEY `idx_is_public` (`is_public`),
   ADD KEY `idx_public_start` (`is_public`,`start_date`),
@@ -319,6 +324,7 @@ ALTER TABLE `wp_civic_schedule_notes`
 ALTER TABLE `wp_civic_threads`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_thread_slug` (`slug`),
+  ADD UNIQUE KEY `uniq_thread_short_code` (`short_code`),
   ADD KEY `idx_status_dates` (`status`,`start_date`,`end_date`);
 
 --

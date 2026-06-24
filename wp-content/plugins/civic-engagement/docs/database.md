@@ -225,6 +225,7 @@ Stores consultation thread definitions.
 | id               | thread ID                                    |
 | title            | thread title                                 |
 | slug             | public shareable consultation URL identifier |
+| short_code       | optional globally unique short URL code      |
 | summary          | Listing Preview                              |
 | description      | thread description                           |
 | response_enabled | allow participation                          |
@@ -338,6 +339,7 @@ Stores event definitions.
 | id                   | event ID                                     |
 | title                | event title                                  |
 | slug                 | public shareable event URL identifier        |
+| short_code           | optional globally unique short URL code      |
 | summary              | Summary of the event                         |
 | description          | details                                      |
 | location             | location                                     |
@@ -433,6 +435,7 @@ Examples:
 | type             | schedule type            | ENUM(    'meeting',    'motion',    question',    'rep_followup',    'public_announcement',    'other')
 | title            | heading                  |
 | slug             | public shareable schedule URL identifier |
+| short_code       | optional globally unique short URL code |
 | details          | details                  |
 | status           | status                   | ENUM ('open',    'pending',    'scheduled',    'completed',    'cancelled')
 | internal_comment | admin-only comment       |
@@ -555,6 +558,15 @@ Rules:
 - public slug lookups must enforce each module's visibility rules
 - numeric ID detail URLs remain supported temporarily and redirect permanently to their canonical slug URL
 - global slug uniqueness and root-level slug routing are not implemented
+
+## Short URL Rules
+
+Short URLs redirect permanently to their canonical slug URL. The default prefix is `/go/`, with a filter-ready implementation for future configuration.
+
+- short codes are optional and stored as `NULL` when blank
+- codes may contain only lowercase letters, numbers, and hyphens
+- non-empty codes must be globally unique across consultations, events, and schedules
+- invalid or unavailable short URLs return a normal 404 response
 
 ---
 

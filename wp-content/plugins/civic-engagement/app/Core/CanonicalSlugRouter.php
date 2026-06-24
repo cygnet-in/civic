@@ -8,6 +8,8 @@ use CivicPlatform\Helpers\FrontendPageResolver;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Repositories\ShortUrlRepository;
+use CivicPlatform\Services\ShortUrlService;
 
 /**
  * Maps prefixed public civic URLs to the existing shortcode detail pages.
@@ -16,9 +18,12 @@ class CanonicalSlugRouter
 {
     private \wpdb $wpdb;
 
+    private ShortUrlService $shortUrls;
+
     public function __construct(\wpdb $wpdb)
     {
         $this->wpdb = $wpdb;
+        $this->shortUrls = new ShortUrlService(new ShortUrlRepository($wpdb));
     }
 
     public function register(): void
@@ -28,6 +33,7 @@ class CanonicalSlugRouter
         add_action('parse_request', [$this, 'resolveRoute']);
         add_filter('redirect_canonical', [$this, 'preventWordPressCanonicalRedirect'], 10, 2);
         add_action('template_redirect', [$this, 'redirectLegacyIdUrl'], 1);
+        add_action('template_redirect', [$this, 'redirectShortUrl'], 1);
     }
 
     public function registerRewriteRules(): void
@@ -35,6 +41,7 @@ class CanonicalSlugRouter
         add_rewrite_rule('^consultation/([^/]+)/?$', 'index.php?civic_route=consultation&civic_slug=$matches[1]', 'top');
         add_rewrite_rule('^event/([^/]+)/?$', 'index.php?civic_route=event&civic_slug=$matches[1]', 'top');
         add_rewrite_rule('^schedule/([^/]+)/?$', 'index.php?civic_route=schedule&civic_slug=$matches[1]', 'top');
+        add_rewrite_rule('^' . preg_quote(ShortUrlService::prefix(), '/') . '/([^/]+)/?$', 'index.php?civic_short_code=$matches[1]', 'top');
     }
 
     /** @param array<int, string> $vars @return array<int, string> */
@@ -42,12 +49,25 @@ class CanonicalSlugRouter
     {
         $vars[] = 'civic_route';
         $vars[] = 'civic_slug';
+        $vars[] = 'civic_short_code';
 
         return array_values(array_unique($vars));
     }
 
     public function resolveRoute(\WP $wp): void
     {
+        $shortCode = isset($wp->query_vars['civic_short_code']) ? trim((string) $wp->query_vars['civic_short_code']) : '';
+
+        if ('' !== $shortCode) {
+            $record = $this->shortUrls->findByShortCode($shortCode);
+
+            if (!is_array($record) || !$this->findPublicRecord($record['entity_type'], $record['slug'])) {
+                $wp->query_vars = ['error' => '404'];
+            }
+
+            return;
+        }
+
         $route = isset($wp->query_vars['civic_route']) ? (string) $wp->query_vars['civic_route'] : '';
         $slug = isset($wp->query_vars['civic_slug']) ? sanitize_title((string) $wp->query_vars['civic_slug']) : '';
 
@@ -103,6 +123,25 @@ class CanonicalSlugRouter
         }
     }
 
+    /** Redirect a valid short URL to its public canonical slug URL. */
+    public function redirectShortUrl(): void
+    {
+        $shortCode = get_query_var('civic_short_code');
+
+        if (!is_scalar($shortCode) || '' === (string) $shortCode) {
+            return;
+        }
+
+        $record = $this->shortUrls->findByShortCode(trim((string) $shortCode));
+
+        if (!is_array($record) || !$this->findPublicRecord($record['entity_type'], $record['slug'])) {
+            return;
+        }
+
+        wp_safe_redirect(self::url($record['entity_type'], $record['slug']), 301);
+        exit;
+    }
+
     /**
      * Keep a prefixed civic route canonical rather than redirecting to the
      * WordPress page that hosts its detail shortcode.
@@ -115,7 +154,7 @@ class CanonicalSlugRouter
     {
         unset($requestedUrl);
 
-        return '' !== (string) get_query_var('civic_route') ? false : $redirectUrl;
+        return ('' !== (string) get_query_var('civic_route') || '' !== (string) get_query_var('civic_short_code')) ? false : $redirectUrl;
     }
 
     public static function url(string $route, string $slug): string

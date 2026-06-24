@@ -22,6 +22,7 @@ class EventRepository extends BaseRepository
     private array $insertFormats = [
         'title' => '%s',
         'slug' => '%s',
+        'short_code' => '%s',
         'summary' => '%s',
         'description' => '%s',
         'location' => '%s',
@@ -42,6 +43,7 @@ class EventRepository extends BaseRepository
     private array $updateFormats = [
         'title' => '%s',
         'slug' => '%s',
+        'short_code' => '%s',
         'summary' => '%s',
         'description' => '%s',
         'location' => '%s',
@@ -70,6 +72,7 @@ class EventRepository extends BaseRepository
     public function create(array $data): int
     {
         $insertData = $this->filterDataByFormats($data, $this->insertFormats);
+        $this->normalizeShortCode($insertData);
 
         if (empty($insertData['title'])) {
             return 0;
@@ -113,6 +116,7 @@ class EventRepository extends BaseRepository
         }
 
         $updateData = $this->filterDataByFormats($data, $this->updateFormats);
+        $this->normalizeShortCode($updateData);
 
         if (empty($updateData) || empty($updateData['title'])) {
             return false;
@@ -446,6 +450,14 @@ class EventRepository extends BaseRepository
      *
      * @return array<int, string>
      */
+    /** @param array<string, mixed> $data */
+    private function normalizeShortCode(array &$data): void
+    {
+        if (array_key_exists('short_code', $data) && '' === trim((string) $data['short_code'])) {
+            $data['short_code'] = null;
+        }
+    }
+
     private function getAllowedOrderColumns(): array
     {
         return [

@@ -15,6 +15,7 @@ Implemented:
 - Representation image upload V1
 - Civic media support V1
 - Civic dashboard V1
+- Public statistics shortcode V1
 - Civic admin cleanup V1
 - Civic account cleanup V1
 - Canonical slug routing V1

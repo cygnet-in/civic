@@ -732,6 +732,41 @@
     color: #fff;
 }
 
+/* =========================
+   Civic Statistics
+========================= */
+
+.civic-statistics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.civic-stat-card {
+    padding: 24px;
+    background: #fff;
+    border: 1px solid var(--civic-border);
+    border-radius: var(--civic-radius);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.civic-stat-card__number {
+    color: var(--civic-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.civic-stat-card__title {
+    margin-top: 8px;
+    color: var(--civic-text);
+    font-weight: 600;
+}
+
 .widget_civic_latest_consultations .widget-title::before {
     content: "💬 ";
 }

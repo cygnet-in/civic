@@ -346,6 +346,16 @@ class ThreadRepository extends BaseRepository
     }
 
     /**
+     * Sum configured response count offsets across all consultations.
+     *
+     * @return int Total starting response count.
+     */
+    public function sumStartingResponseCounts(): int
+    {
+        return (int) $this->wpdb->get_var("SELECT COALESCE(SUM(starting_response_count), 0) FROM {$this->table}");
+    }
+
+    /**
      * Update the workflow status of a thread.
      *
      * @param int $id Thread ID.

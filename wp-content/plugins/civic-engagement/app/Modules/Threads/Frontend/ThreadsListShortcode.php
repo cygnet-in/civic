@@ -70,17 +70,21 @@ class ThreadsListShortcode
         $atts = shortcode_atts(
             [
                 'detail_page_id' => 0,
+                'limit' => '',
+                'pagination' => '',
             ],
             $atts,
             'civic_threads'
         );
 
         $page = $this->currentPage();
+        $perPage = $this->perPage($atts);
+        $paginationEnabled = $this->paginationEnabled($atts);
         $detailPageId = absint($atts['detail_page_id']);
         $result = $this->threads->getPublicThreads(
             [
                 'page' => $page,
-                'per_page' => 20,
+                'per_page' => $perPage,
                 'orderby' => 'created_at',
                 'order' => 'DESC',
             ]
@@ -100,7 +104,9 @@ class ThreadsListShortcode
             $this->renderThread($thread, $detailPageId);
         }
 
-        $this->renderPagination($page, $totalPages);
+        if ($paginationEnabled) {
+            $this->renderPagination($page, $totalPages);
+        }
 
         echo '</div>';
 
@@ -243,5 +249,33 @@ class ThreadsListShortcode
         }
 
         return max(1, absint($page));
+    }
+
+    /**
+     * Resolve shortcode page size.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     * @return int Page size.
+     */
+    private function perPage(array $atts): int
+    {
+        $limit = isset($atts['limit']) ? absint($atts['limit']) : 0;
+
+        return $limit > 0 ? $limit : 20;
+    }
+
+    /**
+     * Resolve whether pagination should be displayed.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     * @return bool True when pagination is enabled.
+     */
+    private function paginationEnabled(array $atts): bool
+    {
+        if ('' !== (string) ($atts['pagination'] ?? '')) {
+            return filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return '' === (string) ($atts['limit'] ?? '') || absint($atts['limit']) <= 0;
     }
 }

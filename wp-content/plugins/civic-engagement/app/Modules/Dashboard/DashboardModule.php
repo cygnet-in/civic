@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CivicPlatform\Modules\Dashboard;
 
+use CivicPlatform\Modules\Dashboard\Frontend\StatisticsShortcode;
+use CivicPlatform\Modules\Dashboard\Services\PublicStatisticsService;
 use CivicPlatform\Modules\Events\Repository\EventRegistrationRepository;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
@@ -24,6 +26,16 @@ class DashboardModule
 
     public function register(): void
     {
+        $statisticsShortcode = new StatisticsShortcode(
+            new PublicStatisticsService(
+                new RepRepository($this->wpdb),
+                new ThreadRepository($this->wpdb),
+                new ThreadResponseRepository($this->wpdb),
+                new EventRepository($this->wpdb)
+            )
+        );
+        $statisticsShortcode->register();
+
         $page = new DashboardPage(
             new RepRepository($this->wpdb),
             new ThreadRepository($this->wpdb),

@@ -247,7 +247,7 @@ class ScheduleRepository extends BaseRepository
         }
 
         $row = $this->wpdb->get_row(
-            $this->prepare("SELECT * FROM {$this->table} WHERE id = %d AND is_public = 1 AND is_archived = 0 LIMIT 1", [$id]),
+            $this->prepare("SELECT * FROM {$this->table} WHERE id = %d AND is_public = 1 LIMIT 1", [$id]),
             ARRAY_A
         );
 
@@ -264,7 +264,7 @@ class ScheduleRepository extends BaseRepository
         }
 
         $row = $this->wpdb->get_row(
-            $this->prepare("SELECT * FROM {$this->table} WHERE slug = %s AND is_public = 1 AND is_archived = 0 LIMIT 1", [$slug]),
+            $this->prepare("SELECT * FROM {$this->table} WHERE slug = %s AND is_public = 1 LIMIT 1", [$slug]),
             ARRAY_A
         );
 

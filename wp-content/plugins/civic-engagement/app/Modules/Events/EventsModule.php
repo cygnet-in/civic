@@ -11,6 +11,7 @@ use CivicPlatform\Modules\Events\Admin\EventFieldEditPage;
 use CivicPlatform\Modules\Events\Admin\EventFieldsListPage;
 use CivicPlatform\Modules\Events\Admin\EventsAdmin;
 use CivicPlatform\Modules\Events\Admin\EventsListPage;
+use CivicPlatform\Modules\Events\Frontend\EventArchiveShortcode;
 use CivicPlatform\Modules\Events\Frontend\EventDetailShortcode;
 use CivicPlatform\Modules\Events\Frontend\EventListShortcode;
 use CivicPlatform\Modules\Events\Frontend\LatestEventsWidget;
@@ -76,6 +77,13 @@ class EventsModule
             $this->createMediaService()
         );
         $shortcode->register();
+
+        $archiveShortcode = new EventArchiveShortcode(
+            new EventRepository($this->wpdb),
+            new DateHelper(),
+            $this->createMediaService()
+        );
+        $archiveShortcode->register();
 
         $detailShortcode = new EventDetailShortcode(
             new EventRepository($this->wpdb),

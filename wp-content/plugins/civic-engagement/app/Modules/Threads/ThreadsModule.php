@@ -15,6 +15,7 @@ use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldEditPage;
 use CivicPlatform\Modules\Threads\Fields\Admin\ThreadFieldsListPage;
 use CivicPlatform\Modules\Threads\Frontend\LatestConsultationsWidget;
 use CivicPlatform\Modules\Threads\Frontend\ThreadDetailShortcode;
+use CivicPlatform\Modules\Threads\Frontend\ThreadsArchiveShortcode;
 use CivicPlatform\Modules\Threads\Frontend\ThreadsListShortcode;
 use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
@@ -76,6 +77,9 @@ class ThreadsModule
 
         $shortcode = new ThreadsListShortcode(new ThreadRepository($this->wpdb), new DateHelper(), $this->createMediaService());
         $shortcode->register();
+
+        $archiveShortcode = new ThreadsArchiveShortcode(new ThreadRepository($this->wpdb), new DateHelper(), $this->createMediaService());
+        $archiveShortcode->register();
 
         $detailShortcode = new ThreadDetailShortcode(
             new ThreadRepository($this->wpdb),

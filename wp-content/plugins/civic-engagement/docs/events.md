@@ -85,7 +85,7 @@ An event is Archived when:
 * or the event status is closed,
 * or the event is no longer public.
 
-Main public event listings use Active events. Archived event repository access exists for the future archive rendering task, where archived items should appear in a separate section using simplified title/link presentation only. Full cards are reserved for Active events.
+Main public event listings use Active events. `[civic_events_archive]` renders archived events with full cards and pagination by default, or a compact title/link list when `limit` is supplied.
 
 ---
 
@@ -100,4 +100,4 @@ The admin workflow should:
 - validate slug uniqueness within events
 - preserve stable public URLs after creation where possible
 
-Only public published events resolve through public slug URLs. Numeric ID detail URLs are retained temporarily and redirect to the canonical URL.
+Only public published or closed events resolve through public slug URLs. Numeric ID detail URLs are retained temporarily and redirect to the canonical URL.

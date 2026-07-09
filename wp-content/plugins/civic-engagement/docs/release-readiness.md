@@ -133,7 +133,15 @@ Main listing pages should:
 
 This lifecycle rule applies to consultations, events, and schedules.
 
-The repository layer now exposes Public Active and Public Archived query methods for these modules, and current public listings use the Active methods. Archive shortcodes and simplified archive rendering are not yet implemented.
+The repository layer now exposes Public Active and Public Archived query methods for these modules, current public listings use the Active methods, and standalone archive shortcodes are implemented for consultations, events, and schedules.
+
+Archive shortcodes:
+
+- `[civic_threads_archive]`
+- `[civic_events_archive]`
+- `[civic_schedules_archive]`
+
+Archive shortcodes render full cards with pagination when no `limit` is supplied. With `limit`, they render compact title/link lists without pagination.
 
 ## Presentation Rules
 
@@ -174,7 +182,7 @@ A consultation is Archived when:
 - or its end date has passed,
 - or it is otherwise closed by an administrator.
 
-Public consultation listings should reserve full `civic-card` presentation for Active consultations. Archived consultations should appear in a lower Archived section as simplified title/link rows.
+Public consultation listings should reserve full `civic-card` presentation for Active consultations. Standalone archive shortcodes can render full archive cards or limited compact title/link lists.
 
 ## Event Lifecycle
 
@@ -190,7 +198,7 @@ An event is Archived when:
 - or the event status is closed,
 - or the event is no longer public.
 
-Public event listings should reserve full `civic-card` presentation for Active events. Archived events should appear in a lower Archived section as simplified title/link rows.
+Public event listings should reserve full `civic-card` presentation for Active events. Standalone archive shortcodes can render full archive cards or limited compact title/link lists.
 
 ## Schedule Lifecycle
 
@@ -206,7 +214,7 @@ A schedule is Archived when:
 - or its status is completed or cancelled,
 - or the relevant status/end date has passed according to the final Version 1.0 listing rules.
 
-Public schedule listings should reserve full `civic-card` presentation for Active schedules. Archived schedules should appear in a lower Archived section as simplified title/link rows.
+Public schedule listings should reserve full `civic-card` presentation for Active schedules. Standalone archive shortcodes can render full archive cards or limited compact title/link lists.
 
 ## Documentation Inconsistencies Discovered
 

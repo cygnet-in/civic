@@ -23,10 +23,13 @@ This keeps frontend workflows modular and allows the plugin to own workflow rend
 | `[civic_rep_form]` | Reps | Public representation submission form. |
 | `[civic_rep_detail]` | Reps | Public representation detail display using `rep_id`. |
 | `[civic_threads]` | Threads | Public consultation listing. |
+| `[civic_threads_archive]` | Threads | Public archived consultation listing. |
 | `[civic_thread_detail]` | Threads | Public consultation detail and consultation response form. |
 | `[civic_events]` | Events | Public event listing. |
+| `[civic_events_archive]` | Events | Public archived event listing. |
 | `[civic_event_detail]` | Events | Public event detail and event registration form when registration is enabled. |
 | `[civic_schedules]` | Schedules | Public schedule listing. |
+| `[civic_schedules_archive]` | Schedules | Public archived schedule listing. |
 | `[civic_schedule_detail]` | Schedules | Public schedule detail. |
 | `[civic_statistics]` | Dashboard | Public platform statistics cards. |
 
@@ -42,10 +45,13 @@ Recommended public pages:
 | --- | --- |
 | Submit Representation | `[civic_rep_form]` |
 | Public Consultations | `[civic_threads]` |
+| Consultation Archive | `[civic_threads_archive]` |
 | Consultation Detail | `[civic_thread_detail]` |
 | Public Events | `[civic_events]` |
+| Event Archive | `[civic_events_archive]` |
 | Event Detail | `[civic_event_detail]` |
 | Public Schedules | `[civic_schedules]` |
+| Schedule Archive | `[civic_schedules_archive]` |
 | Schedule Detail | `[civic_schedule_detail]` |
 
 The canonical slug router searches published pages for the relevant detail shortcode and uses that page as the rendering target for prefixed public URLs.
@@ -64,7 +70,12 @@ Examples:
 [civic_threads limit="3"]
 [civic_events limit="10" pagination="1"]
 [civic_schedules detail_page_id="42"]
+[civic_threads_archive]
+[civic_events_archive limit="5"]
+[civic_schedules_archive limit="5"]
 ```
+
+Archive shortcodes render full cards and paginate when no `limit` is supplied. When `limit` is supplied, archive shortcodes render a compact title/link list and do not paginate.
 
 `[civic_thread_detail]` supports:
 
@@ -87,6 +98,9 @@ Current page variables:
 - `thread_page`
 - `event_page`
 - `schedule_page`
+- `thread_archive_page`
+- `event_archive_page`
+- `schedule_archive_page`
 
 When a `limit` is supplied and `pagination` is not explicitly enabled, the list is treated as a compact limited list.
 
@@ -196,4 +210,3 @@ Potential future frontend rendering options:
 - richer pagination controls
 
 These are not currently implemented.
-

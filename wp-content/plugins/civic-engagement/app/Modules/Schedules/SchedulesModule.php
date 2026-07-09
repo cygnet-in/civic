@@ -10,6 +10,7 @@ use CivicPlatform\Modules\Reps\Repository\RepRepository;
 use CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesAdmin;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesListPage;
+use CivicPlatform\Modules\Schedules\Frontend\ScheduleArchiveShortcode;
 use CivicPlatform\Modules\Schedules\Frontend\ScheduleDetailShortcode;
 use CivicPlatform\Modules\Schedules\Frontend\ScheduleListShortcode;
 use CivicPlatform\Modules\Schedules\Frontend\UpcomingSchedulesWidget;
@@ -62,6 +63,13 @@ class SchedulesModule
             $this->createMediaService()
         );
         $shortcode->register();
+
+        $archiveShortcode = new ScheduleArchiveShortcode(
+            new ScheduleRepository($this->wpdb),
+            new DateHelper(),
+            $this->createMediaService()
+        );
+        $archiveShortcode->register();
 
         $detailShortcode = new ScheduleDetailShortcode(
             new ScheduleRepository($this->wpdb),

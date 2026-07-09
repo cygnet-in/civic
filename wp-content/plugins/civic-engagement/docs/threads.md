@@ -91,7 +91,7 @@ A consultation is Archived when:
 * or its end date has passed,
 * or it is otherwise closed by an administrator.
 
-Main public consultation listings use Active consultations. Archived consultation repository access exists for the future archive rendering task, where archived items should appear in a separate section using simplified title/link presentation only. Full cards are reserved for Active consultations.
+Main public consultation listings use Active consultations. `[civic_threads_archive]` renders archived consultations with full cards and pagination by default, or a compact title/link list when `limit` is supplied.
 
 ---
 

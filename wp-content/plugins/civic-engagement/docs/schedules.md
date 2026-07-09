@@ -91,7 +91,7 @@ A schedule is Archived when:
 * or its status is completed or cancelled,
 * or the relevant status/end date has passed according to the final Version 1.0 listing rules.
 
-Main public schedule listings use Active schedules. Archived schedule repository access exists for the future archive rendering task, where archived items should appear in a separate section using simplified title/link presentation only. Full cards are reserved for Active schedules.
+Main public schedule listings use Active schedules. `[civic_schedules_archive]` renders archived schedules with full cards and pagination by default, or a compact title/link list when `limit` is supplied.
 
 ---
 
@@ -128,7 +128,7 @@ Main public schedule listings use Active schedules. Archived schedule repository
 
 ## Public Schedule URLs
 
-Public schedules use `/schedule/{slug}`. Slugs are generated from titles when schedules are created, may be edited by administrators, and are unique within schedules. Only public, non-archived schedules resolve through this route. Numeric ID detail URLs remain temporarily supported and redirect to the canonical URL.
+Public schedules use `/schedule/{slug}`. Slugs are generated from titles when schedules are created, may be edited by administrators, and are unique within schedules. Public active and archived schedules resolve through this route. Numeric ID detail URLs remain temporarily supported and redirect to the canonical URL.
 
 ---
 

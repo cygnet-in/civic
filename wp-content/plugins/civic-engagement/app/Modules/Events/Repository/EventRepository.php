@@ -185,8 +185,8 @@ class EventRepository extends BaseRepository
 
         $row = $this->wpdb->get_row(
             $this->prepare(
-                "SELECT * FROM {$this->table} WHERE id = %d AND is_public = 1 AND status = %s LIMIT 1",
-                [$id, 'published']
+                "SELECT * FROM {$this->table} WHERE id = %d AND is_public = 1 AND status IN (%s, %s) LIMIT 1",
+                [$id, 'published', 'closed']
             ),
             ARRAY_A
         );
@@ -205,8 +205,8 @@ class EventRepository extends BaseRepository
 
         $row = $this->wpdb->get_row(
             $this->prepare(
-                "SELECT * FROM {$this->table} WHERE slug = %s AND is_public = 1 AND status = %s LIMIT 1",
-                [$slug, 'published']
+                "SELECT * FROM {$this->table} WHERE slug = %s AND is_public = 1 AND status IN (%s, %s) LIMIT 1",
+                [$slug, 'published', 'closed']
             ),
             ARRAY_A
         );

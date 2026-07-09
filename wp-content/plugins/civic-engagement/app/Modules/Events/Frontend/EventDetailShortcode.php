@@ -110,9 +110,9 @@ class EventDetailShortcode
      */
     private function renderEvent(array $event): void
     {
-        echo '<article class="civic-card civic-event-detail__content">';
+        echo '<article class="civic-card civic-card-main-details civic-event-detail__content">';
         echo '<div class="civic-card__content">';
-        echo '<h1 class="civic-card-detail__title civic-event-detail__title">' . esc_html((string) ($event['title'] ?? '')) . '</h1>';
+        echo '<h1 class="civic-card-detail__title civic-card__title civic-event-detail__title">' . esc_html((string) ($event['title'] ?? '')) . '</h1>';
         echo MediaRenderer::gallery($this->media->getByEntity('event', (int) ($event['id'] ?? 0)), 'event-' . (int) ($event['id'] ?? 0));
 
         if (!empty($event['summary'])) {
@@ -123,27 +123,25 @@ class EventDetailShortcode
             echo '<div class="civic-card__description civic-event-detail__description">' . wpautop(esc_html((string) $event['description'])) . '</div>';
         }
 
+        echo '<dl class="civic-card__meta civic-event-detail__meta">';
+
         if (!empty($event['location'])) {
-            echo '<p class="civic-card__location civic-event-detail__location">';
-            echo '<strong>' . esc_html__('Location:', 'civic-engagement') . '</strong><br>';
-            echo esc_html((string) $event['location']);
-            echo '</p>';
+            echo '<dt class="civic-card__location civic-event-detail__location">';
+            echo '<strong>' . esc_html__('Location:', 'civic-engagement') . '</strong>';
+            echo '</dt>';
+            echo '<dd>' . esc_html((string) $event['location']) . '</dd>';
         }
 
-        echo '<p class="civic-card__date civic-event-detail__date">';
-        echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
-        echo 'From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span>';
-        // echo esc_html(
-        //     sprintf(
-        //         /* translators: 1: start date, 2: end date */
-        //         __('From %1$s To %2$s', 'civic-engagement'),
-        //         $this->dates->formatDateTime($event['start_date'] ?? null),
-        //         $this->dates->formatDateTime($event['end_date'] ?? null)
-        //     )
-        // );
-        echo '</p>';
+        echo '<dt class="civic-card__date civic-event-detail__date">';
+        echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong></dt>';
+        echo '<dd>From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span></dd>';
 
-        echo '<p class="civic-card__status civic-event-detail__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+        echo '<dt class="civic-card__status civic-event-detail__registration-status">';
+        echo '<strong>' . esc_html__('Registration Status:', 'civic-engagement') . '</strong>';
+        echo '</dt>';
+        echo '<dd>' . esc_html($this->registrationStatus($event)) . '</dd>';
+        echo '</dl>';
+       
         echo '</div>';
         echo '</article>';
     }

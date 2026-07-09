@@ -23,17 +23,19 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
 ?>
 
 <div class="civic-rep-form civic-form">
+    <h2 class="civic-rep-form__title civic-form__title"><?php echo esc_html__('Submit a Representation', 'civic-engagement'); ?></h2>
+
     <?php if ('' !== $message) : ?>
         <div class="civic-rep-form__message civic-form__message <?php echo esc_attr($messageClass); ?>" role="status">
             <?php echo esc_html($message); ?>
         </div>
     <?php endif; ?>
 
-    <form method="post" action="<?php echo esc_url(get_permalink()); ?>" class="civic-rep-form__form" enctype="multipart/form-data">
+    <form method="post" action="<?php echo esc_url(get_permalink()); ?>" class="civic-rep-form__form civic-form__form" enctype="multipart/form-data">
         <?php wp_nonce_field($nonceAction, $nonceField); ?>
         <input type="hidden" name="civic_action" value="<?php echo esc_attr($formAction); ?>">
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-name"><?php echo esc_html__('Name', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-name"
@@ -43,11 +45,11 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
                 required
             >
             <?php if (isset($errors['name'])) : ?>
-                <span class="civic-rep-form__error"><?php echo esc_html($errors['name']); ?></span>
+                <span class="civic-rep-form__error civic-form__error"><?php echo esc_html($errors['name']); ?></span>
             <?php endif; ?>
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-email"><?php echo esc_html__('Email', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-email"
@@ -57,11 +59,11 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
                 required
             >
             <?php if (isset($errors['email'])) : ?>
-                <span class="civic-rep-form__error"><?php echo esc_html($errors['email']); ?></span>
+                <span class="civic-rep-form__error civic-form__error"><?php echo esc_html($errors['email']); ?></span>
             <?php endif; ?>
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-phone"><?php echo esc_html__('Phone', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-phone"
@@ -71,7 +73,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
             >
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-whatsapp"><?php echo esc_html__('WhatsApp', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-whatsapp"
@@ -81,12 +83,12 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
             >
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field civic-form__field--full">
             <label for="civic-rep-address"><?php echo esc_html__('Address', 'civic-engagement'); ?></label>
             <textarea id="civic-rep-address" name="civic_rep[address]" rows="3"><?php echo esc_textarea((string) ($values['address'] ?? '')); ?></textarea>
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-eircode"><?php echo esc_html__('Eircode', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-eircode"
@@ -96,7 +98,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
             >
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-electoral-area"><?php echo esc_html__('Electoral Area', 'civic-engagement'); ?></label>
             <select
                 id="civic-rep-electoral-area"
@@ -112,7 +114,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
             </select>
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field">
             <label for="civic-rep-title"><?php echo esc_html__('Subject', 'civic-engagement'); ?></label>
             <input
                 id="civic-rep-title"
@@ -122,27 +124,27 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
                 required
             >
             <?php if (isset($errors['title'])) : ?>
-                <span class="civic-rep-form__error"><?php echo esc_html($errors['title']); ?></span>
+                <span class="civic-rep-form__error civic-form__error"><?php echo esc_html($errors['title']); ?></span>
             <?php endif; ?>
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field civic-form__field--full">
             <label for="civic-rep-details"><?php echo esc_html__('Details', 'civic-engagement'); ?></label>
             <textarea id="civic-rep-details" name="civic_rep[details]" rows="6" required><?php echo esc_textarea((string) ($values['details'] ?? '')); ?></textarea>
             <?php if (isset($errors['details'])) : ?>
-                <span class="civic-rep-form__error"><?php echo esc_html($errors['details']); ?></span>
+                <span class="civic-rep-form__error civic-form__error"><?php echo esc_html($errors['details']); ?></span>
             <?php endif; ?>
         </p>
 
-        <p class="civic-rep-form__field">
+        <p class="civic-rep-form__field civic-form__field civic-form__field--full">
             <label for="civic-rep-image"><?php echo esc_html__('Image', 'civic-engagement'); ?></label>
             <input id="civic-rep-image" name="civic_rep[image]" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
             <?php if (isset($errors['image'])) : ?>
-                <span class="civic-rep-form__error"><?php echo esc_html($errors['image']); ?></span>
+                <span class="civic-rep-form__error civic-form__error"><?php echo esc_html($errors['image']); ?></span>
             <?php endif; ?>
         </p>
 
-        <fieldset class="civic-rep-form__field">
+        <fieldset class="civic-rep-form__field civic-rep-form__consent civic-form__field civic-form__field--full civic-form__consent">
             <legend><?php echo esc_html__('I agree to be contacted by:', 'civic-engagement'); ?></legend>
             <label><input type="checkbox" name="civic_rep[consent_email]" value="1" <?php checked(!empty($values['consent_email'])); ?>> <?php echo esc_html__('Email', 'civic-engagement'); ?></label>
             <label><input type="checkbox" name="civic_rep[consent_call]" value="1" <?php checked(!empty($values['consent_call'])); ?>> <?php echo esc_html__('Call', 'civic-engagement'); ?></label>
@@ -153,7 +155,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
         <input type="hidden" name="civic_rep[map_lat]" value="<?php echo esc_attr((string) ($values['map_lat'] ?? '')); ?>">
         <input type="hidden" name="civic_rep[map_lng]" value="<?php echo esc_attr((string) ($values['map_lng'] ?? '')); ?>">
 
-        <p class="civic-rep-form__actions">
+        <p class="civic-rep-form__actions civic-form__actions">
             <button type="submit"><?php echo esc_html__('Submit Representation', 'civic-engagement'); ?></button>
         </p>
     </form>

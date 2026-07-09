@@ -84,14 +84,14 @@ class ThreadResponseForm
         ob_start();
 
         echo '<section class="civic-thread-response-form civic-form">';
-        echo '<h2>' . esc_html__('Submit a Response', 'civic-engagement') . '</h2>';
+        echo '<h2 class="civic-thread-response-form__title civic-form__title">' . esc_html__('Submit a Response', 'civic-engagement') . '</h2>';
 
         if (!empty($response['message'])) {
             $class = !empty($response['success']) ? 'civic-thread-response-form__message--success civic-form__message--success' : 'civic-thread-response-form__message--error civic-form__message--error';
             echo '<p class="civic-thread-response-form__message civic-form__message ' . esc_attr($class) . '">' . esc_html((string) $response['message']) . '</p>';
         }
 
-        echo '<form method="post">';
+        echo '<form method="post" class="civic-thread-response-form__form civic-form__form">';
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<input type="hidden" name="civic_thread_response[thread_id]" value="' . esc_attr((string) $threadId) . '">';
         wp_nonce_field(self::NONCE_ACTION, self::NONCE_FIELD);
@@ -106,7 +106,7 @@ class ThreadResponseForm
         $this->renderTextareaField('response_text', __('Response', 'civic-engagement'), (string) $values['response_text'], $errors, true);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
 
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__actions civic-form__actions">';
         echo '<button type="submit" class="button button-primary">';
         echo esc_html__('Submit Response', 'civic-engagement');
         echo '</button>';
@@ -163,7 +163,7 @@ class ThreadResponseForm
      */
     private function renderTextField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field">';
         echo '<label for="civic-thread-response-' . esc_attr($name) . '">' . esc_html($label) . '</label>';
         echo '<input type="text" id="civic-thread-response-' . esc_attr($name) . '" name="civic_thread_response[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError($name, $errors);
@@ -182,7 +182,7 @@ class ThreadResponseForm
      */
     private function renderEmailField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field">';
         echo '<label for="civic-thread-response-' . esc_attr($name) . '">' . esc_html($label) . '</label>';
         echo '<input type="email" id="civic-thread-response-' . esc_attr($name) . '" name="civic_thread_response[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError($name, $errors);
@@ -201,7 +201,7 @@ class ThreadResponseForm
      */
     private function renderTextareaField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field civic-form__field--full">';
         echo '<label for="civic-thread-response-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
         echo '<textarea id="civic-thread-response-' . esc_attr($name) . '" name="civic_thread_response[' . esc_attr($name) . ']" rows="5"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
         $this->renderFieldError($name, $errors);
@@ -216,7 +216,7 @@ class ThreadResponseForm
      */
     private function renderElectoralAreaField(int $selectedAreaId): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field">';
         echo '<label for="civic-thread-response-electoral-area">' . esc_html__('Electoral Area', 'civic-engagement') . '</label>';
         echo '<select id="civic-thread-response-electoral-area" name="civic_thread_response[electoral_area_id]">';
         echo '<option value="">' . esc_html__('Select an electoral area', 'civic-engagement') . '</option>';
@@ -238,7 +238,7 @@ class ThreadResponseForm
      */
     private function renderConsentFields(array $values): void
     {
-        echo '<fieldset class="civic-thread-response-form__consent">';
+        echo '<fieldset class="civic-thread-response-form__field civic-thread-response-form__consent civic-form__field civic-form__field--full civic-form__consent">';
         echo '<legend>' . esc_html__('I agree to be contacted by:', 'civic-engagement') . '</legend>';
 
         foreach (['email' => 'Email', 'call' => 'Call', 'sms' => 'SMS', 'post' => 'Post'] as $key => $label) {
@@ -303,7 +303,7 @@ class ThreadResponseForm
      */
     private function renderCustomTextField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field">';
         echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label>';
         echo '<input type="text" id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
@@ -322,7 +322,7 @@ class ThreadResponseForm
      */
     private function renderCustomTextareaField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field civic-form__field--full">';
         echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
         echo '<textarea id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
         $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
@@ -342,7 +342,7 @@ class ThreadResponseForm
      */
     private function renderCustomSelectField(array $field, string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-thread-response-form__field civic-form__field">';
         echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label>';
         echo '<select id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']"' . ($required ? ' required' : '') . '>';
         echo '<option value="">' . esc_html__('Select an option', 'civic-engagement') . '</option>';
@@ -369,7 +369,7 @@ class ThreadResponseForm
             return;
         }
 
-        echo '<br><span class="civic-thread-response-form__error">' . esc_html($errors[$name]) . '</span>';
+        echo '<br><span class="civic-thread-response-form__error civic-form__error">' . esc_html($errors[$name]) . '</span>';
     }
 
     /**

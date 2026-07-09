@@ -94,7 +94,7 @@ class EventListShortcode
 
         ob_start();
 
-        echo '<div class="civic-events">';
+        echo '<div class="civic-events civic-cards-main-list">';
 
         if (empty($items)) {
             echo '<p class="civic-events__empty">' . esc_html__('No public events are currently available.', 'civic-engagement') . '</p>';
@@ -124,7 +124,7 @@ class EventListShortcode
     {
         $eventId = isset($event['id']) ? (int) $event['id'] : 0;
 
-        echo '<article class="civic-card civic-events__item">';
+        echo '<article class="civic-card civic-list-card civic-events__item">';
         echo MediaRenderer::listThumbnail($this->media->getPrimary('event', $eventId));
         echo '<div class="civic-card__content">';
         echo '<h2 class="civic-card__title civic-events__title">' . esc_html((string) ($event['title'] ?? '')) . '</h2>';
@@ -133,16 +133,21 @@ class EventListShortcode
             echo '<p class="civic-card__summary civic-events__summary">' . esc_html((string) $event['summary']) . '</p>';
         }
 
+        echo '<div class="civic-card__meta">';
         if (!empty($event['location'])) {
-            echo '<p class="civic-card__location civic-events__location">Location: <span class="civic-events__location-name">' . esc_html((string) $event['location']) . '</span></p>';
-        }
+            echo '<p class="civic-card__location civic-events__location">📍 <span class="civic-events__location-name">' . esc_html((string) $event['location']) . '</span></p>';
+        }        
+        echo '<p class="civic-card__date civic-events__date">📅 From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span></p>';
+        echo '</div>';
 
-        echo '<p class="civic-card__date civic-events__date">Date: From <span class="civic-events__date-start">' . esc_html($this->dates->formatDate($event['start_date'] ?? null)) . '</span> to <span class="civic-events__date-end">' . esc_html($this->dates->formatDate($event['end_date'] ?? null)) . '</span></p>';
-        echo '<p class="civic-card__status civic-events__registration-status">' . esc_html($this->registrationStatus($event)) . '</p>';
+        
+        echo '<div class="civic-card__footer">';
+        echo '<span class="civic-card__status civic-card__left civic-events__registration-status '.$this->registrationContainerStatus($event).' ">' . esc_html($this->registrationStatus($event)) . '</span>';
 
-        echo '<p class="civic-card__actions civic-events__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl((string) ($event['slug'] ?? ''), $eventId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
-        echo '</p>';
+        echo '<span class="civic-card__actions civic-card__right civic-events__actions">';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($event['slug'] ?? ''), $eventId, $detailPageId)) . '">' . esc_html__('More →', 'civic-engagement') . '</a>';
+        echo '</span>';
+        echo '</div>';
         echo '</div>';
         echo '</article>';
     }
@@ -156,8 +161,15 @@ class EventListShortcode
     private function registrationStatus(array $event): string
     {
         return !empty($event['registration_enabled'])
-            ? __('Registration is currently open', 'civic-engagement')
-            : __('Registration is currently closed', 'civic-engagement');
+            ? __('Registration: Open', 'civic-engagement')
+            : __('Registration: Closed', 'civic-engagement');
+    }
+
+    private function registrationContainerStatus(array $event): string
+    {
+        return !empty($event['registration_enabled'])
+            ? 'civic-card__status--open'
+            : 'civic-card__status--closed';
     }
 
     /**

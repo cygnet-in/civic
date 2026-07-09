@@ -161,9 +161,9 @@ class ThreadDetailShortcode
         array $media
     ): void
     {
-        echo '<article class="civic-card civic-thread-detail__content">';
+        echo '<article class="civic-card civic-card-main-details civic-thread-detail__content">';
         echo '<div class="civic-card__content">';
-        echo '<h1 class="civic-card-detail__title civic-thread-detail__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h1>';
+        echo '<h1 class="civic-card-detail__title civic-card__title civic-thread-detail__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h1>';
         echo MediaRenderer::gallery($media, 'consultation-' . (int) ($thread['id'] ?? 0));
 
         if (!empty($thread['summary'])) {
@@ -211,7 +211,7 @@ class ThreadDetailShortcode
         echo '<p class="civic-card__actions civic-thread-detail__actions">';
 
         if (!empty($thread['response_enabled'])) {
-            echo '<a href="#civic-thread-response-form">' . esc_html__('Have Your Say', 'civic-engagement') . '</a>';
+            echo '<a href="#civic-thread-response-form" class="civic-button civic-button--primary">' . esc_html__('Have Your Say', 'civic-engagement') . '</a>';
         }
 
         if (!empty($thread['response_enabled']) || $responseCount > 0) {

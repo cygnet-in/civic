@@ -1,0 +1,242 @@
+/* =====================================================
+   Civic Manager Admin Workspace
+===================================================== */
+
+body.civic-manager-admin {
+    --civic-admin-primary: #0f3d63;
+    --civic-admin-primary-dark: #082b47;
+    --civic-admin-accent: #b91c1c;
+    --civic-admin-bg: #f3f6fa;
+    --civic-admin-surface: #ffffff;
+    --civic-admin-border: #dfe7ef;
+    --civic-admin-text: #1f2937;
+    --civic-admin-muted: #6b7280;
+    --civic-admin-radius: 14px;
+    --civic-admin-shadow: 0 10px 30px rgba(15, 61, 99, .08);
+
+    background: var(--civic-admin-bg);
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Top admin bar */
+
+body.civic-manager-admin #wpadminbar {
+    background: var(--civic-admin-primary-dark);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+body.civic-manager-admin #wpadminbar .ab-item,
+body.civic-manager-admin #wpadminbar a.ab-item,
+body.civic-manager-admin #wpadminbar > #wp-toolbar span.ab-label {
+    color: rgba(255,255,255,.9);
+}
+
+body.civic-manager-admin #wpadminbar .ab-item:hover,
+body.civic-manager-admin #wpadminbar a.ab-item:hover {
+    color: #fff;
+}
+
+/* Left menu */
+
+body.civic-manager-admin #adminmenuback,
+body.civic-manager-admin #adminmenuwrap,
+body.civic-manager-admin #adminmenu {
+    background: var(--civic-admin-primary-dark);
+}
+
+body.civic-manager-admin #adminmenu {
+    margin-top: 0;
+}
+
+body.civic-manager-admin #adminmenu a {
+    color: rgba(255,255,255,.82);
+}
+
+body.civic-manager-admin #adminmenu div.wp-menu-name {
+    font-weight: 600;
+}
+
+body.civic-manager-admin #adminmenu .wp-menu-image:before {
+    color: rgba(255,255,255,.72);
+}
+
+body.civic-manager-admin #adminmenu li.menu-top {
+    margin: 4px 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+body.civic-manager-admin #adminmenu li.menu-top > a {
+    border-radius: 10px;
+}
+
+body.civic-manager-admin #adminmenu li.menu-top:hover > a,
+body.civic-manager-admin #adminmenu li.opensub > a,
+body.civic-manager-admin #adminmenu li.wp-has-current-submenu > a,
+body.civic-manager-admin #adminmenu li.current > a {
+    background: rgba(255,255,255,.12);
+    color: #fff;
+}
+
+body.civic-manager-admin #adminmenu li.wp-has-current-submenu > a {
+    background: var(--civic-admin-accent);
+}
+
+body.civic-manager-admin #adminmenu .wp-submenu {
+    background: #092f4e;
+    border-radius: 0 0 10px 10px;
+}
+
+body.civic-manager-admin #adminmenu .wp-submenu a {
+    color: rgba(255,255,255,.78);
+    font-size: 13px;
+}
+
+body.civic-manager-admin #adminmenu .wp-submenu a:hover,
+body.civic-manager-admin #adminmenu .wp-submenu .current a {
+    color: #fff;
+}
+
+/* Main content */
+
+body.civic-manager-admin #wpcontent {
+    background: var(--civic-admin-bg);
+}
+
+body.civic-manager-admin #wpbody-content {
+    padding: 28px;
+    box-sizing: border-box;
+}
+
+body.civic-manager-admin .wrap {
+    margin: 0;
+}
+
+body.civic-manager-admin .wrap h1,
+body.civic-manager-admin .wrap h2 {
+    color: var(--civic-admin-primary);
+    font-weight: 800;
+    letter-spacing: -.03em;
+}
+
+body.civic-manager-admin .wrap h1 {
+    font-size: 2rem;
+    margin-bottom: 24px;
+}
+
+/* Tables */
+
+body.civic-manager-admin table.widefat,
+body.civic-manager-admin .wp-list-table {
+    border: 1px solid var(--civic-admin-border);
+    border-radius: var(--civic-admin-radius);
+    overflow: hidden;
+    box-shadow: var(--civic-admin-shadow);
+    background: var(--civic-admin-surface);
+}
+
+body.civic-manager-admin .widefat thead th,
+body.civic-manager-admin .widefat tfoot th {
+    background: #f8fafc;
+    color: var(--civic-admin-primary);
+    font-weight: 800;
+    border-bottom: 1px solid var(--civic-admin-border);
+}
+
+body.civic-manager-admin .widefat td,
+body.civic-manager-admin .widefat th {
+    padding: 14px 16px;
+}
+
+body.civic-manager-admin .widefat tbody tr:nth-child(odd) {
+    background: #ffffff;
+}
+
+body.civic-manager-admin .widefat tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+body.civic-manager-admin .widefat tbody tr:hover {
+    background: #eef5fb;
+}
+
+/* Search and filters */
+
+body.civic-manager-admin .search-box input[type="search"],
+body.civic-manager-admin input[type="search"],
+body.civic-manager-admin input[type="text"],
+body.civic-manager-admin select,
+body.civic-manager-admin textarea {
+    border: 1px solid var(--civic-admin-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: none;
+}
+
+body.civic-manager-admin .search-box input[type="search"]:focus,
+body.civic-manager-admin input[type="search"]:focus,
+body.civic-manager-admin input[type="text"]:focus,
+body.civic-manager-admin select:focus,
+body.civic-manager-admin textarea:focus {
+    border-color: var(--civic-admin-primary);
+    box-shadow: 0 0 0 3px rgba(30,115,190,.14);
+    outline: none;
+}
+
+/* Buttons */
+
+body.civic-manager-admin .button,
+body.civic-manager-admin .button-secondary {
+    border-radius: 999px;
+    border-color: var(--civic-admin-border);
+    font-weight: 700;
+}
+
+body.civic-manager-admin .button-primary,
+body.civic-manager-admin .page-title-action {
+    background: var(--civic-admin-accent);
+    border-color: var(--civic-admin-accent);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 800;
+    box-shadow: none;
+}
+
+body.civic-manager-admin .button-primary:hover,
+body.civic-manager-admin .page-title-action:hover {
+    background: #991b1b;
+    border-color: #991b1b;
+    color: #fff;
+}
+
+/* Notices */
+
+body.civic-manager-admin .notice {
+    border-radius: 10px;
+    border-left-width: 5px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.05);
+}
+
+/* Cards / postboxes */
+
+body.civic-manager-admin .postbox,
+body.civic-manager-admin .card {
+    border: 1px solid var(--civic-admin-border);
+    border-radius: var(--civic-admin-radius);
+    box-shadow: var(--civic-admin-shadow);
+    background: #fff;
+}
+
+body.civic-manager-admin .postbox-header {
+    border-bottom: 1px solid var(--civic-admin-border);
+}
+
+/* Footer cleanup */
+
+body.civic-manager-admin #wpfooter {
+    color: var(--civic-admin-muted);
+}
+
+body.civic-manager-admin #footer-thankyou {
+    display: none;
+}

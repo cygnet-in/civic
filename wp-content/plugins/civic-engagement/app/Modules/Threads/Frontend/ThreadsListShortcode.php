@@ -94,7 +94,7 @@ class ThreadsListShortcode
 
         ob_start();
 
-        echo '<div class="civic-threads">';
+        echo '<div class="civic-threads civic-cards-main-list">';
 
         if (empty($items)) {
             echo '<p class="civic-threads__empty">' . esc_html__('No consultations are currently available.', 'civic-engagement') . '</p>';
@@ -124,7 +124,7 @@ class ThreadsListShortcode
     {
         $threadId = isset($thread['id']) ? (int) $thread['id'] : 0;
 
-        echo '<article class="civic-card civic-threads__item">';
+        echo '<article class="civic-card civic-list-card civic-threads__item">';
         echo MediaRenderer::listThumbnail($this->media->getPrimary('consultation', $threadId));
         echo '<div class="civic-card__content">';
         echo '<h2 class="civic-card__title civic-threads__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h2>';
@@ -133,11 +133,13 @@ class ThreadsListShortcode
             echo '<p class="civic-card__summary civic-threads__summary">' . esc_html((string) $thread['summary']) . '</p>';
         }
 
-        echo '<p class="civic-card__date civic-threads__date">' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</p>';
+        echo '<div class="civic-card__footer">';
+        echo '<span  class="civic-card__date civic-card__left civic-threads__date">📅 ' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</span>';
 
-        echo '<p class="civic-card__actions civic-threads__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl((string) ($thread['slug'] ?? ''), $threadId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
-        echo '</p>';
+        echo '<span class="civic-card__actions civic-card__right civic-threads__actions">';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($thread['slug'] ?? ''), $threadId, $detailPageId)) . '">' . esc_html__('More →', 'civic-engagement') . '</a>';
+        echo '</span>';
+        echo '</div>';
         echo '</div>';
         echo '</article>';
     }

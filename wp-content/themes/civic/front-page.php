@@ -194,16 +194,25 @@ get_header();
 				<div class="civic-home-latest__block">
 					<h3>Latest Consultations</h3>
 					<?php echo do_shortcode( '[civic_threads limit="3"]' ); ?>
+					<a class="civic-home-latest__view-all" href="<?php echo esc_url( home_url( '/threads/' ) ); ?>">
+						View all consultations →
+					</a>
 				</div>
 
 				<div class="civic-home-latest__block">
 					<h3>Community Events</h3>
 					<?php echo do_shortcode( '[civic_events limit="3"]' ); ?>
+					<a class="civic-home-latest__view-all" href="<?php echo esc_url( home_url( '/events/' ) ); ?>">
+						View all events →
+					</a>
 				</div>
 
 				<div class="civic-home-latest__block">
 					<h3>Upcoming Schedules</h3>
 					<?php echo do_shortcode( '[civic_schedules limit="3"]' ); ?>
+					<a class="civic-home-latest__view-all" href="<?php echo esc_url( home_url( '/schedules/' ) ); ?>">
+						View all schedules →
+					</a>
 				</div>
 
 			</div>

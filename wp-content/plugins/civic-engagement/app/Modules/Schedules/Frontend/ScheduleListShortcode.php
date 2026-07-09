@@ -91,7 +91,7 @@ class ScheduleListShortcode
 
         ob_start();
 
-        echo '<div class="civic-schedules">';
+        echo '<div class="civic-schedules civic-cards-main-list">';
 
         if (empty($items)) {
             echo '<p class="civic-schedules__empty">' . esc_html__('No public schedules are currently available.', 'civic-engagement') . '</p>';
@@ -121,24 +121,27 @@ class ScheduleListShortcode
     {
         $scheduleId = isset($schedule['id']) ? (int) $schedule['id'] : 0;
 
-        echo '<article class="civic-card civic-schedules__item">';
+        echo '<article class="civic-card civic-list-card civic-schedules__item">';
         echo MediaRenderer::listThumbnail($this->media->getPrimary('schedule', $scheduleId));
         echo '<div class="civic-card__content">';
         echo '<h2 class="civic-card__title civic-schedules__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h2>';
-        echo '<p class="civic-card__type civic-schedules__type">' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
-        echo '<p class="civic-card__date civic-schedules__date">Date: From <span class="civic-schedules__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedules__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span></p>';
+        echo '<div class="civic-card__meta">';
+        echo '<p class="civic-card__date civic-schedules__date">📅 From <span class="civic-schedules__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedules__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span></p>';
+        echo '</div>';
 
         if (!empty($schedule['details'])) {
-            echo '<p class="civic-card__details civic-schedules__details">' . esc_html($this->shortDetails((string) $schedule['details'])) . '</p>';
+            echo '<p class="civic-card__details civic-card__summary civic-schedules__details">' . esc_html($this->shortDetails((string) $schedule['details'])) . '</p>';
         }
 
         if (!empty($schedule['recent_update'])) {
             echo '<p class="civic-card__recent-update civic-schedules__recent-update">' . esc_html((string) $schedule['recent_update']) . '</p>';
         }
-
-        echo '<p class="civic-card__actions civic-schedules__actions">';
-        echo '<a href="' . esc_url($this->readMoreUrl((string) ($schedule['slug'] ?? ''), $scheduleId, $detailPageId)) . '">' . esc_html__('Read more', 'civic-engagement') . '</a>';
-        echo '</p>';
+        echo '<div class="civic-card__footer">';
+        echo '<span class="civic-card__type civic-card__left civic-schedules__type">📌 ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</span>';
+        echo '<span class="civic-card__actions civic-card__right civic-schedules__actions">';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($schedule['slug'] ?? ''), $scheduleId, $detailPageId)) . '">' . esc_html__('More →', 'civic-engagement') . '</a>';
+        echo '</span>';
+        echo '</div>';
         echo '</div>';
         echo '</article>';
     }

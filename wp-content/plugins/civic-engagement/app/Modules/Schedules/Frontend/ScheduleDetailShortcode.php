@@ -101,9 +101,9 @@ class ScheduleDetailShortcode
      */
     private function renderSchedule(array $schedule): void
     {
-        echo '<article class="civic-card civic-schedule-detail__content">';
+        echo '<article class="civic-card civic-card-main-details civic-schedule-detail__content">';
         echo '<div class="civic-card__content">';
-        echo '<h1 class="civic-card-detail__title civic-schedule-detail__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h1>';
+        echo '<h1 class="civic-card-detail__title civic-card__title civic-schedule-detail__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h1>';
         echo MediaRenderer::gallery($this->media->getByEntity('schedule', (int) ($schedule['id'] ?? 0)), 'schedule-' . (int) ($schedule['id'] ?? 0));
         echo '<p class="civic-card__type civic-schedule-detail__type"><strong>' . esc_html__('Type:', 'civic-engagement') . '</strong> ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</p>';
         echo '<p class="civic-card__status civic-schedule-detail__status"><strong>' . esc_html__('Status:', 'civic-engagement') . '</strong> ' . esc_html($this->statusLabel((string) ($schedule['status'] ?? ''))) . '</p>';

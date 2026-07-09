@@ -83,15 +83,15 @@ class EventRegistrationForm
 
         ob_start();
 
-        echo '<section class="civic-event-registration-form">';
-        echo '<h2>' . esc_html__('Register for this Event', 'civic-engagement') . '</h2>';
+        echo '<section class="civic-event-registration-form civic-form">';
+        echo '<h2 class="civic-event-registration-form__title civic-form__title">' . esc_html__('Register for this Event', 'civic-engagement') . '</h2>';
 
         if (!empty($response['message'])) {
             $class = !empty($response['success']) ? 'civic-event-registration-form__message--success civic-form__message--success' : 'civic-event-registration-form__message--error civic-form__message--error';
             echo '<p class="civic-event-registration-form__message civic-form__message ' . esc_attr($class) . '">' . esc_html((string) $response['message']) . '</p>';
         }
 
-        echo '<form method="post">';
+        echo '<form method="post" class="civic-event-registration-form__form civic-form__form">';
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<input type="hidden" name="civic_event_registration[event_id]" value="' . esc_attr((string) $eventId) . '">';
         wp_nonce_field(self::NONCE_ACTION, self::NONCE_FIELD);
@@ -105,7 +105,7 @@ class EventRegistrationForm
         $this->renderConsentFields($values);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
 
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__actions civic-form__actions">';
         echo '<button type="submit" class="button button-primary">';
         echo esc_html__('Submit Registration', 'civic-engagement');
         echo '</button>';
@@ -161,7 +161,7 @@ class EventRegistrationForm
      */
     private function renderTextField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field">';
         echo '<label for="civic-event-registration-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
         echo '<input type="text" id="civic-event-registration-' . esc_attr($name) . '" name="civic_event_registration[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError($name, $errors);
@@ -180,7 +180,7 @@ class EventRegistrationForm
      */
     private function renderEmailField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field">';
         echo '<label for="civic-event-registration-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
         echo '<input type="email" id="civic-event-registration-' . esc_attr($name) . '" name="civic_event_registration[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError($name, $errors);
@@ -199,7 +199,7 @@ class EventRegistrationForm
      */
     private function renderTextareaField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field civic-form__field--full">';
         echo '<label for="civic-event-registration-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
         echo '<textarea id="civic-event-registration-' . esc_attr($name) . '" name="civic_event_registration[' . esc_attr($name) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
         $this->renderFieldError($name, $errors);
@@ -214,7 +214,7 @@ class EventRegistrationForm
      */
     private function renderElectoralAreaField(int $selectedAreaId): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field">';
         echo '<label for="civic-event-registration-electoral-area">' . esc_html__('Electoral Area', 'civic-engagement') . '</label><br>';
         echo '<select id="civic-event-registration-electoral-area" name="civic_event_registration[electoral_area_id]">';
         echo '<option value="">' . esc_html__('Select an electoral area', 'civic-engagement') . '</option>';
@@ -236,7 +236,7 @@ class EventRegistrationForm
      */
     private function renderConsentFields(array $values): void
     {
-        echo '<fieldset class="civic-event-registration-form__consent">';
+        echo '<fieldset class="civic-event-registration-form__field civic-event-registration-form__consent civic-form__field civic-form__field--full civic-form__consent">';
         echo '<legend>' . esc_html__('I agree to be contacted by:', 'civic-engagement') . '</legend>';
 
         foreach (['email' => 'Email', 'call' => 'Call', 'sms' => 'SMS', 'post' => 'Post'] as $key => $label) {
@@ -301,7 +301,7 @@ class EventRegistrationForm
      */
     private function renderCustomTextField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field">';
         echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
         echo '<input type="text" id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
@@ -320,7 +320,7 @@ class EventRegistrationForm
      */
     private function renderCustomTextareaField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field civic-form__field--full">';
         echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
         echo '<textarea id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
         $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
@@ -340,7 +340,7 @@ class EventRegistrationForm
      */
     private function renderCustomDropdownField(array $field, string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p>';
+        echo '<p class="civic-event-registration-form__field civic-form__field">';
         echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
         echo '<select id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']"' . ($required ? ' required' : '') . '>';
         echo '<option value="">' . esc_html__('Select an option', 'civic-engagement') . '</option>';
@@ -367,7 +367,7 @@ class EventRegistrationForm
             return;
         }
 
-        echo '<br><span class="civic-event-registration-form__error">' . esc_html($errors[$name]) . '</span>';
+        echo '<br><span class="civic-event-registration-form__error civic-form__error">' . esc_html($errors[$name]) . '</span>';
     }
 
     /**

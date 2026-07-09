@@ -6,6 +6,7 @@ namespace CivicPlatform\Modules\Schedules\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
+use CivicPlatform\Modules\Reps\Repository\RepRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
@@ -87,6 +88,8 @@ class ScheduleEditPage
 
     private MediaAdminPanel $mediaPanel;
 
+    private ?RepRepository $reps;
+
     /**
      * @param ScheduleRepository $schedules Schedule repository.
      * @param ScheduleService $service Schedule service.
@@ -99,7 +102,8 @@ class ScheduleEditPage
         ScheduleNoteRepository $notes,
         DateHelper $dates,
         MediaService $media,
-        ShortUrlService $shortUrls
+        ShortUrlService $shortUrls,
+        ?RepRepository $reps = null
     )
     {
         $this->schedules = $schedules;
@@ -109,6 +113,7 @@ class ScheduleEditPage
         $this->media = $media;
         $this->shortUrls = $shortUrls;
         $this->mediaPanel = new MediaAdminPanel($media);
+        $this->reps = $reps;
     }
 
     /**
@@ -140,6 +145,17 @@ class ScheduleEditPage
             echo '</div>';
 
             return;
+        }
+
+        if (0 === $scheduleId && !$this->isSubmission()) {
+            $existingSourceSchedule = $this->existingScheduleForSourceRequest();
+
+            if (is_array($existingSourceSchedule)) {
+                $this->renderAlreadyConverted($existingSourceSchedule);
+                echo '</div>';
+
+                return;
+            }
         }
 
         if ($isView && is_array($schedule)) {
@@ -213,6 +229,8 @@ class ScheduleEditPage
             return $this->buildResponse(true, false, 'The schedule could not be created.', $values, [], 'schedule_create_failed');
         }
 
+        $this->linkRepresentationToSchedule($values, $newScheduleId);
+
         $media = $this->synchronizeMedia($newScheduleId);
         if (!empty($media['errors'])) {
             $this->redirectToEditWithMediaError($newScheduleId);
@@ -234,6 +252,8 @@ class ScheduleEditPage
         echo '<form method="post" enctype="multipart/form-data">';
         wp_nonce_field(self::NONCE_ACTION . $scheduleId, self::NONCE_FIELD);
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
+        $this->renderHiddenInput('source_type', $values);
+        $this->renderHiddenInput('source_id', $values);
         echo '<table class="form-table" role="presentation"><tbody>';
         $this->renderTypeSelect($values, $errors);
         $this->renderTextInput('title', __('Title', 'civic-engagement'), $values, $errors, true);
@@ -272,6 +292,8 @@ class ScheduleEditPage
             $this->renderDetailRow($label, $value);
         }
 
+        $this->renderOriginatingRepresentationRows($schedule);
+
         echo '</tbody></table>';
         $this->mediaPanel->renderReadOnly('schedule', $scheduleId);
     }
@@ -305,6 +327,10 @@ class ScheduleEditPage
 
         if ('' !== (string) ($schedule['short_code'] ?? '')) {
             $rows[__('Short URL', 'civic-engagement')] = ShortUrlService::url((string) $schedule['short_code']);
+        }
+
+        if ('' !== (string) ($schedule['source_type'] ?? '') || (int) ($schedule['source_id'] ?? 0) > 0) {
+            $rows[__('Source', 'civic-engagement')] = trim((string) ($schedule['source_type'] ?? '') . ' #' . (string) ($schedule['source_id'] ?? ''), ' #');
         }
 
         return $rows;
@@ -372,6 +398,18 @@ class ScheduleEditPage
         $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
+    }
+
+    /**
+     * Render a hidden schedule field.
+     *
+     * @param string $key Field key.
+     * @param array<string, mixed> $values Form values.
+     * @return void
+     */
+    private function renderHiddenInput(string $key, array $values): void
+    {
+        echo '<input type="hidden" name="civic_schedule[' . esc_attr($key) . ']" value="' . esc_attr((string) ($values[$key] ?? '')) . '">';
     }
 
     /**
@@ -512,6 +550,35 @@ class ScheduleEditPage
     }
 
     /**
+     * Render originating representation details inside the schedule table.
+     *
+     * @param array<string, mixed> $schedule Schedule row.
+     * @return void
+     */
+    private function renderOriginatingRepresentationRows(array $schedule): void
+    {
+        $rep = $this->originatingRepresentation($schedule);
+
+        if (!is_array($rep)) {
+            return;
+        }
+
+        $repId = isset($rep['id']) ? (int) $rep['id'] : 0;
+
+        if ($repId <= 0) {
+            return;
+        }
+
+        $this->renderDetailRow(__('Representation ID', 'civic-engagement'), (string) $repId);
+        $this->renderDetailRow(__('Representation Subject', 'civic-engagement'), (string) ($rep['title'] ?? ''));
+
+        echo '<tr>';
+        echo '<th scope="row">' . esc_html__('Representation Action', 'civic-engagement') . '</th>';
+        echo '<td><a class="button" href="' . esc_url($this->representationViewUrl($repId)) . '">' . esc_html__('View Representation', 'civic-engagement') . '</a></td>';
+        echo '</tr>';
+    }
+
+    /**
      * Render the form message.
      *
      * @param array<string, mixed> $response Form response.
@@ -596,8 +663,8 @@ class ScheduleEditPage
             'is_archived' => !empty($data['is_archived']) ? 1 : 0,
             'start_date' => sanitize_text_field($this->requestValue($data, 'start_date')),
             'end_date' => sanitize_text_field($this->requestValue($data, 'end_date')),
-            'source_type' => is_array($schedule) ? (string) ($schedule['source_type'] ?? '') : '',
-            'source_id' => is_array($schedule) ? (string) ($schedule['source_id'] ?? '') : '',
+            'source_type' => is_array($schedule) ? (string) ($schedule['source_type'] ?? '') : sanitize_key($this->requestValue($data, 'source_type')),
+            'source_id' => is_array($schedule) ? (string) ($schedule['source_id'] ?? '') : (string) absint($this->requestValue($data, 'source_id')),
             'created_by' => is_array($schedule) ? (string) ($schedule['created_by'] ?? '') : (string) get_current_user_id(),
             'history_note' => sanitize_textarea_field($this->requestValue($data, 'history_note')),
         ];
@@ -675,6 +742,10 @@ class ScheduleEditPage
         $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'schedule', $scheduleId > 0 ? $scheduleId : null);
         if (null !== $shortUrlError) {
             $errors['short_code'] = $shortUrlError;
+        }
+
+        if (0 === $scheduleId && $this->sourceAlreadyConverted($values)) {
+            $errors['source_id'] = 'This representation has already been converted to a schedule.';
         }
 
         return $errors;
@@ -764,7 +835,7 @@ class ScheduleEditPage
      */
     private function defaultValues(): array
     {
-        return [
+        $values = [
             'type' => 'meeting',
             'title' => '',
             'slug' => '',
@@ -783,6 +854,43 @@ class ScheduleEditPage
             'created_by' => get_current_user_id() > 0 ? (string) get_current_user_id() : '',
             'history_note' => '',
         ];
+
+        return $this->applySourceDefaults($values);
+    }
+
+    /**
+     * Prefill a new schedule from a supported source request.
+     *
+     * @param array<string, mixed> $values Default form values.
+     * @return array<string, mixed> Form values.
+     */
+    private function applySourceDefaults(array $values): array
+    {
+        $sourceType = $this->sourceType();
+        $sourceId = $this->sourceId();
+
+        if ('rep' !== $sourceType || $sourceId <= 0 || null === $this->reps) {
+            return $values;
+        }
+
+        $rep = $this->reps->findById($sourceId);
+
+        if (!is_array($rep)) {
+            return $values;
+        }
+
+        $title = trim((string) ($rep['title'] ?? ''));
+
+        $values['type'] = 'rep_followup';
+        $values['title'] = '' !== $title ? $title : sprintf(__('Representation #%d', 'civic-engagement'), $sourceId);
+        $values['details'] = trim((string) ($rep['details'] ?? ''));
+        $values['status'] = 'pending';
+        $values['source_type'] = 'rep';
+        $values['source_id'] = (string) $sourceId;
+        $values['internal_comment'] = $this->sourceDescription($sourceId, (string) $values['title']);
+        $values['history_note'] = $this->sourceDescription($sourceId, (string) $values['title']);
+
+        return $values;
     }
 
     /**
@@ -841,6 +949,46 @@ class ScheduleEditPage
     }
 
     /**
+     * Get the requested source type for create-form prefill.
+     *
+     * @return string Source type.
+     */
+    private function sourceType(): string
+    {
+        if (!isset($_GET['source_type'])) {
+            return '';
+        }
+
+        $sourceType = wp_unslash($_GET['source_type']);
+
+        if (is_array($sourceType) || is_object($sourceType)) {
+            return '';
+        }
+
+        return sanitize_key((string) $sourceType);
+    }
+
+    /**
+     * Get the requested source ID for create-form prefill.
+     *
+     * @return int Source ID.
+     */
+    private function sourceId(): int
+    {
+        if (!isset($_GET['source_id'])) {
+            return 0;
+        }
+
+        $sourceId = wp_unslash($_GET['source_id']);
+
+        if (is_array($sourceId) || is_object($sourceId)) {
+            return 0;
+        }
+
+        return absint($sourceId);
+    }
+
+    /**
      * Get the admin page title.
      *
      * @param int $scheduleId Schedule ID.
@@ -869,6 +1017,171 @@ class ScheduleEditPage
     }
 
     /**
+     * Render a notice when the source representation already has a schedule.
+     *
+     * @param array<string, mixed> $schedule Existing schedule row.
+     * @return void
+     */
+    private function renderAlreadyConverted(array $schedule): void
+    {
+        $scheduleId = isset($schedule['id']) ? (int) $schedule['id'] : 0;
+        $title = (string) ($schedule['title'] ?? '');
+
+        echo '<div class="notice notice-warning"><p>';
+        echo esc_html__('This representation has already been converted to a schedule.', 'civic-engagement');
+        echo '</p></div>';
+
+        if ($scheduleId <= 0) {
+            return;
+        }
+
+        echo '<p><a class="button button-primary" href="' . esc_url($this->viewUrl($scheduleId)) . '">' . esc_html__('View Schedule', 'civic-engagement') . '</a>';
+
+        if ('' !== $title) {
+            echo ' ' . esc_html(sprintf(__('Schedule #%d "%s"', 'civic-engagement'), $scheduleId, $title));
+        }
+
+        echo '</p>';
+    }
+
+    /**
+     * Get an existing schedule for the requested source, when one exists.
+     *
+     * @return array<string, mixed>|null Existing schedule row or null.
+     */
+    private function existingScheduleForSourceRequest(): ?array
+    {
+        if ('rep' !== $this->sourceType() || $this->sourceId() <= 0 || null === $this->reps) {
+            return null;
+        }
+
+        $rep = $this->reps->findById($this->sourceId());
+
+        return is_array($rep) ? $this->scheduleForRep($rep) : null;
+    }
+
+    /**
+     * Check whether submitted source values point at an already converted rep.
+     *
+     * @param array<string, mixed> $values Sanitized form values.
+     * @return bool True when a schedule already exists for this source.
+     */
+    private function sourceAlreadyConverted(array $values): bool
+    {
+        if ('rep' !== (string) ($values['source_type'] ?? '') || null === $this->reps) {
+            return false;
+        }
+
+        $rep = $this->reps->findById((int) ($values['source_id'] ?? 0));
+
+        return is_array($rep) && is_array($this->scheduleForRep($rep));
+    }
+
+    /**
+     * Resolve the schedule linked to a representation.
+     *
+     * @param array<string, mixed> $rep Representation row.
+     * @return array<string, mixed>|null Schedule row or null.
+     */
+    private function scheduleForRep(array $rep): ?array
+    {
+        $scheduleId = isset($rep['schedule_id']) ? (int) $rep['schedule_id'] : 0;
+
+        if ($scheduleId > 0) {
+            $schedule = $this->schedules->findById($scheduleId);
+
+            if (is_array($schedule)) {
+                return $schedule;
+            }
+        }
+
+        $repId = isset($rep['id']) ? (int) $rep['id'] : 0;
+
+        return $repId > 0 ? $this->schedules->findBySource('rep', $repId) : null;
+    }
+
+    /**
+     * Resolve the representation that originated a schedule.
+     *
+     * @param array<string, mixed> $schedule Schedule row.
+     * @return array<string, mixed>|null Rep row or null.
+     */
+    private function originatingRepresentation(array $schedule): ?array
+    {
+        if (null === $this->reps) {
+            return null;
+        }
+
+        if ('rep' === (string) ($schedule['source_type'] ?? '')) {
+            $rep = $this->reps->findById((int) ($schedule['source_id'] ?? 0));
+
+            if (is_array($rep)) {
+                return $rep;
+            }
+        }
+
+        return $this->reps->findByScheduleId(isset($schedule['id']) ? (int) $schedule['id'] : 0);
+    }
+
+    /**
+     * Persist the Representation to Schedule relationship after normal create.
+     *
+     * @param array<string, mixed> $values Sanitized form values.
+     * @param int $scheduleId Created schedule ID.
+     * @return void
+     */
+    private function linkRepresentationToSchedule(array $values, int $scheduleId): void
+    {
+        if ('rep' !== (string) ($values['source_type'] ?? '') || null === $this->reps) {
+            return;
+        }
+
+        $repId = (int) ($values['source_id'] ?? 0);
+        $rep = $this->reps->findById($repId);
+
+        if ($scheduleId <= 0 || !is_array($rep)) {
+            return;
+        }
+
+        $auditEntry = sprintf(
+            __('Created Schedule #%d "%s" from this Representation.', 'civic-engagement'),
+            $scheduleId,
+            (string) ($values['title'] ?? '')
+        );
+
+        $internalComment = $this->appendInternalComment((string) ($rep['internal_comment'] ?? ''), $auditEntry);
+
+        $this->reps->linkSchedule($repId, $scheduleId, $internalComment);
+    }
+
+    /**
+     * Append an audit entry to an existing internal comment.
+     */
+    private function appendInternalComment(string $existing, string $entry): string
+    {
+        $existing = trim($existing);
+        $entry = trim($entry);
+
+        if ('' === $existing) {
+            return $entry;
+        }
+
+        return $existing . "\n\n" . $entry;
+    }
+
+    /**
+     * Build the source description used in schedule comments and notes.
+     */
+    private function sourceDescription(int $repId, string $title): string
+    {
+        return sprintf(
+            __('Created from Representation #%d "%s".', 'civic-engagement'),
+            $repId,
+            $title
+        );
+    }
+
+    /**
      * Build schedule edit URL.
      *
      * @param int $scheduleId Schedule ID.
@@ -880,6 +1193,41 @@ class ScheduleEditPage
             [
                 'page' => 'civic-schedule-edit',
                 'schedule_id' => $scheduleId,
+            ],
+            admin_url('admin.php')
+        );
+    }
+
+    /**
+     * Build schedule view URL.
+     *
+     * @param int $scheduleId Schedule ID.
+     * @return string View URL.
+     */
+    private function viewUrl(int $scheduleId): string
+    {
+        return add_query_arg(
+            [
+                'page' => 'civic-schedule-edit',
+                'schedule_id' => $scheduleId,
+                'mode' => 'view',
+            ],
+            admin_url('admin.php')
+        );
+    }
+
+    /**
+     * Build representation view URL.
+     *
+     * @param int $repId Representation ID.
+     * @return string Representation view URL.
+     */
+    private function representationViewUrl(int $repId): string
+    {
+        return add_query_arg(
+            [
+                'page' => 'civic-rep-view',
+                'rep_id' => $repId,
             ],
             admin_url('admin.php')
         );

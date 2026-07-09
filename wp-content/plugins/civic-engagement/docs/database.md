@@ -114,12 +114,14 @@ Supported types:
 * rep
 * thread_response
 * event_registration
+* schedule
 
 ---
 
 ## Important Rules
 
-* Every rep/thread/event should create activity entry.
+* Every rep/thread/event public participation workflow should create an activity entry.
+* Schedule activity type support exists in code for schedule-related workflows.
 * related_id links to actual module table.
 * summary should contain lightweight readable info.
 
@@ -197,8 +199,20 @@ Stores ordered WordPress Media Library image associations for consultations, eve
 | map_lng                 | optional longitude   |
 | status                  | workflow status      |
 | internal_comment        | admin-only comment   |
+| schedule_id             | linked Schedule created from this Representation |
 | created_at              | submission timestamp |
 | updated_at              | update timestamp     |
+
+## Representation to Schedule Link
+
+`schedule_id` stores the persistent one-to-one relationship created by the Representation to Schedule conversion workflow.
+
+Rules:
+
+* A Representation may link to one created Schedule.
+* The linked Schedule also stores `source_type = rep` and `source_id = {representation_id}` for generic source lookup.
+* Duplicate conversions should be prevented by checking the Representation `schedule_id` before creating another Schedule.
+* Internal comments are audit notes only and are not the persistent relationship.
 
 ---
 
@@ -419,6 +433,8 @@ Optional source reference:
 
 * source_type
 * source_id
+
+For schedules created from a Representation, the source reference is paired with `wp_civic_reps.schedule_id`.
 
 Examples:
 

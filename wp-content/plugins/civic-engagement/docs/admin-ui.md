@@ -125,6 +125,19 @@ Responsibilities:
 - table, form, button, notice, card, and postbox styling
 - footer cleanup
 
+## Release Readiness Admin Work
+
+The following admin-related items remain pending for Version 1.0:
+
+- custom login page
+- replacement of WordPress login branding
+- `/civic-admin` login URL support
+- "Visit Website" link in admin
+- branded admin header
+- final admin UI polish
+
+These are not implemented in the current source.
+
 ## Admin Page Structure
 
 Admin pages are OOP classes under module `Admin` folders.
@@ -226,4 +239,3 @@ Account:
 - password change
 - logout menu entry
 - profile menu cleanup for Civic users
-

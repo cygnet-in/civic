@@ -63,7 +63,7 @@ Each contact may have:
 * reps
 * thread responses
 * event registrations
-* schedules
+* schedule-related activity where explicitly created by schedule workflows
 
 linked through civic_activities.
 

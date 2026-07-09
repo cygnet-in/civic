@@ -77,12 +77,10 @@ class ScheduleListShortcode
         $page = $this->currentPage();
         $perPage = $this->perPage($atts);
         $paginationEnabled = $this->paginationEnabled($atts);
-        $result = $this->schedules->getPaginated(
+        $result = $this->schedules->getPublicActiveSchedules(
             [
                 'page' => $page,
                 'per_page' => $perPage,
-                'is_public' => 1,
-                'is_archived' => 0,
             ]
         );
         $items = isset($result['items']) && is_array($result['items']) ? $result['items'] : [];
@@ -91,7 +89,7 @@ class ScheduleListShortcode
 
         ob_start();
 
-        echo '<div class="civic-schedules civic-cards-main-list">';
+        echo '<div class="civic-schedules ' . esc_attr($this->cardsWrapperClass($paginationEnabled)) . '">';
 
         if (empty($items)) {
             echo '<p class="civic-schedules__empty">' . esc_html__('No public schedules are currently available.', 'civic-engagement') . '</p>';
@@ -260,6 +258,11 @@ class ScheduleListShortcode
         }
 
         return '' === (string) ($atts['limit'] ?? '') || absint($atts['limit']) <= 0;
+    }
+
+    private function cardsWrapperClass(bool $paginationEnabled): string
+    {
+        return $paginationEnabled ? 'civic-cards-main-list' : 'civic-cards-home-list';
     }
 
     /**

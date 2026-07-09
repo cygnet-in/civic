@@ -4,339 +4,196 @@
 
 The project uses a shortcode-based frontend rendering strategy.
 
-WordPress pages are used for:
+WordPress pages provide:
 
-* SEO
-* menus
-* content management
-* page hierarchy
+- SEO
+- menu placement
+- editable page content
+- page hierarchy
+- theme layout
 
-Operational functionality is injected using shortcodes.
+Civic operational functionality is injected through plugin shortcodes.
 
-This approach keeps:
+This keeps frontend workflows modular and allows the plugin to own workflow rendering while the theme owns presentation and page composition.
 
-* frontend workflows modular
-* templates reusable
-* module ownership clear
-* routing flexible
+## Current Implemented Shortcodes
 
----
+| Shortcode | Module | Purpose |
+| --- | --- | --- |
+| `[civic_rep_form]` | Reps | Public representation submission form. |
+| `[civic_rep_detail]` | Reps | Public representation detail display using `rep_id`. |
+| `[civic_threads]` | Threads | Public consultation listing. |
+| `[civic_thread_detail]` | Threads | Public consultation detail and consultation response form. |
+| `[civic_events]` | Events | Public event listing. |
+| `[civic_event_detail]` | Events | Public event detail and event registration form when registration is enabled. |
+| `[civic_schedules]` | Schedules | Public schedule listing. |
+| `[civic_schedule_detail]` | Schedules | Public schedule detail. |
+| `[civic_statistics]` | Dashboard | Public platform statistics cards. |
 
-# General Rules
+There is no standalone `[civic_event_registration]` shortcode in the current source. Event registration is rendered inside `[civic_event_detail]`.
 
-* Each major module should expose its own shortcode(s).
-* Shortcodes should remain lightweight.
-* Rendering should happen through templates or dedicated frontend handlers.
-* Business logic should NOT exist inside templates.
-* Controllers/services should handle processing before rendering.
-* Shortcodes should prefer repository/service layers instead of direct database access.
+The current schedule listing shortcode is `[civic_schedules]`. Older references to `[civic_schedule_list]` are outdated.
 
----
+## Public Page Strategy
 
-# Shortcode Naming Rules
-
-Use the `civic_` prefix for all shortcodes.
-
-Examples:
-
-* `civic_rep_form`
-* `civic_threads`
-* `civic_thread_detail`
-* `civic_events`
-
-Avoid:
-
-* generic names
-* inconsistent naming patterns
-
----
-
-# Rendering Rules
-
-Shortcodes should:
-
-* call frontend handlers/services
-* load templates using output buffering where appropriate
-* avoid large inline HTML generation inside shortcode methods
-* avoid direct SQL queries
-
-Example:
-
-```php
-ob_start();
-
-include MODULE_PATH . '/Templates/rep-form.php';
-
-return ob_get_clean();
-```
-
----
-
-# Page Strategy
-
-Pages should be created normally in WordPress.
+Recommended public pages:
 
 | Page | Shortcode |
-|---|---|
+| --- | --- |
 | Submit Representation | `[civic_rep_form]` |
 | Public Consultations | `[civic_threads]` |
 | Consultation Detail | `[civic_thread_detail]` |
 | Public Events | `[civic_events]` |
-| Public Schedule | `[civic_schedule_list]` |
+| Event Detail | `[civic_event_detail]` |
+| Public Schedules | `[civic_schedules]` |
+| Schedule Detail | `[civic_schedule_detail]` |
 
-This allows:
+The canonical slug router searches published pages for the relevant detail shortcode and uses that page as the rendering target for prefixed public URLs.
 
-* editable page content
-* SEO flexibility
-* menu flexibility
-* layout customization
+## Shortcode Attributes
 
----
+Current list shortcodes support:
 
-# Frontend Routing Strategy
-
-Public-facing civic entities may support slug-based URLs.
-
-Examples:
-
-* `/housing`
-* `/dub`
-* `/community-plan`
-
-Slug-based routing is intended for:
-
-* consultations
-* events
-* future public civic entities
-
-Current implementation may temporarily use:
-
-* `?slug=housing`
-
-before introducing full WordPress rewrite/permalink routing.
-
----
-
-# Slug Rules
-
-* Public slugs are globally unique across civic entities.
-* Slugs are editable by administrators.
-* Slugs are initially suggested from titles.
-* Slug validation may use lightweight AJAX checks.
-* `SlugService` is responsible for uniqueness validation.
-* Repository layer must not assume local/module-only slug uniqueness.
-* Slugs should remain stable after publication where possible.
-
----
-
-# Current Implemented Shortcodes
-
-## Reps Module
-
-### `[civic_rep_form]`
-
-Purpose:
-
-* public representation submission form
-
----
-
-### `[civic_rep_detail]`
-
-Purpose:
-
-* public representation detail display, including the optional uploaded image
-
-Supports attributes:
-
-* `rep_id="42"`
-
----
-
-## Threads Module
-
-### `[civic_threads]`
-
-Purpose:
-
-* frontend consultation listing
-
-Supports attributes:
-
-* `detail_page_id="42"`
-
-Example:
-
-```text
-[civic_threads detail_page_id="42"]
-```
-
----
-
-### `[civic_thread_detail]`
-
-Purpose:
-
-* frontend consultation detail display
-
-Supports:
-
-* `thread_id` query parameter
-* `slug` query parameter
-
-Examples:
-
-* `/consultation-detail/?thread_id=12`
-* `/consultation-detail/?slug=housing`
-
----
-
-## Events Module
-
-* `[civic_events]`
-* `[civic_event_detail]`
-* `[civic_event_registration]`
-
----
-
-# Planned / Future Shortcodes
-
-## Schedule Module
-
-* `[civic_schedule_list]`
-* `[civic_schedule_detail]`
-
----
-
-## Frontend Admin Module
-
-* `[civic_admin_dashboard]`
-* `[civic_contact_list]`
-* `[civic_rep_admin]`
-* `[civic_thread_admin]`
-
----
-
-# Attribute Rules
-
-Use shortcode attributes for:
-
-* page references
-* filtering
-* display behavior
-* pagination limits
-* frontend behavior configuration
+- `limit`
+- `pagination`
+- `detail_page_id`
 
 Examples:
 
 ```text
-[civic_threads detail_page_id="42"]
-
-[civic_schedule_list type="public"]
-
-[civic_events limit="10"]
+[civic_threads limit="3"]
+[civic_events limit="10" pagination="1"]
+[civic_schedules detail_page_id="42"]
 ```
 
-Avoid excessive shortcode complexity.
+`[civic_thread_detail]` supports:
 
----
-
-# Template Rules
-
-Templates should:
-
-* remain presentation-focused
-* avoid direct database queries
-* avoid business/workflow logic
-
-Templates belong inside module folders.
+- `show_public_responses`
 
 Example:
 
 ```text
-Modules/Reps/Templates/
-Modules/Threads/Templates/
+[civic_thread_detail show_public_responses="1"]
 ```
 
----
+Public response rendering remains disabled unless this attribute is enabled.
 
-# Frontend Pagination Rules
+## Pagination
 
-Frontend public listings should support lightweight pagination.
+Public listing pagination is lightweight and query-string based.
 
-Prefer:
+Current page variables:
 
-* query parameter pagination
-* lightweight indexed queries
+- `thread_page`
+- `event_page`
+- `schedule_page`
 
-Avoid:
+When a `limit` is supplied and `pagination` is not explicitly enabled, the list is treated as a compact limited list.
 
-* complex AJAX pagination
-* infinite scroll
-* heavy frontend frameworks
+## Rendering Rules
 
-Example:
+Shortcode classes should:
 
-* `?thread_page=2`
+- remain lightweight
+- query repositories or services rather than using raw SQL
+- sanitize shortcode attributes
+- escape output
+- render through dedicated frontend classes or templates
+- avoid business workflow logic in templates
 
----
+Public form shortcodes should:
 
-# Frontend Form Request Rules
+- validate request intent
+- validate nonces
+- sanitize request data
+- delegate workflow handling to services
+- preserve namespaced request fields
 
-All frontend forms must namespace request fields using module-specific request arrays.
+## Current Public URL Routing
 
-Examples:
+Canonical public routes are implemented for:
+
+- `/consultation/{slug}/`
+- `/event/{slug}/`
+- `/schedule/{slug}/`
+
+Short URLs are implemented for:
+
+- `/go/{short_code}/`
+
+The short URL prefix defaults to `go` and is filterable through `civic_short_url_prefix`.
+
+## Slug Rules
+
+Current source behavior:
+
+- slugs are module-local, not globally unique
+- consultations, events, and schedules each validate slugs within their own table
+- root-level civic slug routing is not implemented
+- prefixed canonical URLs are used to avoid WordPress page/post/category conflicts
+- legacy numeric detail URLs redirect permanently to canonical slug URLs when possible
+
+Current canonical examples:
+
+```text
+/consultation/housing/
+/event/community-meeting/
+/schedule/public-update/
+```
+
+## Short URL Rules
+
+Short URL codes:
+
+- are optional
+- are stored as `NULL` or an empty value when not set, depending on module save flow
+- may contain lowercase letters, numbers, and hyphens
+- are globally checked across consultations, events, and schedules
+- redirect permanently to the canonical slug URL when valid
+- return normal 404 behavior when invalid or not public
+
+## Form Request Rules
+
+All frontend form request fields must remain namespaced.
+
+Current public forms use:
 
 ```text
 civic_rep[name]
-civic_rep[email]
-
-civic_thread[name]
-civic_thread[response]
-
-civic_event[name]
-civic_event[registration_data]
+civic_thread_response[name]
+civic_event_registration[name]
 ```
 
-Avoid raw field names directly in frontend requests.
+Avoid raw top-level request field names such as:
 
-Avoid:
+- `name`
+- `email`
+- `category`
+- `year`
+- `page`
+- `author`
 
-* `name`
-* `email`
-* `category`
-* `year`
-* `page`
-* `author`
+This prevents conflicts with WordPress query parsing and permalink routing.
 
-Reason:
+## Widget Relationship
 
-WordPress internally reserves several request variable names for query parsing and routing.
+The plugin also implements sidebar widgets:
 
-Using raw field names may cause:
+- Civic: Latest Consultations
+- Civic: Latest Events
+- Civic: Upcoming Schedules
 
-* unexpected 404 errors
-* query conflicts
-* permalink routing issues
-* unpredictable frontend behavior
+Widgets are not shortcodes. They use the same repositories and canonical URL helpers as the shortcode renderers.
 
----
+## Future Possibilities
 
-# Future Expansion Possibilities
+Potential future frontend rendering options:
 
-Possible future support:
+- Gutenberg blocks
+- template override system
+- refined archive sections for public listings
+- shared shortcode view helpers
+- richer pagination controls
 
-* Gutenberg blocks
-* template overrides
-* rewrite/permalink routing
-* frontend widgets
-* SEO enhancements
-* public sharing tools
+These are not currently implemented.
 
-The current pilot version intentionally uses:
-
-* lightweight shortcode architecture
-* simple routing
-* modular frontend rendering
-
-for maintainability and operational clarity.

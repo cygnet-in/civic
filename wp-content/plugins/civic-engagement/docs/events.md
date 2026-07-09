@@ -69,6 +69,26 @@ Admin can:
 
 ---
 
+# Active / Archived Lifecycle
+
+This section documents the agreed business rule used by public lifecycle repository methods.
+
+An event is Active when:
+
+* it is public,
+* it is published/active,
+* and the current date is before or on the event end date when an end date is set.
+
+An event is Archived when:
+
+* the event end date has passed,
+* or the event status is closed,
+* or the event is no longer public.
+
+Main public event listings use Active events. Archived event repository access exists for the future archive rendering task, where archived items should appear in a separate section using simplified title/link presentation only. Full cards are reserved for Active events.
+
+---
+
 ## Public Event URLs
 
 Events support public shareable URLs using `/event/{slug}`.

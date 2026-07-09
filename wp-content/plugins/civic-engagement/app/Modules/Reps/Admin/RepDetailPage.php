@@ -6,6 +6,7 @@ namespace CivicPlatform\Modules\Reps\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
+use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\RepService;
 
@@ -58,6 +59,8 @@ class RepDetailPage
      */
     private DateHelper $dates;
 
+    private ?ScheduleRepository $schedules;
+
     /**
      * @param RepService $reps Reps service.
      * @param ActivityService $activities Activity service.
@@ -66,11 +69,13 @@ class RepDetailPage
     public function __construct(
         RepService $reps,
         ActivityService $activities,
-        DateHelper $dates
+        DateHelper $dates,
+        ?ScheduleRepository $schedules = null
     ) {
         $this->reps = $reps;
         $this->activities = $activities;
         $this->dates = $dates;
+        $this->schedules = $schedules;
     }
 
     /**
@@ -108,6 +113,7 @@ class RepDetailPage
 
         $this->renderMessage($response);
         $this->renderSummary($rep);
+        $this->renderScheduleAction($rep);
         $this->renderImage($rep);
         $this->renderAdministrationForm($rep);
         $this->renderSnapshot($rep);
@@ -132,6 +138,49 @@ class RepDetailPage
         $this->renderDetailRow(__('Status', 'civic-engagement'), StatusLabelHelper::format($rep['status'] ?? ''));
         $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($rep['created_at'] ?? null));
         echo '</tbody></table>';
+    }
+
+    /**
+     * Render the schedule conversion action.
+     *
+     * @param array<string, mixed> $rep Rep row.
+     * @return void
+     */
+    private function renderScheduleAction(array $rep): void
+    {
+        $repId = isset($rep['id']) ? (int) $rep['id'] : 0;
+
+        if ($repId <= 0) {
+            return;
+        }
+
+        $schedule = $this->scheduleForRep($rep);
+
+        if (is_array($schedule)) {
+            $scheduleId = isset($schedule['id']) ? (int) $schedule['id'] : 0;
+            $scheduleTitle = (string) ($schedule['title'] ?? '');
+
+            echo '<p>';
+            echo esc_html(sprintf(__('Converted to Schedule #%d', 'civic-engagement'), $scheduleId));
+
+            if ('' !== $scheduleTitle) {
+                echo ' ' . esc_html(sprintf(__('"%s"', 'civic-engagement'), $scheduleTitle));
+            }
+
+            if ($scheduleId > 0 && current_user_can('manage_civic_schedules')) {
+                echo ' <a class="button" href="' . esc_url($this->scheduleViewUrl($scheduleId)) . '">' . esc_html__('View Schedule', 'civic-engagement') . '</a>';
+            }
+
+            echo '</p>';
+
+            return;
+        }
+
+        if (!current_user_can('manage_civic_schedules')) {
+            return;
+        }
+
+        echo '<p><a class="button button-primary" href="' . esc_url($this->convertToScheduleUrl($repId)) . '">' . esc_html__('Convert to Schedule', 'civic-engagement') . '</a></p>';
     }
 
     /**
@@ -407,6 +456,69 @@ class RepDetailPage
     {
         return add_query_arg(
             ['page' => 'civic-platform'],
+            admin_url('admin.php')
+        );
+    }
+
+    /**
+     * Build the schedule create URL prefilled from this representation.
+     *
+     * @param int $repId Representation ID.
+     * @return string Schedule create URL.
+     */
+    private function convertToScheduleUrl(int $repId): string
+    {
+        return add_query_arg(
+            [
+                'page' => 'civic-schedule-edit',
+                'source_type' => 'rep',
+                'source_id' => $repId,
+            ],
+            admin_url('admin.php')
+        );
+    }
+
+    /**
+     * Get the schedule already linked to a representation.
+     *
+     * @param array<string, mixed> $rep Rep row.
+     * @return array<string, mixed>|null Schedule row or null.
+     */
+    private function scheduleForRep(array $rep): ?array
+    {
+        if (null === $this->schedules) {
+            return null;
+        }
+
+        $scheduleId = isset($rep['schedule_id']) ? (int) $rep['schedule_id'] : 0;
+
+        if ($scheduleId > 0) {
+            $schedule = $this->schedules->findById($scheduleId);
+
+            if (is_array($schedule)) {
+                return $schedule;
+            }
+        }
+
+        $repId = isset($rep['id']) ? (int) $rep['id'] : 0;
+
+        return $repId > 0 ? $this->schedules->findBySource('rep', $repId) : null;
+    }
+
+    /**
+     * Build the schedule view URL.
+     *
+     * @param int $scheduleId Schedule ID.
+     * @return string Schedule view URL.
+     */
+    private function scheduleViewUrl(int $scheduleId): string
+    {
+        return add_query_arg(
+            [
+                'page' => 'civic-schedule-edit',
+                'schedule_id' => $scheduleId,
+                'mode' => 'view',
+            ],
             admin_url('admin.php')
         );
     }

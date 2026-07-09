@@ -1,67 +1,103 @@
-# Frontend Admin Module
+# Admin Interface
 
-## Purpose
+## Current Implementation
 
-Operational management interface.
+The current operational administration interface is implemented inside WordPress admin.
 
-The system should not rely entirely on wp-admin.
+It is not a separate frontend admin application.
 
----
+Implemented admin areas include:
 
-# Current Simplifications
+* Civic Dashboard
+* Representations
+* Consultations
+* Consultation Fields
+* Consultation Responses
+* Events
+* Event Fields
+* Event Registrations
+* Schedules
+* Contacts
+* Activities
+* Account / Change Password
 
-* Lightweight operational interface.
+## Current Simplifications
+
+* Lightweight operational wp-admin interface.
 * No enterprise dashboard system.
+* No separate frontend admin application.
+* No advanced analytics dashboards.
+* No workflow automation console.
 
----
+## Roles
 
-# Roles
+### Administrator
 
-## Main Admin
+Administrators retain full WordPress and Civic access.
 
-* full system access
+### Civic Manager
 
-## Staff/Admin User
+The plugin registers a `civic_manager` role with Civic operational capabilities.
 
-* frontend operational access
-* limited admin access
+Current capabilities include:
 
----
+* `manage_civic_reps`
+* `manage_civic_threads`
+* `manage_civic_events`
+* `manage_civic_schedules`
+* `view_civic_activities`
+* `manage_civic_contacts`
 
-# Dashboard Widgets
+## Dashboard
 
-May include:
+The Civic Dashboard is implemented by `DashboardModule`, `DashboardAdmin`, and `DashboardPage`.
 
-* latest reps
-* latest thread responses
-* recent events
-* pending schedules
-* recent activity
+It displays:
 
----
+* count cards for major civic records;
+* recent representations;
+* recent consultation responses;
+* upcoming schedules;
+* latest events.
 
-# Main Admin Sections
+## Main Admin Sections
 
-* reps
-* threads
-* events
-* schedules
-* contacts
-* communication
+Current admin sections:
 
----
+* Dashboard
+* Account
+* Representations
+* Consultations
+* Events
+* Schedules
+* Contacts
+* Activities
 
-# Important Rules
+Communication is not currently implemented as an admin section.
+
+## Important Rules
 
 * Use pagination for large lists.
 * Use lightweight filtering/search.
-* Keep frontend admin simple and operational.
+* Keep admin workflows simple and operational.
+* Validate capabilities and nonces on protected actions.
+* Keep repositories, services, validation rules and permissions independent of wp-admin rendering so they can be reused by a future frontend admin if one is built.
 
----
+## Version 1.0 Pending Admin Work
 
-# Future Possibilities
+Pending release-readiness items:
 
-* advanced dashboards,
-* analytics,
-* reporting widgets,
-* workflow management.
+* custom login page
+* replace WordPress login branding
+* support `/civic-admin` login URL
+* add "Visit Website" link in admin
+* add branded admin header
+* final admin UI polish
+
+## Future Possibilities
+
+* frontend administration
+* advanced dashboards
+* analytics
+* reporting widgets
+* workflow management

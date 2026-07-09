@@ -206,6 +206,18 @@ Known duplication in the current implementation:
 
 These duplications are documented here only. They are not refactored by this documentation pass.
 
+## Release Readiness CSS Notes
+
+Before Version 1.0, the public card list CSS should be reviewed and clarified around:
+
+- `civic-cards-main-list`
+- `civic-cards-home-list`
+- homepage latest activity cards
+- sidebar widget consistency
+- responsive behavior
+
+Both `civic-cards-main-list` and `civic-cards-home-list` exist in current shortcode output. The list shortcodes select between them using the existing `pagination` shortcode behavior. Final visual styling and responsive polish remain release-readiness work.
+
 ## Current Runtime Enqueue Map
 
 Public frontend:
@@ -226,4 +238,3 @@ No current runtime enqueue was found for:
 - `assets/css/admin-dashboard.css`
 - `assets/css/frontend.css.back`
 - `wp-content/themes/civic/style-old.css`
-

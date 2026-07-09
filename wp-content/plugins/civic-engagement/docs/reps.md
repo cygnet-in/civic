@@ -66,6 +66,8 @@ Admin can:
 * search/filter reps,
 * update administrative status and internal comment.
 * view an uploaded representation image as a thumbnail linking to the full image.
+* start Schedule creation from a Representation detail screen.
+* view the linked Schedule after a Representation has been converted.
 
 ---
 
@@ -86,3 +88,30 @@ Admin can:
 * SMS notifications,
 * workflow escalation,
 * GIS integration.
+
+---
+
+# Release Readiness Notes
+
+Representation to Schedule conversion is implemented as a lightweight admin prefill workflow.
+
+The workflow is:
+
+1. Admin starts schedule creation from a representation.
+2. Schedule fields are prefilled from representation data.
+3. Admin manually reviews and edits the schedule.
+4. Schedule is saved only after explicit admin action.
+
+The Representation detail screen provides a "Convert to Schedule" action for users who can manage schedules. The action opens the normal Schedule create screen with `source_type=rep` and `source_id` set from the Representation. The Schedule save still uses the existing Schedule workflow, validation, and `ScheduleService`.
+
+When the Schedule is created, the Representation stores the created Schedule ID in `schedule_id`. This is the persistent relationship for the one Representation to one Schedule workflow.
+
+After conversion, the Representation detail screen replaces "Convert to Schedule" with a converted indication and a "View Schedule" action when the current administrator can manage schedules.
+
+The linked Schedule detail page displays the originating Representation ID and subject and provides a "View Representation" action back to this Representation.
+
+Duplicate conversions are prevented by checking the linked `schedule_id` and existing Schedule source references before rendering or accepting another conversion request.
+
+This remains a lightweight prefill workflow and does not tightly couple representation state to schedule state. Creating the Schedule does not automatically change the Representation status.
+
+The Representation internal comment is updated by appending an audit entry with the created Schedule ID and title. Existing internal comments are preserved with a blank line before the appended entry.

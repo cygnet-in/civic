@@ -20,6 +20,7 @@ Implemented:
 - Civic account cleanup V1
 - Canonical slug routing V1
 - Short URL routing V1
+- Representation to Schedule conversion V1
 
 Deferred:
 - Schedule comments
@@ -72,6 +73,11 @@ Consent Management V1:
 * email, call, SMS, and post consent stored on contacts
 * consent is cumulative: public forms promote No to Yes and cannot revoke existing consent
 * consent filtering and CSV export available in contact administration
+
+Communication module status:
+
+* no standalone grouped communication module is currently implemented
+* no bulk email, SMS, WhatsApp, campaign automation, or unsubscribe workflow is currently implemented
 
 ---
 
@@ -304,6 +310,27 @@ Using stable field keys.
 
 * frontend administration
 * performance optimisation
+
+---
+
+# Release Readiness
+
+Version 1.0 is not yet release-ready. Core workflows are operational, but the remaining Version 1.0 work is documented in:
+
+* `docs/release-readiness.md`
+
+Current pending Version 1.0 work includes:
+
+* CAPTCHA integration
+* homepage card layout finalisation
+* `civic-cards-home-list` and `civic-cards-main-list` standardisation
+* sidebar and homepage consistency review
+* custom login/admin branding work
+* `/civic-admin` login URL support
+* final admin UI polish
+* sidebar HTML widget encouraging representation submissions
+
+The public content Active/Archived lifecycle rules are now documented as source-of-truth rules in `docs/release-readiness.md` and the relevant module documents.
 
 ---
 

@@ -16,7 +16,7 @@ Examples:
 
 * No forum-style replies.
 * No advanced moderation workflow.
-* CAPTCHA used instead of strict response restriction.
+* CAPTCHA is not yet integrated and remains pending for Version 1.0.
 
 ---
 
@@ -72,6 +72,26 @@ Admin can:
 * Displayed response count is the starting response count plus actual submitted responses.
 * Public response rendering is disabled by default.
 * The first consultation image is displayed as the listing thumbnail; detail pages show the primary image and remaining images as selectable thumbnails.
+
+---
+
+# Active / Archived Lifecycle
+
+This section documents the agreed business rule used by public lifecycle repository methods.
+
+A consultation is Active when:
+
+* it is published/public,
+* it is accepting responses,
+* and the current date is on or before the consultation end date when an end date is set.
+
+A consultation is Archived when:
+
+* it is no longer accepting responses,
+* or its end date has passed,
+* or it is otherwise closed by an administrator.
+
+Main public consultation listings use Active consultations. Archived consultation repository access exists for the future archive rendering task, where archived items should appear in a separate section using simplified title/link presentation only. Full cards are reserved for Active consultations.
 
 ---
 

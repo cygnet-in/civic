@@ -6,6 +6,7 @@ namespace CivicPlatform\Modules\Schedules;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\FrontendPageResolver;
+use CivicPlatform\Modules\Reps\Repository\RepRepository;
 use CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesAdmin;
 use CivicPlatform\Modules\Schedules\Admin\SchedulesListPage;
@@ -115,7 +116,8 @@ class SchedulesModule
             new ScheduleNoteRepository($this->wpdb),
             new DateHelper(),
             $this->createMediaService(),
-            $this->createShortUrlService()
+            $this->createShortUrlService(),
+            new RepRepository($this->wpdb)
         );
     }
 

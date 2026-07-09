@@ -261,13 +261,51 @@ class EventRepository extends BaseRepository
      */
     public function getPublicEvents(array $args = []): array
     {
+        return $this->getPublicActiveEvents($args);
+    }
+
+    /**
+     * Get public Active events.
+     *
+     * Active events are public, published, and not past their configured end
+     * date.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicActiveEvents(array $args = []): array
+    {
+        $args['is_public'] = 1;
+        $args['status'] = 'published';
+
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildEventFilters($args);
+        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR end_date >= %s)';
+        $where['values'][] = current_time('mysql');
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'ASC');
+
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Get public Archived events.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicArchivedEvents(array $args = []): array
+    {
         $args['is_public'] = 1;
 
-        if (!isset($args['status']) || '' === trim((string) $args['status'])) {
-            $args['status'] = 'published';
-        }
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildEventFilters($args);
+        $where['sql'][] = '(status = %s OR (status = %s AND end_date IS NOT NULL AND end_date != "" AND end_date < %s))';
+        $where['values'][] = 'closed';
+        $where['values'][] = 'published';
+        $where['values'][] = current_time('mysql');
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'end_date', 'DESC');
 
-        return $this->getPaginated($args);
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
 
     /**

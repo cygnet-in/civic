@@ -140,6 +140,8 @@ CREATE TABLE `wp_civic_reps` (
   `map_lat` decimal(10,7) DEFAULT NULL,
   `map_lng` decimal(10,7) DEFAULT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'submitted',
+  `internal_comment` longtext DEFAULT NULL,
+  `schedule_id` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -295,7 +297,8 @@ ALTER TABLE `wp_civic_event_registrations`
 ALTER TABLE `wp_civic_reps`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_contact_id` (`contact_id`),
-  ADD KEY `idx_status_created` (`status`,`created_at`);
+  ADD KEY `idx_status_created` (`status`,`created_at`),
+  ADD UNIQUE KEY `uniq_rep_schedule` (`schedule_id`);
 
 --
 -- Indexes for table `wp_civic_schedules`

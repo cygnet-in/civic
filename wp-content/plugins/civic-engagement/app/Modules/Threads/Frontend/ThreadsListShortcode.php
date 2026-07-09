@@ -81,7 +81,7 @@ class ThreadsListShortcode
         $perPage = $this->perPage($atts);
         $paginationEnabled = $this->paginationEnabled($atts);
         $detailPageId = absint($atts['detail_page_id']);
-        $result = $this->threads->getPublicThreads(
+        $result = $this->threads->getPublicActiveThreads(
             [
                 'page' => $page,
                 'per_page' => $perPage,
@@ -94,7 +94,7 @@ class ThreadsListShortcode
 
         ob_start();
 
-        echo '<div class="civic-threads civic-cards-main-list">';
+        echo '<div class="civic-threads ' . esc_attr($this->cardsWrapperClass($paginationEnabled)) . '">';
 
         if (empty($items)) {
             echo '<p class="civic-threads__empty">' . esc_html__('No consultations are currently available.', 'civic-engagement') . '</p>';
@@ -279,5 +279,10 @@ class ThreadsListShortcode
         }
 
         return '' === (string) ($atts['limit'] ?? '') || absint($atts['limit']) <= 0;
+    }
+
+    private function cardsWrapperClass(bool $paginationEnabled): string
+    {
+        return $paginationEnabled ? 'civic-cards-main-list' : 'civic-cards-home-list';
     }
 }

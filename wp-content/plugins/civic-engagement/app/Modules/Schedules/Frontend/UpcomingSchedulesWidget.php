@@ -67,13 +67,10 @@ class UpcomingSchedulesWidget extends \WP_Widget
     {
         $title = apply_filters('widget_title', $this->title($instance));
         $count = $this->count($instance);
-        $result = $this->schedules->getPaginated(
+        $result = $this->schedules->getPublicActiveSchedules(
             [
                 'page' => 1,
                 'per_page' => $count,
-                'is_public' => 1,
-                'is_archived' => 0,
-                'start_date_from' => current_time('mysql'),
             ]
         );
         $items = isset($result['items']) && is_array($result['items']) ? $result['items'] : [];

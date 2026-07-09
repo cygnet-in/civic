@@ -13,6 +13,7 @@ use CivicPlatform\Modules\Reps\Frontend\RepFormController;
 use CivicPlatform\Modules\Reps\Frontend\RepDetailShortcode;
 use CivicPlatform\Modules\Reps\Frontend\RepsShortcodes;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
+use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\ActivityService;
@@ -94,7 +95,8 @@ class RepsModule
         return new RepDetailPage(
             $services['reps'],
             $services['activities'],
-            new DateHelper()
+            new DateHelper(),
+            new ScheduleRepository($this->wpdb)
         );
     }
 

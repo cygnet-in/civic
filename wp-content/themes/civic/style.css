@@ -1097,7 +1097,7 @@ h2.civic-card__title {
     background-repeat: no-repeat;
 }
 
-.civic-card__meta {
+.civic-event-detail__meta, .civic-thread-detail__meta {
     display: grid;
     grid-template-columns: max-content 1fr;
     gap: 0.4rem 1rem;
@@ -1126,4 +1126,78 @@ h2.civic-card__title {
 .civic-card__title {
     font-size: 700;
     color: var(--civic-primary);
+}
+
+/*----------------------------------------------------------------
+   Header styling
+-----------------------------------------------------------------*/
+/* Header branding */
+.site-header .site-branding {
+    position: relative;
+    z-index: 1;
+}
+
+.site-header .site-branding::before {
+    content: "";
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--civic-accent);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.site-header .main-title {
+    margin: 0;
+}
+
+.site-header .main-title a {
+    color: var(--civic-primary);
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: -.04em;
+    text-shadow:
+        1px 1px 0 #fff,
+        0 2px 8px rgba(0,0,0,.08);
+}
+.site-header {
+    background: linear-gradient(135deg, #ffffff 0%, #fffdfd 65%, #fff5f5 100%);
+    border-bottom: 1px solid rgba(197, 22, 29, .08);
+    box-shadow: 0 8px 24px rgba(18, 43, 70, .05);
+}
+
+.site-header .inside-header {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.main-navigation,
+.main-navigation ul ul {
+    background: transparent;
+}
+
+.main-navigation .main-nav ul li a {
+    color: var(--civic-primary);
+    font-weight: 800;
+    font-size: .92rem;
+    padding: 10px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+}
+
+.main-navigation .main-nav ul li:not([class*="current-menu-"]):hover > a {
+    background: #eef5fb;
+    color: var(--civic-primary);
+}
+
+.main-navigation .main-nav ul li[class*="current-menu-"] > a {
+    background: #fff4f4;
+    color: var(--civic-accent);
+}
+
+.main-navigation .main-nav ul li[class*="current-menu-"] > a::after {
+    display: none;
 }

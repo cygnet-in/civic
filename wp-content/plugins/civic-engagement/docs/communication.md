@@ -1,60 +1,51 @@
-# Communication Module
+# Communication
 
-## Purpose
+## Current Implementation
 
-Grouped email communication system.
+There is no standalone Communication module implemented in the current source.
 
----
+The implemented communication-related functionality is contact consent management:
 
-# Current Simplifications
+* public forms collect consent for email, call, SMS and post;
+* consent values are stored on contact records;
+* consent is cumulative in V1 and can only be promoted from No to Yes by public form submissions;
+* contact administration supports filtering and export by consent fields.
 
-* Email only.
-* No SMS.
-* No WhatsApp.
+## Current Simplifications
+
+* No grouped email sending module.
+* No SMS sending.
+* No WhatsApp integration.
 * No campaign automation.
+* No unsubscribe workflow.
+* No analytics or open tracking.
 
----
+## Future Communication Direction
 
-# Admin Flow
+Future communication work may include a lightweight grouped email workflow, but it is not currently implemented.
 
-Admin can:
+Potential future recipient sources:
 
-* send grouped emails,
-* select recipients by:
+* event registrations
+* consultation responses
+* representations
+* schedules
+* electoral areas
+* consent-filtered contacts
 
-  * event
-  * thread
-  * rep
-  * schedule
-  * electoral area
+Potential future features:
 
----
+* duplicate email filtering
+* basic personalization
+* simple reusable templates
+* integration with a dedicated email platform
 
-# Email Features
+## Important Rules
 
-* duplicate email filtering,
-* basic personalization,
-* reusable templates.
+Any future communication workflow must:
 
-Example:
-
-* Hello {name}
-* Thanks for your recent participation...
-
----
-
-# Important Rules
-
-* No bulk marketing workflow.
-* No analytics/open tracking.
-* No unsubscribe engine.
-
----
-
-# Future Possibilities
-
-* SMS
-* WhatsApp
-* campaign automation
-* reminders
-* delivery tracking
+* respect stored consent fields;
+* keep unsubscribe/opt-out requirements explicit;
+* avoid bulk marketing complexity unless separately scoped;
+* avoid SMS or WhatsApp integration unless explicitly approved;
+* preserve contact and activity separation.

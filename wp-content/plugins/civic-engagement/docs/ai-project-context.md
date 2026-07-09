@@ -18,6 +18,7 @@ Always review these before major changes:
 - `docs/css-architecture.md`
 - `docs/theme-architecture.md`
 - `docs/admin-ui.md`
+- `docs/release-readiness.md`
 
 Also review module-specific docs when touching a module:
 
@@ -229,8 +230,12 @@ Update documentation when:
 - admin behavior changes
 - database schema changes
 - theme responsibilities change
+- release readiness status changes
+- public content lifecycle rules change
 
 New features should update both the module-specific doc and any relevant architecture doc.
+
+Before Version 1.0, update `docs/release-readiness.md` whenever a pending release item is completed, deferred, or re-scoped.
 
 ## Backward Compatibility Expectations
 
@@ -288,3 +293,10 @@ Avoid:
 - tight coupling between modules
 - large unrelated styling rewrites
 
+## Release Readiness Notes
+
+Pending Version 1.0 work is tracked in `docs/release-readiness.md`.
+
+Do not describe a pending item as implemented until the source code exists and has been reviewed. Current pending items include CAPTCHA integration, final public UI polish, login/admin branding, `/civic-admin` login URL support, and a sidebar representation prompt widget.
+
+Active/Archived lifecycle rules for consultations, events, and schedules are documented in `docs/release-readiness.md` and the relevant module documents. Those rules are documentation source-of-truth for future implementation.

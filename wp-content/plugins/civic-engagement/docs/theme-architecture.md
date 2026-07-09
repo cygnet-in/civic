@@ -75,6 +75,8 @@ Implemented sections:
 
 The homepage is manually composed in PHP and uses hardcoded page paths such as `/representation/`, `/threads/`, `/events/`, and `/schedules/`.
 
+Homepage card layouts remain a Version 1.0 release-readiness item. The current homepage uses `civic-home-latest` blocks with compact shortcode output. Listing shortcodes with pagination disabled now expose `civic-cards-home-list` for homepage preview styling.
+
 ## Sidebar Implementation
 
 The Civic theme relies on GeneratePress sidebar behavior for non-home pages.
@@ -167,4 +169,3 @@ Theme fonts:
 - Inter Bold
 
 The theme also contains icon assets that overlap with plugin icon assets under `assets/css/icons`.
-

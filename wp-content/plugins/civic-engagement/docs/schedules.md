@@ -61,7 +61,7 @@ Admin can:
 * set a simple sorting priority,
 * add history notes,
 * add multiple schedule images and captions,
-* create schedules from representations or consultations in the future.
+* create schedules from representations through a prefilled create form.
 
 ---
 
@@ -72,6 +72,26 @@ Admin can:
 * Private schedules remain admin-only.
 * Public schedules are ordered by priority, then start date.
 * The first schedule image is displayed as the listing thumbnail; detail pages show the primary image and remaining images as selectable thumbnails.
+
+---
+
+# Active / Archived Lifecycle
+
+This section documents the agreed business rule used by public lifecycle repository methods.
+
+A schedule is Active when:
+
+* it is public,
+* it is not marked archived,
+* and its status is one of the operational active statuses such as open, pending, or scheduled.
+
+A schedule is Archived when:
+
+* it is manually marked archived,
+* or its status is completed or cancelled,
+* or the relevant status/end date has passed according to the final Version 1.0 listing rules.
+
+Main public schedule listings use Active schedules. Archived schedule repository access exists for the future archive rendering task, where archived items should appear in a separate section using simplified title/link presentation only. Full cards are reserved for Active schedules.
 
 ---
 
@@ -102,7 +122,8 @@ Admin can:
 
 ### Notes
 
-* source_type and source_id are reserved for future "Create Schedule from Representation/Consultation" functionality.
+* source_type and source_id store the originating object for schedules created from another module.
+* Representation-created schedules are also linked back from `civic_reps.schedule_id`.
 * created_by is automatically populated from the logged-in user.
 
 ## Public Schedule URLs
@@ -161,14 +182,30 @@ Unlike Schedule Notes, the internal comment may be edited and replaced.
 
 # Create From Representation / Consultation
 
-Future functionality may allow:
+Implemented:
 
 * Create Schedule from Representation
-* Create Schedule from Consultation
 
-The system will prefill schedule details using source_type and source_id.
+The Representation detail screen links to the normal Schedule create screen with `source_type=rep` and `source_id` set to the Representation ID. The Schedule create form then preloads:
+
+* type: `rep_followup`
+* title: Representation title
+* details: Representation details
+* status: `pending`
+* internal comment/history note identifying the source Representation by ID and title
+* hidden source reference fields
 
 Administrators must review and edit the schedule before saving.
+
+The save process remains the normal Schedule workflow through `ScheduleEditPage`, `ScheduleService`, and `ScheduleRepository`. No Schedule is created until the administrator explicitly submits the Schedule form.
+
+After creation, the originating Representation is linked to the created Schedule using `civic_reps.schedule_id`. The Representation internal comment receives an appended audit entry with the Schedule ID and title. If the Representation has already been converted, the create form is not shown and stale submissions are rejected by validation.
+
+Schedule administration detail pages display the originating Representation ID and subject when the Schedule was created from a Representation. The detail table includes a "View Representation" action that links back to the Representation administration detail page.
+
+Not yet implemented:
+
+* Create Schedule from Consultation
 
 ---
 

@@ -205,6 +205,9 @@ Plugin-rendered public containers:
 - `civic-schedule-detail`
 - `civic-rep-detail`
 - `civic-cards-main-list`
+- `civic-cards-home-list`
+
+Public consultation, event and schedule listing shortcodes choose the card list container from the existing `pagination` shortcode behavior. Pagination-enabled output uses `civic-cards-main-list`. Pagination-disabled preview output uses `civic-cards-home-list`.
 
 Theme homepage containers:
 
@@ -256,4 +259,3 @@ Module-specific blocks extend shared structures:
 - `civic-event-detail__registration-form`
 
 Some older or theme-specific CSS is less consistent and should be treated as current implementation rather than final convention.
-

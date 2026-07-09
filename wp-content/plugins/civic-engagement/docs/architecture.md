@@ -109,13 +109,13 @@ Features:
 
 Purpose:
 
-* Email communication and grouped bulk email.
+* Future email communication and grouped contact workflows.
 
-Features:
+Current implementation:
 
-* grouped sending,
-* duplicate filtering,
-* basic personalization.
+* There is no standalone Communication module in source.
+* Communication-related implementation currently consists of contact consent capture, cumulative consent storage, consent filtering and contact export.
+* Grouped email sending, campaign management and unsubscribe workflows are not implemented.
 
 ---
 
@@ -142,8 +142,11 @@ Workflow:
 Supported activity types:
 
 * rep
-* thread
-* event
+* thread_response
+* event_registration
+* schedule
+
+Public submission workflows currently create activities for representations, consultation responses and event registrations. Schedule activity support exists in shared activity code, but schedule creation is still an administrative workflow.
 
 ---
 
@@ -253,3 +256,53 @@ over:
 - complex management interfaces
 - GIS systems
 - hierarchical geography engines
+
+---
+
+# Current Public UI Architecture
+
+The current public UI is shortcode-driven.
+
+Implemented public shortcodes include:
+
+- `civic_rep_form`
+- `civic_rep_detail`
+- `civic_threads`
+- `civic_thread_detail`
+- `civic_events`
+- `civic_event_detail`
+- `civic_schedules`
+- `civic_schedule_detail`
+- `civic_statistics`
+
+Public list views for consultations, events and schedules use shared Civic Card markup with `civic-card`, `civic-list-card`, and `civic-cards-main-list`.
+
+Public forms use the shared Civic Form design system with `civic-form`, `civic-form__title`, `civic-form__form`, `civic-form__field`, `civic-form__field--full`, `civic-form__consent`, and `civic-form__actions`.
+
+The Civic theme owns homepage composition, branding, page layout, and public presentation refinements. The plugin owns workflows, shortcode rendering, repositories, services, routing, and admin screens.
+
+---
+
+# Current Routing Decisions
+
+Canonical public routes are module-prefixed:
+
+- `/consultation/{slug}`
+- `/event/{slug}`
+- `/schedule/{slug}`
+
+Root-level public slug routing is not implemented.
+
+Slug uniqueness is module-local. Short URL codes are globally checked across consultations, events and schedules.
+
+Short URLs use `/go/{short_code}` by default and redirect permanently to the canonical slug URL when valid.
+
+---
+
+# Release Readiness Source of Truth
+
+Remaining work before Version 1.0 and public Active/Archived lifecycle rules are documented in:
+
+- `docs/release-readiness.md`
+
+Those lifecycle rules define how consultations, events and schedules should distinguish Active items from Archived items in future listing implementations.

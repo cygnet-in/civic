@@ -67,13 +67,12 @@ class LatestEventsWidget extends \WP_Widget
     {
         $title = apply_filters('widget_title', $this->title($instance));
         $count = $this->count($instance);
-        $result = $this->events->getPublicEvents(
+        $result = $this->events->getPublicActiveEvents(
             [
                 'page' => 1,
                 'per_page' => $count,
                 'orderby' => 'start_date',
                 'order' => 'ASC',
-                'start_date_from' => current_time('mysql'),
             ]
         );
         $items = isset($result['items']) && is_array($result['items']) ? $result['items'] : [];

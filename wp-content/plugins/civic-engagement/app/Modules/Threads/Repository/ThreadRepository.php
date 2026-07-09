@@ -336,13 +336,51 @@ class ThreadRepository extends BaseRepository
      */
     public function getPublicThreads(array $args = []): array
     {
+        return $this->getPublicActiveThreads($args);
+    }
+
+    /**
+     * Get public Active consultation threads.
+     *
+     * Active consultations are published, public, accepting responses, and not
+     * past their configured end date.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicActiveThreads(array $args = []): array
+    {
         $args['is_public'] = 1;
+        $args['status'] = 'published';
+        $args['response_enabled'] = 1;
 
-        if (!isset($args['status']) || '' === trim((string) $args['status'])) {
-            $args['status'] = 'published';
-        }
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildThreadFilters($args);
+        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR end_date >= %s)';
+        $where['values'][] = current_time('mysql');
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'created_at', 'DESC');
 
-        return $this->getPaginated($args);
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Get public Archived consultation threads.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicArchivedThreads(array $args = []): array
+    {
+        $args['is_public'] = 1;
+        $args['status'] = 'published';
+
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildThreadFilters($args);
+        $where['sql'][] = '(response_enabled = 0 OR (end_date IS NOT NULL AND end_date != "" AND end_date < %s))';
+        $where['values'][] = current_time('mysql');
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'end_date', 'DESC');
+
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }
 
     /**

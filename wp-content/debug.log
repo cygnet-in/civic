@@ -529,3 +529,10 @@ Stack trace:
 [09-Jul-2026 06:15:36 UTC]   Automatic plugin updates starting...
 [09-Jul-2026 06:15:36 UTC]   Automatic plugin updates complete.
 [09-Jul-2026 06:15:37 UTC] Automatic updates complete.
+[09-Jul-2026 15:20:45 UTC] Automatic updates starting...
+[09-Jul-2026 15:20:46 UTC]   Automatic plugin updates starting...
+[09-Jul-2026 15:20:46 UTC]   Automatic plugin updates complete.
+[09-Jul-2026 15:20:48 UTC] Automatic updates complete.
+[09-Jul-2026 17:27:37 UTC] WordPress database error Unknown column 'schedule_id' in 'where clause' for query UPDATE wp_civic_reps
+                SET schedule_id = 11, internal_comment = 'Created Schedule #11 \"Suggestion for more bicycle parking\" from this Representation.', updated_at = '2026-07-09 17:27:37'
+                WHERE id = 8 AND (schedule_id IS NULL OR schedule_id = 0) made by do_action('admin_page_civic-schedule-edit'), WP_Hook->do_action, WP_Hook->apply_filters, CivicPlatform\Modules\Schedules\Admin\SchedulesAdmin->renderEditPage, CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage->render, CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage->processSubmission, CivicPlatform\Modules\Schedules\Admin\ScheduleEditPage->linkRepresentationToSchedule, CivicPlatform\Modules\Reps\Repository\RepRepository->linkSchedule

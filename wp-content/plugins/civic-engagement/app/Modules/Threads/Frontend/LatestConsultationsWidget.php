@@ -57,7 +57,7 @@ class LatestConsultationsWidget extends \WP_Widget
     {
         $title = apply_filters('widget_title', $this->title($instance));
         $count = $this->count($instance);
-        $result = $this->threads->getPublicThreads(
+        $result = $this->threads->getPublicActiveThreads(
             [
                 'page' => 1,
                 'per_page' => $count,

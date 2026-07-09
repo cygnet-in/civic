@@ -194,6 +194,9 @@ The current focus of development is:
 3. Client-requested enhancements.
 4. Performance optimisation.
 5. Testing and documentation.
+6. Version 1.0 release readiness tasks documented in `docs/release-readiness.md`.
+
+Pending Version 1.0 work includes CAPTCHA integration, final homepage/card/sidebar polish, login/admin branding, `/civic-admin` login URL support, and final admin UI polish.
 
 ---
 

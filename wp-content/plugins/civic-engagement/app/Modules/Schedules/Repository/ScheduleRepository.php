@@ -196,6 +196,32 @@ class ScheduleRepository extends BaseRepository
         return is_array($row) ? $row : null;
     }
 
+    /**
+     * Find a schedule by its originating source reference.
+     *
+     * @param string $sourceType Source type.
+     * @param int $sourceId Source record ID.
+     * @return array<string, mixed>|null Schedule row or null when not found.
+     */
+    public function findBySource(string $sourceType, int $sourceId): ?array
+    {
+        $sourceType = sanitize_key($sourceType);
+
+        if ('' === $sourceType || $sourceId <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE source_type = %s AND source_id = %d ORDER BY id ASC LIMIT 1",
+                [$sourceType, $sourceId]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
     /** @return array<string, mixed>|null */
     public function findBySlug(string $slug): ?array
     {
@@ -278,6 +304,54 @@ class ScheduleRepository extends BaseRepository
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildScheduleFilters($args);
         $order = $this->buildScheduleOrder($args);
+
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Get public Active schedules.
+     *
+     * Active schedules are public, not manually archived, in an operational
+     * status, and not past their configured end date.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicActiveSchedules(array $args = []): array
+    {
+        $args['is_public'] = 1;
+        $args['is_archived'] = 0;
+
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildScheduleFilters($args);
+        $where['sql'][] = 'status IN (%s, %s, %s)';
+        $where['values'][] = 'open';
+        $where['values'][] = 'pending';
+        $where['values'][] = 'scheduled';
+        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR end_date >= %s)';
+        $where['values'][] = current_time('mysql');
+        $order = $this->buildScheduleOrder($args);
+
+        return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Get public Archived schedules.
+     *
+     * @param array<string, mixed> $args Listing arguments.
+     * @return array<string, mixed> Paginated result set and metadata.
+     */
+    public function getPublicArchivedSchedules(array $args = []): array
+    {
+        $args['is_public'] = 1;
+
+        $pagination = $this->parsePaginationArgs($args);
+        $where = $this->buildScheduleFilters($args);
+        $where['sql'][] = '(is_archived = 1 OR status IN (%s, %s) OR (end_date IS NOT NULL AND end_date != "" AND end_date < %s))';
+        $where['values'][] = 'completed';
+        $where['values'][] = 'cancelled';
+        $where['values'][] = current_time('mysql');
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'end_date', 'DESC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
     }

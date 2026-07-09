@@ -80,7 +80,7 @@ class EventListShortcode
         $page = $this->currentPage();
         $perPage = $this->perPage($atts);
         $paginationEnabled = $this->paginationEnabled($atts);
-        $result = $this->events->getPublicEvents(
+        $result = $this->events->getPublicActiveEvents(
             [
                 'page' => $page,
                 'per_page' => $perPage,
@@ -94,7 +94,7 @@ class EventListShortcode
 
         ob_start();
 
-        echo '<div class="civic-events civic-cards-main-list">';
+        echo '<div class="civic-events ' . esc_attr($this->cardsWrapperClass($paginationEnabled)) . '">';
 
         if (empty($items)) {
             echo '<p class="civic-events__empty">' . esc_html__('No public events are currently available.', 'civic-engagement') . '</p>';
@@ -285,5 +285,10 @@ class EventListShortcode
         }
 
         return '' === (string) ($atts['limit'] ?? '') || absint($atts['limit']) <= 0;
+    }
+
+    private function cardsWrapperClass(bool $paginationEnabled): string
+    {
+        return $paginationEnabled ? 'civic-cards-main-list' : 'civic-cards-home-list';
     }
 }

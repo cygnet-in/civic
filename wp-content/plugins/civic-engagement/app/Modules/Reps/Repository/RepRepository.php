@@ -35,6 +35,7 @@ class RepRepository extends BaseRepository
         'map_lat' => '%f',
         'map_lng' => '%f',
         'status' => '%s',
+        'schedule_id' => '%d',
         'created_at' => '%s',
         'updated_at' => '%s',
     ];
@@ -97,6 +98,29 @@ class RepRepository extends BaseRepository
             $this->prepare(
                 "SELECT * FROM {$this->table} WHERE id = %d LIMIT 1",
                 [$id]
+            ),
+            ARRAY_A
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Find the representation linked to a schedule.
+     *
+     * @param int $scheduleId Schedule ID.
+     * @return array<string, mixed>|null Rep row or null when not found.
+     */
+    public function findByScheduleId(int $scheduleId): ?array
+    {
+        if ($scheduleId <= 0) {
+            return null;
+        }
+
+        $row = $this->wpdb->get_row(
+            $this->prepare(
+                "SELECT * FROM {$this->table} WHERE schedule_id = %d LIMIT 1",
+                [$scheduleId]
             ),
             ARRAY_A
         );
@@ -208,6 +232,37 @@ class RepRepository extends BaseRepository
         );
 
         return false !== $updated;
+    }
+
+    /**
+     * Link a representation to its created schedule and update the audit note.
+     *
+     * @param int $id Rep ID.
+     * @param int $scheduleId Created schedule ID.
+     * @param string $internalComment Full internal comment after appending audit text.
+     * @return bool True when the link succeeds.
+     */
+    public function linkSchedule(int $id, int $scheduleId, string $internalComment): bool
+    {
+        if ($id <= 0 || $scheduleId <= 0) {
+            return false;
+        }
+
+        $updated = $this->wpdb->query(
+            $this->prepare(
+                "UPDATE {$this->table}
+                SET schedule_id = %d, internal_comment = %s, updated_at = %s
+                WHERE id = %d AND (schedule_id IS NULL OR schedule_id = 0)",
+                [
+                    $scheduleId,
+                    $internalComment,
+                    current_time('mysql'),
+                    $id,
+                ]
+            )
+        );
+
+        return false !== $updated && $updated > 0;
     }
 
     /**

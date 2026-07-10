@@ -21,6 +21,7 @@ Implemented:
 - Canonical slug routing V1
 - Short URL routing V1
 - Representation to Schedule conversion V1
+- Shared admin XLSX exports V1
 
 Deferred:
 - Schedule comments
@@ -72,7 +73,7 @@ Consent Management V1:
 
 * email, call, SMS, and post consent stored on contacts
 * consent is cumulative: public forms promote No to Yes and cannot revoke existing consent
-* consent filtering and CSV export available in contact administration
+* consent filtering and XLSX export available in contact administration
 
 Communication module status:
 
@@ -133,6 +134,7 @@ Public Features:
 
 * representation submission
 * representation detail shortcode with optional image
+* representation admin XLSX export
 
 Admin Features:
 
@@ -178,6 +180,7 @@ Implemented:
 * response counts
 * anchor navigation
 * multiple image media support
+* consultation and response admin XLSX exports
 
 Administrative refinements:
 
@@ -241,6 +244,7 @@ Implemented:
 * event listing shortcode
 * event detail shortcode
 * registration status display
+* event admin XLSX export
 
 ### Event Registration
 
@@ -261,6 +265,7 @@ Implemented:
 * pagination
 * registration detail view
 * multiple image media support
+* registration admin XLSX export
 
 ### Event Custom Fields
 
@@ -296,7 +301,6 @@ Using stable field keys.
 
 * response pagination improvements
 * registration pagination improvements
-* export functionality
 * advanced filtering
 
 ## UX

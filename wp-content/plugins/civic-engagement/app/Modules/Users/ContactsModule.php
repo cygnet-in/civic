@@ -8,6 +8,7 @@ use CivicPlatform\Modules\Users\Admin\ContactsAdmin;
 use CivicPlatform\Modules\Users\Admin\ContactsListPage;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\Export\ExportManager;
 
 /**
  * Bootstraps contact administration.
@@ -29,7 +30,7 @@ class ContactsModule
     public function register(): void
     {
         $admin = new ContactsAdmin(
-            new ContactsListPage(new ContactService(new ContactRepository($this->wpdb)))
+            new ContactsListPage(new ContactService(new ContactRepository($this->wpdb)), new ExportManager())
         );
         $admin->register();
     }

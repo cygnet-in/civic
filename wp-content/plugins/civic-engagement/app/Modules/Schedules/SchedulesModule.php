@@ -18,6 +18,7 @@ use CivicPlatform\Modules\Schedules\Repository\ScheduleNoteRepository;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Repositories\MediaRepository;
 use CivicPlatform\Repositories\ShortUrlRepository;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\MediaService;
 use CivicPlatform\Services\ShortUrlService;
 use CivicPlatform\Modules\Schedules\Services\ScheduleService;
@@ -60,7 +61,8 @@ class SchedulesModule
         $shortcode = new ScheduleListShortcode(
             new ScheduleRepository($this->wpdb),
             new DateHelper(),
-            $this->createMediaService()
+            $this->createMediaService(),
+            new ExportManager()
         );
         $shortcode->register();
 

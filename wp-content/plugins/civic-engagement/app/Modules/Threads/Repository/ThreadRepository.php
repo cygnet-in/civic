@@ -326,6 +326,31 @@ class ThreadRepository extends BaseRepository
     }
 
     /**
+     * Get all consultations matching export filters without pagination.
+     *
+     * @param array<string, mixed> $args Export arguments.
+     * @return array<int, array<string, mixed>>
+     */
+    public function getForExport(array $args = []): array
+    {
+        $where = $this->buildThreadFilters($args);
+        $search = isset($args['search']) ? trim((string) $args['search']) : '';
+
+        if ('' !== $search) {
+            $searchClause = $this->buildSearchClause($search, $this->getSearchColumns());
+
+            if ('' !== $searchClause['sql']) {
+                $where['sql'][] = $searchClause['sql'];
+                $where['values'] = array_merge($where['values'], $searchClause['values']);
+            }
+        }
+
+        $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'created_at', 'DESC');
+
+        return $this->getUnpagedResults($where['sql'], $where['values'], $order);
+    }
+
+    /**
      * Get public threads.
      *
      * Public listing is limited to records with is_public = 1. If no status is

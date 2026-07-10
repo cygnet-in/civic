@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Events\Registrations\Admin;
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Events\Repository\EventRegistrationRepository;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
+use CivicPlatform\Services\Export\ExportManager;
 
 /**
  * Renders the admin event registration listing.
@@ -46,6 +47,7 @@ class EventRegistrationsListPage
      * @var DateHelper
      */
     private DateHelper $dates;
+    private ExportManager $exports;
 
     /**
      * @param EventRegistrationRepository $registrations Event registration repository.
@@ -55,11 +57,13 @@ class EventRegistrationsListPage
     public function __construct(
         EventRegistrationRepository $registrations,
         EventRepository $events,
-        DateHelper $dates
+        DateHelper $dates,
+        ?ExportManager $exports = null
     ) {
         $this->registrations = $registrations;
         $this->events = $events;
         $this->dates = $dates;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -140,6 +144,32 @@ class EventRegistrationsListPage
         submit_button(__('Search Registrations', 'civic-engagement'), '', '', false);
         echo '</p>';
         echo '</form>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($search, $eventId)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
+    }
+
+    /**
+     * Stream a filtered Event Registrations XLSX export.
+     *
+     * @return void
+     */
+    public function export(): void
+    {
+        $eventId = $this->eventId();
+        $search = $this->searchKeyword();
+        $args = [
+            'search' => $search,
+            'orderby' => 'created_at',
+            'order' => 'DESC',
+        ];
+
+        if ($eventId > 0) {
+            $args['event_id'] = $eventId;
+        }
+
+        $items = $this->registrations->getForExport($args);
+        $eventIds = array_map(static fn(array $item): int => (int) ($item['event_id'] ?? 0), $items);
+
+        $this->exports->download($items, $this->exportColumns($this->events->getTitlesByIds($eventIds)), $this->exportFilename('event-registrations'));
     }
 
     /**
@@ -301,6 +331,45 @@ class EventRegistrationsListPage
         }
 
         return add_query_arg($args, admin_url('admin.php'));
+    }
+
+    private function exportUrl(string $search, int $eventId): string
+    {
+        $args = [
+            'page' => self::PAGE_SLUG,
+            'civic_export' => 'event-registrations',
+        ];
+
+        if ($eventId > 0) {
+            $args['event_id'] = $eventId;
+        }
+
+        if ('' !== $search) {
+            $args['s'] = $search;
+        }
+
+        return wp_nonce_url(add_query_arg($args, admin_url('admin.php')), 'civic_event_registrations_export');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(array $eventTitles): array
+    {
+        return [
+            ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
+            ['key' => 'event_id', 'label' => __('Event', 'civic-engagement'), 'callback' => static fn(array $item): string => $eventTitles[(int) ($item['event_id'] ?? 0)] ?? ''],
+            ['key' => 'name_snapshot', 'label' => __('Name', 'civic-engagement')],
+            ['key' => 'email_snapshot', 'label' => __('Email', 'civic-engagement')],
+            ['key' => 'phone_snapshot', 'label' => __('Phone', 'civic-engagement')],
+            ['key' => 'electoral_area_snapshot', 'label' => __('Electoral Area', 'civic-engagement')],
+            ['key' => 'created_at', 'label' => __('Registered On', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['created_at'] ?? null)],
+        ];
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

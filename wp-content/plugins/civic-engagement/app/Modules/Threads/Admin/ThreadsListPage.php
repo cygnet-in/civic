@@ -8,6 +8,7 @@ use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\MediaService;
 
 /**
@@ -43,17 +44,19 @@ class ThreadsListPage
     private DateHelper $dates;
     private ThreadResponseRepository $responses;
     private MediaService $media;
+    private ExportManager $exports;
 
     /**
      * @param ThreadRepository $threads Thread repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadRepository $threads, DateHelper $dates, ThreadResponseRepository $responses, MediaService $media)
+    public function __construct(ThreadRepository $threads, DateHelper $dates, ThreadResponseRepository $responses, MediaService $media, ?ExportManager $exports = null)
     {
         $this->threads = $threads;
         $this->dates = $dates;
         $this->responses = $responses;
         $this->media = $media;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -122,6 +125,22 @@ class ThreadsListPage
         submit_button(__('Search Threads', 'civic-engagement'), '', '', false);
         echo '</p>';
         echo '</form>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($search)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
+    }
+
+    public function export(): void
+    {
+        $search = $this->searchKeyword();
+        $items = $this->threads->getForExport([
+            'search' => $search,
+            'orderby' => 'created_at',
+            'order' => 'DESC',
+        ]);
+        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
+        $responseCounts = $this->responses->getCountsByThreadIds($ids);
+        $mediaCounts = $this->media->getCountsByEntityIds('consultation', $ids);
+
+        $this->exports->download($items, $this->exportColumns($responseCounts, $mediaCounts), $this->exportFilename('consultations'));
     }
 
     /**
@@ -322,6 +341,43 @@ class ThreadsListPage
             ],
             admin_url('admin.php')
         );
+    }
+
+    private function exportUrl(string $search): string
+    {
+        $args = [
+            'page' => self::PAGE_SLUG,
+            'civic_export' => 'consultations',
+        ];
+
+        if ('' !== $search) {
+            $args['s'] = $search;
+        }
+
+        return wp_nonce_url(add_query_arg($args, admin_url('admin.php')), 'civic_threads_export');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(array $responseCounts, array $mediaCounts): array
+    {
+        return [
+            ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
+            ['key' => 'title', 'label' => __('Title', 'civic-engagement')],
+            ['key' => 'slug', 'label' => __('Slug', 'civic-engagement')],
+            ['key' => 'status', 'label' => __('Status', 'civic-engagement'), 'callback' => static fn(array $item): string => StatusLabelHelper::format($item['status'] ?? '')],
+            ['key' => 'response_enabled', 'label' => __('Responses', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['response_enabled']) ? __('Enabled', 'civic-engagement') : __('Disabled', 'civic-engagement')],
+            ['key' => 'response_count', 'label' => __('Response Count', 'civic-engagement'), 'callback' => static fn(array $item): string => (string) ($responseCounts[(int) ($item['id'] ?? 0)] ?? 0)],
+            ['key' => 'images', 'label' => __('Images', 'civic-engagement'), 'callback' => static fn(array $item): string => (string) ($mediaCounts[(int) ($item['id'] ?? 0)] ?? 0)],
+            ['key' => 'created_by', 'label' => __('Created By', 'civic-engagement'), 'callback' => fn(array $item): string => $this->userDisplayName($item['created_by'] ?? 0)],
+            ['key' => 'created_at', 'label' => __('Created', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['created_at'] ?? null)],
+        ];
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

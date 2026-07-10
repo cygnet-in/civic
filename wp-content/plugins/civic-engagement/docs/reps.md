@@ -69,6 +69,7 @@ Admin can:
 * search/filter reps,
 * update administrative status and internal comment.
 * view an uploaded representation image as a thumbnail linking to the full image.
+* export the filtered representation list as a native `.xlsx` file.
 * start Schedule creation from a Representation detail screen.
 * view the linked Schedule after a Representation has been converted.
 
@@ -83,6 +84,7 @@ Admin can:
 * Representations support one optional JPG, JPEG, PNG, or WebP image. The Media Library attachment ID is stored in `image_attachment_id`.
 * Public representation detail output excludes all contact snapshots.
 * CAPTCHA is handled through the shared `CaptchaService`; the representation workflow does not duplicate Turnstile rendering or verification logic.
+* Representation admin export uses the shared export framework. The list page provides filtered rows, column definitions, and a timestamped filename; `ExportManager` and `XlsxExporter` generate the workbook.
 
 ---
 

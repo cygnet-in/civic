@@ -139,7 +139,7 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
 
         <p class="civic-rep-form__field civic-form__field civic-form__field--full">
             <label for="civic-rep-image"><?php echo esc_html__('Image', 'civic-engagement'); ?></label>
-            <input id="civic-rep-image" name="civic_rep[image]" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+            <input id="civic-rep-image" name="civic_rep[image]" type="file" accept="image/*" capture="environment">
             <?php if (isset($errors['image'])) : ?>
                 <span class="civic-rep-form__error civic-form__error"><?php echo esc_html($errors['image']); ?></span>
             <?php endif; ?>

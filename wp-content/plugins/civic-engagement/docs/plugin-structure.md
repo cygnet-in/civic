@@ -107,6 +107,18 @@ Public shortcode:
 
 Shared platform services live under `app/Services`.
 
+Export-related services:
+
+- `ExportManager`
+  - coordinates export providers and browser download responses
+  - accepts module-provided rows, column definitions, filenames, and formats
+- `XlsxExporter`
+  - primary Version 1.0 export provider
+  - generates native `.xlsx` workbooks
+  - preserves Unicode using UTF-8 OpenXML worksheet content
+- `ExporterInterface`
+  - contract for future export providers such as CSV or PDF
+
 Security-related services:
 
 - `CivicSettingsService`
@@ -164,6 +176,10 @@ Admin pages:
 
 - `civic-platform`
 - `civic-rep-view`
+
+Admin export:
+
+- filtered representation list export uses `ExportManager` and `XlsxExporter`
 
 ### Activities
 
@@ -232,6 +248,11 @@ Admin pages:
 - `civic-thread-responses`
 - `civic-thread-response-view`
 
+Admin exports:
+
+- filtered consultation list export uses `ExportManager` and `XlsxExporter`
+- filtered consultation response export uses `ExportManager` and `XlsxExporter`
+
 ### Events
 
 Purpose:
@@ -277,6 +298,11 @@ Admin pages:
 - `civic-event-registrations`
 - `civic-event-registration-view`
 
+Admin exports:
+
+- filtered event list export uses `ExportManager` and `XlsxExporter`
+- filtered event registration export uses `ExportManager` and `XlsxExporter`
+
 ### Schedules
 
 Purpose:
@@ -312,6 +338,10 @@ Admin pages:
 - `civic-schedules`
 - `civic-schedule-edit`
 
+Admin export:
+
+- filtered schedule list export uses `ExportManager` and `XlsxExporter`
+
 ### Users / Contacts
 
 Purpose:
@@ -327,10 +357,19 @@ Key classes:
 - `ContactsListPage`
 - `ContactRepository`
 - `ContactService`
+- `ExportManager`
+- `XlsxExporter`
 
 Admin page:
 
 - `civic-contacts`
+
+Admin exports:
+
+- filtered Contacts exports use the shared export framework
+- filtered Representations, Consultations, Consultation Responses, Events, Event Registrations, and Schedules exports use the same framework
+- current output format is native `.xlsx`
+- admin modules provide row data, column definitions, and timestamped filenames; shared services generate and stream the workbook
 
 ### Media
 
@@ -450,6 +489,7 @@ Common admin features:
 - search
 - pagination
 - filters in some modules
+- `Export (.xlsx)` actions for supported admin lists
 - detail pages
 - add/edit forms
 - nonce checks for state changes

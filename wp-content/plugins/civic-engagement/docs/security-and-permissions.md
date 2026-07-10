@@ -261,6 +261,8 @@ All exports must:
 - sanitize filters
 - avoid unrestricted data exposure
 - remain admin-only operations
+- use the shared export framework where practical
+- let modules provide rows, column definitions and filenames rather than streaming ad hoc files
 
 # Contact Activity Tracking
 

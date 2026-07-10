@@ -27,7 +27,7 @@ Admin can:
 
 * create events,
 * configure registration fields,
-* export participants,
+* export filtered event and registration lists as native `.xlsx` files,
 * close/unpublish events.
 * add multiple event images and captions.
 
@@ -114,3 +114,5 @@ Only public published or closed events resolve through public slug URLs. Numeric
 Registrations are accepted only while the event is public, published, registration-enabled, and not past its configured end date. Closed or archived events display a closed message instead of the public registration form.
 
 When CAPTCHA is enabled, the registration form renders the shared Cloudflare Turnstile widget through `CaptchaService` and validates the submitted token before calling the registration workflow.
+
+Event and event registration admin exports use the shared export framework. Admin list pages provide the active search/context filters, row data, column definitions, and timestamped filenames; `ExportManager` and `XlsxExporter` generate the workbooks.

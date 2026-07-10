@@ -41,6 +41,7 @@ Core completed features:
 - Schedule listing and detail shortcodes.
 - Schedule notes.
 - Contact management.
+- Shared XLSX export framework for Contacts, Representations, Consultations, Consultation Responses, Events, Event Registrations, and Schedules.
 - Cumulative communication consent storage.
 - Activity logging for major public participation workflows.
 - Civic Dashboard.

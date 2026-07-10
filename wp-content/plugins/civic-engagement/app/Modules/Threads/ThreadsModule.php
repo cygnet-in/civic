@@ -32,6 +32,7 @@ use CivicPlatform\Repositories\ShortUrlRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\CaptchaService;
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\MediaService;
 use CivicPlatform\Services\ShortUrlService;
 
@@ -124,7 +125,8 @@ class ThreadsModule
             new ThreadRepository($this->wpdb),
             new DateHelper(),
             new ThreadResponseRepository($this->wpdb),
-            $this->createMediaService()
+            $this->createMediaService(),
+            new ExportManager()
         );
     }
 
@@ -164,7 +166,8 @@ class ThreadsModule
         return new ThreadResponsesListPage(
             new ThreadResponseRepository($this->wpdb),
             new ThreadRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            new ExportManager()
         );
     }
 

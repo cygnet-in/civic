@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Reps\Admin;
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Reps\Repository\RepRepository;
+use CivicPlatform\Services\Export\ExportManager;
 
 /**
  * Renders the admin representations listing.
@@ -32,6 +33,7 @@ class RepsListPage
      * @var RepRepository
      */
     private RepRepository $reps;
+    private ExportManager $exports;
 
     /**
      * Date helper.
@@ -44,10 +46,11 @@ class RepsListPage
      * @param RepRepository $reps Reps repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(RepRepository $reps, DateHelper $dates)
+    public function __construct(RepRepository $reps, DateHelper $dates, ?ExportManager $exports = null)
     {
         $this->reps = $reps;
         $this->dates = $dates;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -114,6 +117,19 @@ class RepsListPage
         submit_button(__('Search Representations', 'civic-engagement'), '', '', false);
         echo '</p>';
         echo '</form>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($search)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
+    }
+
+    public function export(): void
+    {
+        $search = $this->searchKeyword();
+        $items = $this->reps->getForExport([
+            'search' => $search,
+            'orderby' => 'created_at',
+            'order' => 'DESC',
+        ]);
+
+        $this->exports->download($items, $this->exportColumns(), $this->exportFilename('representations'));
     }
 
     /**
@@ -220,6 +236,39 @@ class RepsListPage
             ],
             admin_url('admin.php')
         );
+    }
+
+    private function exportUrl(string $search): string
+    {
+        $args = [
+            'page' => self::PAGE_SLUG,
+            'civic_export' => 'representations',
+        ];
+
+        if ('' !== $search) {
+            $args['s'] = $search;
+        }
+
+        return wp_nonce_url(add_query_arg($args, admin_url('admin.php')), 'civic_reps_export');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(): array
+    {
+        return [
+            ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
+            ['key' => 'name_snapshot', 'label' => __('Submitted Name', 'civic-engagement')],
+            ['key' => 'email_snapshot', 'label' => __('Email', 'civic-engagement')],
+            ['key' => 'status', 'label' => __('Status', 'civic-engagement'), 'callback' => static fn(array $item): string => StatusLabelHelper::format($item['status'] ?? '')],
+            ['key' => 'created_at', 'label' => __('Created', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['created_at'] ?? null)],
+        ];
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

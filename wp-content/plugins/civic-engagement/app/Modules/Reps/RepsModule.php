@@ -19,6 +19,7 @@ use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\CaptchaService;
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\RepService;
 
 /**
@@ -83,7 +84,7 @@ class RepsModule
      */
     private function createListPage(): RepsListPage
     {
-        return new RepsListPage(new RepRepository($this->wpdb), new DateHelper());
+        return new RepsListPage(new RepRepository($this->wpdb), new DateHelper(), new ExportManager());
     }
 
     /**

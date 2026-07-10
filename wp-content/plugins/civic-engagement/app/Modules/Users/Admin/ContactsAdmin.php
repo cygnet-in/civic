@@ -73,7 +73,7 @@ class ContactsAdmin
     }
 
     /**
-     * Handle a contact CSV export request.
+     * Handle a contact export request.
      *
      * @return void
      */

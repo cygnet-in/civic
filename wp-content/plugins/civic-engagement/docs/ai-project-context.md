@@ -52,6 +52,7 @@ The plugin owns:
 - wp-admin operational screens
 - login/admin branding hooks
 - capabilities
+- shared export services
 
 The theme owns:
 
@@ -260,6 +261,8 @@ Preserve:
 Login and admin branding are implemented in `DashboardAdmin`. `/civic-admin` should remain a lightweight redirect into normal WordPress authentication rather than a separate authentication system. Civic admin headers should remain scoped to Civic Platform admin page slugs.
 
 The Civic admin header is fixed and includes the platform title, plugin version, Documentation action and a Visit Website action. System-level pages are grouped under the System menu; Documentation is the System landing page and Security remains available as `civic-security-settings` under System.
+
+Admin exports should use the shared export framework in `CivicPlatform\Services\Export`. `ExportManager` coordinates providers and browser downloads; `XlsxExporter` is the primary Version 1.0 provider. Admin modules should provide filtered rows, column definitions and timestamped filenames rather than streaming ad hoc CSV/XLSX output. Current admin list exports use the standard `Export (.xlsx)` action text.
 
 When adding shared classes, add them alongside existing classes rather than replacing existing hooks.
 

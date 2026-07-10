@@ -216,6 +216,7 @@ Representations:
 - listing
 - search
 - pagination
+- XLSX export through the shared export framework
 - detail view
 - status/internal comment update
 - optional uploaded image display
@@ -227,6 +228,7 @@ Consultations:
 - custom fields
 - response listing
 - response detail/moderation
+- XLSX export for consultations and consultation responses through the shared export framework
 - media panel
 - slug and short URL fields
 
@@ -236,6 +238,7 @@ Events:
 - create/edit
 - custom registration fields
 - registration listing/detail
+- XLSX export for events and event registrations through the shared export framework
 - media panel
 - slug and short URL fields
 
@@ -246,6 +249,7 @@ Schedules:
 - archive/visibility/status fields
 - recent update and priority
 - schedule notes
+- XLSX export through the shared export framework
 - media panel
 - slug and short URL fields
 
@@ -254,7 +258,7 @@ Contacts:
 - listing
 - search
 - consent filtering
-- CSV export
+- XLSX export through the shared export framework
 
 Activities:
 

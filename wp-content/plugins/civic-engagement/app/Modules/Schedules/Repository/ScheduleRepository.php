@@ -386,6 +386,31 @@ class ScheduleRepository extends BaseRepository
     }
 
     /**
+     * Get all schedules matching export filters without pagination.
+     *
+     * @param array<string, mixed> $args Export arguments.
+     * @return array<int, array<string, mixed>>
+     */
+    public function getForExport(array $args = []): array
+    {
+        $where = $this->buildScheduleFilters($args);
+        $search = isset($args['search']) ? trim((string) $args['search']) : '';
+
+        if ('' !== $search) {
+            $searchClause = $this->buildSearchClause($search, $this->getSearchColumns());
+
+            if ('' !== $searchClause['sql']) {
+                $where['sql'][] = $searchClause['sql'];
+                $where['values'] = array_merge($where['values'], $searchClause['values']);
+            }
+        }
+
+        $order = $this->buildScheduleOrder($args);
+
+        return $this->getUnpagedResults($where['sql'], $where['values'], $order);
+    }
+
+    /**
      * Build supported schedule filters.
      *
      * @param array<string, mixed> $args Query arguments.

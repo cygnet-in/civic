@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Threads\Responses\Admin;
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
+use CivicPlatform\Services\Export\ExportManager;
 
 /**
  * Renders the admin consultation response listing.
@@ -46,17 +47,19 @@ class ThreadResponsesListPage
      * @var DateHelper
      */
     private DateHelper $dates;
+    private ExportManager $exports;
 
     /**
      * @param ThreadResponseRepository $responses Thread response repository.
      * @param ThreadRepository $threads Thread repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadResponseRepository $responses, ThreadRepository $threads, DateHelper $dates)
+    public function __construct(ThreadResponseRepository $responses, ThreadRepository $threads, DateHelper $dates, ?ExportManager $exports = null)
     {
         $this->responses = $responses;
         $this->threads = $threads;
         $this->dates = $dates;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -135,6 +138,27 @@ class ThreadResponsesListPage
         submit_button(__('Search Responses', 'civic-engagement'), '', '', false);
         echo '</p>';
         echo '</form>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($search, $threadId)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
+    }
+
+    public function export(): void
+    {
+        $threadId = $this->threadId();
+        $search = $this->searchKeyword();
+        $args = [
+            'search' => $search,
+            'orderby' => 'created_at',
+            'order' => 'DESC',
+        ];
+
+        if ($threadId > 0) {
+            $args['thread_id'] = $threadId;
+        }
+
+        $items = $this->responses->getForExport($args);
+        $threadIds = array_map(static fn(array $item): int => (int) ($item['thread_id'] ?? 0), $items);
+
+        $this->exports->download($items, $this->exportColumns($this->threads->getTitlesByIds($threadIds)), $this->exportFilename('consultation-responses'));
     }
 
     /**
@@ -249,6 +273,45 @@ class ThreadResponsesListPage
         }
 
         return add_query_arg($args, admin_url('admin.php'));
+    }
+
+    private function exportUrl(string $search, int $threadId): string
+    {
+        $args = [
+            'page' => self::PAGE_SLUG,
+            'civic_export' => 'consultation-responses',
+        ];
+
+        if ($threadId > 0) {
+            $args['thread_id'] = $threadId;
+        }
+
+        if ('' !== $search) {
+            $args['s'] = $search;
+        }
+
+        return wp_nonce_url(add_query_arg($args, admin_url('admin.php')), 'civic_thread_responses_export');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(array $threadTitles): array
+    {
+        return [
+            ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
+            ['key' => 'thread_id', 'label' => __('Consultation', 'civic-engagement'), 'callback' => static fn(array $item): string => $threadTitles[(int) ($item['thread_id'] ?? 0)] ?? ''],
+            ['key' => 'name_snapshot', 'label' => __('Name', 'civic-engagement')],
+            ['key' => 'email_snapshot', 'label' => __('Email', 'civic-engagement')],
+            ['key' => 'electoral_area_snapshot', 'label' => __('Electoral Area', 'civic-engagement')],
+            ['key' => 'is_public', 'label' => __('Public', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')],
+            ['key' => 'created_at', 'label' => __('Created At', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['created_at'] ?? null)],
+        ];
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

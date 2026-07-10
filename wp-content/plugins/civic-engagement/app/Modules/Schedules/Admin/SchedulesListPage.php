@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Schedules\Admin;
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\MediaService;
 
 /**
@@ -41,16 +42,18 @@ class SchedulesListPage
      */
     private DateHelper $dates;
     private MediaService $media;
+    private ExportManager $exports;
 
     /**
      * @param ScheduleRepository $schedules Schedule repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ScheduleRepository $schedules, DateHelper $dates, MediaService $media)
+    public function __construct(ScheduleRepository $schedules, DateHelper $dates, MediaService $media, ?ExportManager $exports = null)
     {
         $this->schedules = $schedules;
         $this->dates = $dates;
         $this->media = $media;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -134,6 +137,25 @@ class SchedulesListPage
         submit_button(__('Search Schedules', 'civic-engagement'), '', '', false);
         echo '</p>';
         echo '</form>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($search)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
+    }
+
+    /**
+     * Stream a filtered Schedules XLSX export.
+     *
+     * @return void
+     */
+    public function export(): void
+    {
+        $search = $this->searchKeyword();
+        $items = $this->schedules->getForExport(['search' => $search]);
+        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
+
+        $this->exports->download(
+            $items,
+            $this->exportColumns($this->media->getCountsByEntityIds('schedule', $ids)),
+            $this->exportFilename('schedules')
+        );
     }
 
     /**
@@ -276,6 +298,43 @@ class SchedulesListPage
             ],
             admin_url('admin.php')
         );
+    }
+
+    private function exportUrl(string $search): string
+    {
+        $args = [
+            'page' => self::PAGE_SLUG,
+            'civic_export' => 'schedules',
+        ];
+
+        if ('' !== $search) {
+            $args['s'] = $search;
+        }
+
+        return wp_nonce_url(add_query_arg($args, admin_url('admin.php')), 'civic_schedules_export');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(array $mediaCounts): array
+    {
+        return [
+            ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
+            ['key' => 'title', 'label' => __('Title', 'civic-engagement')],
+            ['key' => 'type', 'label' => __('Type', 'civic-engagement'), 'callback' => static fn(array $item): string => StatusLabelHelper::format($item['type'] ?? '')],
+            ['key' => 'status', 'label' => __('Status', 'civic-engagement'), 'callback' => static fn(array $item): string => StatusLabelHelper::format($item['status'] ?? '')],
+            ['key' => 'priority', 'label' => __('Priority', 'civic-engagement')],
+            ['key' => 'is_public', 'label' => __('Public', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')],
+            ['key' => 'is_archived', 'label' => __('Archived', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')],
+            ['key' => 'start_date', 'label' => __('Start Date', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['start_date'] ?? null)],
+            ['key' => 'images', 'label' => __('Images', 'civic-engagement'), 'callback' => static fn(array $item): string => (string) ($mediaCounts[(int) ($item['id'] ?? 0)] ?? 0)],
+        ];
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

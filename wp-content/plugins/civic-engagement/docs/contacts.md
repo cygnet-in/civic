@@ -76,7 +76,7 @@ Admin can:
 * search users,
 * paginate users,
 * filter contacts by consent type,
-* export filtered contacts including consent fields.
+* export filtered contacts as native `.xlsx` files including consent fields.
 
 ---
 
@@ -102,6 +102,7 @@ Activity table columns:
 * Latest contact data stored separately.
 * Email is primary identity field.
 * Consent values are stored only on the latest contact record and are cumulative: they may be promoted from No to Yes, but are never revoked by an unchecked public form option.
+* Contact export uses the shared export framework. The Contacts module provides filtered rows, column definitions and a timestamped filename only; `ExportManager` and `XlsxExporter` generate the workbook.
 
 ---
 

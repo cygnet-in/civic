@@ -28,6 +28,8 @@ Admin can:
 * publish/unpublish,
 * configure a starting response count.
 * add multiple consultation images and captions.
+* export the filtered consultation list as a native `.xlsx` file.
+* export the filtered consultation response list as a native `.xlsx` file.
 
 ---
 
@@ -133,6 +135,8 @@ The initial implementation may use manually managed electoral area records while
 Responses are accepted only while the consultation is published/public, response-enabled, and not past its configured end date. Closed or archived consultations display a closed message instead of the public response form.
 
 When CAPTCHA is enabled, the response form renders the shared Cloudflare Turnstile widget through `CaptchaService` and validates the submitted token before calling the response workflow.
+
+Consultation and consultation response admin exports use the shared export framework. Admin list pages provide the active search/context filters, row data, column definitions, and timestamped filenames; `ExportManager` and `XlsxExporter` generate the workbooks.
 
 ---
 

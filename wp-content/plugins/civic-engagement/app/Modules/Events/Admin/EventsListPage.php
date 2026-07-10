@@ -8,6 +8,7 @@ use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
 use CivicPlatform\Modules\Events\Repository\EventRegistrationRepository;
 use CivicPlatform\Modules\Events\Repository\EventRepository;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\MediaService;
 
 /**
@@ -43,17 +44,19 @@ class EventsListPage
     private DateHelper $dates;
     private EventRegistrationRepository $registrations;
     private MediaService $media;
+    private ExportManager $exports;
 
     /**
      * @param EventRepository $events Event repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(EventRepository $events, DateHelper $dates, EventRegistrationRepository $registrations, MediaService $media)
+    public function __construct(EventRepository $events, DateHelper $dates, EventRegistrationRepository $registrations, MediaService $media, ?ExportManager $exports = null)
     {
         $this->events = $events;
         $this->dates = $dates;
         $this->registrations = $registrations;
         $this->media = $media;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -139,6 +142,32 @@ class EventsListPage
         submit_button(__('Search Events', 'civic-engagement'), '', '', false);
         echo '</p>';
         echo '</form>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($search)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
+    }
+
+    /**
+     * Stream a filtered Events XLSX export.
+     *
+     * @return void
+     */
+    public function export(): void
+    {
+        $search = $this->searchKeyword();
+        $items = $this->events->getForExport([
+            'search' => $search,
+            'orderby' => 'start_date',
+            'order' => 'ASC',
+        ]);
+        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
+
+        $this->exports->download(
+            $items,
+            $this->exportColumns(
+                $this->registrations->getCountsByEventIds($ids),
+                $this->media->getCountsByEntityIds('event', $ids)
+            ),
+            $this->exportFilename('events')
+        );
     }
 
     /**
@@ -300,6 +329,44 @@ class EventsListPage
             ],
             admin_url('admin.php')
         );
+    }
+
+    private function exportUrl(string $search): string
+    {
+        $args = [
+            'page' => self::PAGE_SLUG,
+            'civic_export' => 'events',
+        ];
+
+        if ('' !== $search) {
+            $args['s'] = $search;
+        }
+
+        return wp_nonce_url(add_query_arg($args, admin_url('admin.php')), 'civic_events_export');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(array $registrationCounts, array $mediaCounts): array
+    {
+        return [
+            ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
+            ['key' => 'title', 'label' => __('Title', 'civic-engagement')],
+            ['key' => 'slug', 'label' => __('Slug', 'civic-engagement')],
+            ['key' => 'location', 'label' => __('Location', 'civic-engagement')],
+            ['key' => 'status', 'label' => __('Status', 'civic-engagement'), 'callback' => static fn(array $item): string => StatusLabelHelper::format($item['status'] ?? '')],
+            ['key' => 'is_public', 'label' => __('Public', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')],
+            ['key' => 'registrations', 'label' => __('Registrations', 'civic-engagement'), 'callback' => static fn(array $item): string => (string) ($registrationCounts[(int) ($item['id'] ?? 0)] ?? 0)],
+            ['key' => 'start_date', 'label' => __('Start Date', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['start_date'] ?? null)],
+            ['key' => 'end_date', 'label' => __('End Date', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['end_date'] ?? null)],
+            ['key' => 'images', 'label' => __('Images', 'civic-engagement'), 'callback' => static fn(array $item): string => (string) ($mediaCounts[(int) ($item['id'] ?? 0)] ?? 0)],
+        ];
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

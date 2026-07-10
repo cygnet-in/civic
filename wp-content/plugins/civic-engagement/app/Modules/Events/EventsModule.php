@@ -30,6 +30,7 @@ use CivicPlatform\Repositories\ShortUrlRepository;
 use CivicPlatform\Services\ActivityService;
 use CivicPlatform\Services\CaptchaService;
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\Export\ExportManager;
 use CivicPlatform\Services\MediaService;
 use CivicPlatform\Services\ShortUrlService;
 
@@ -122,7 +123,8 @@ class EventsModule
             new EventRepository($this->wpdb),
             new DateHelper(),
             new EventRegistrationRepository($this->wpdb),
-            $this->createMediaService()
+            $this->createMediaService(),
+            new ExportManager()
         );
     }
 
@@ -177,7 +179,8 @@ class EventsModule
         return new EventRegistrationsListPage(
             new EventRegistrationRepository($this->wpdb),
             new EventRepository($this->wpdb),
-            new DateHelper()
+            new DateHelper(),
+            new ExportManager()
         );
     }
 

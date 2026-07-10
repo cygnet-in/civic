@@ -61,6 +61,7 @@ Admin can:
 * set a simple sorting priority,
 * add history notes,
 * add multiple schedule images and captions,
+* export the filtered schedule list as a native `.xlsx` file,
 * create schedules from representations through a prefilled create form.
 
 ---
@@ -72,6 +73,7 @@ Admin can:
 * Private schedules remain admin-only.
 * Public schedules are ordered by priority, then start date.
 * The first schedule image is displayed as the listing thumbnail; detail pages show the primary image and remaining images as selectable thumbnails.
+* Schedule admin export uses the shared export framework. The list page provides filtered rows, column definitions, and a timestamped filename; `ExportManager` and `XlsxExporter` generate the workbook.
 
 ---
 

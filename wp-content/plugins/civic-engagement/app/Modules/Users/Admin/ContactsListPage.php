@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Users\Admin;
 
 use CivicPlatform\Services\ContactService;
+use CivicPlatform\Services\Export\ExportManager;
 
 /**
- * Renders the contact listing, consent filters, and CSV export.
+ * Renders the contact listing, consent filters, and export.
  */
 class ContactsListPage
 {
@@ -15,10 +16,12 @@ class ContactsListPage
     private const PAGE_SLUG = 'civic-contacts';
 
     private ContactService $contacts;
+    private ExportManager $exports;
 
-    public function __construct(ContactService $contacts)
+    public function __construct(ContactService $contacts, ?ExportManager $exports = null)
     {
         $this->contacts = $contacts;
+        $this->exports = $exports ?? new ExportManager();
     }
 
     /**
@@ -49,7 +52,7 @@ class ContactsListPage
     }
 
     /**
-     * Stream a filtered contact CSV export.
+     * Stream a filtered contact XLSX export.
      *
      * @return void
      */
@@ -58,37 +61,7 @@ class ContactsListPage
         $filters = $this->filters();
         $items = $this->contacts->getForExport($filters);
 
-        nocache_headers();
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=civic-contacts.csv');
-
-        $output = fopen('php://output', 'w');
-
-        if (false === $output) {
-            exit;
-        }
-
-        fputcsv($output, ['Email', 'Name', 'Phone', 'WhatsApp', 'Address', 'Eircode', 'Electoral Area', 'Email Consent', 'Call Consent', 'SMS Consent', 'Post Consent', 'Consent Updated At']);
-
-        foreach ($items as $item) {
-            fputcsv($output, [
-                (string) ($item['email'] ?? ''),
-                (string) ($item['latest_name'] ?? ''),
-                (string) ($item['latest_phone'] ?? ''),
-                (string) ($item['latest_whatsapp'] ?? ''),
-                (string) ($item['latest_address'] ?? ''),
-                (string) ($item['latest_eircode'] ?? ''),
-                (string) ($item['latest_electoral_area'] ?? ''),
-                !empty($item['consent_email']) ? 'Yes' : 'No',
-                !empty($item['consent_call']) ? 'Yes' : 'No',
-                !empty($item['consent_sms']) ? 'Yes' : 'No',
-                !empty($item['consent_post']) ? 'Yes' : 'No',
-                (string) ($item['consent_updated_at'] ?? ''),
-            ]);
-        }
-
-        fclose($output);
-        exit;
+        $this->exports->download($items, $this->exportColumns(), $this->exportFilename('contacts'));
     }
 
     /**
@@ -116,7 +89,7 @@ class ContactsListPage
         }
 
         echo '</form>';
-        echo '<p><a class="button" href="' . esc_url($this->exportUrl($filters)) . '">' . esc_html__('Export Contacts', 'civic-engagement') . '</a></p>';
+        echo '<p><a class="button" href="' . esc_url($this->exportUrl($filters)) . '">' . esc_html__('Export (.xlsx)', 'civic-engagement') . '</a></p>';
     }
 
     /**
@@ -230,6 +203,35 @@ class ContactsListPage
     }
 
     /**
+     * Get contact export column definitions.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function exportColumns(): array
+    {
+        $yesNo = static function (string $field): \Closure {
+            return static function (array $item) use ($field): string {
+                return !empty($item[$field]) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement');
+            };
+        };
+
+        return [
+            ['key' => 'email', 'label' => __('Email', 'civic-engagement')],
+            ['key' => 'latest_name', 'label' => __('Name', 'civic-engagement')],
+            ['key' => 'latest_phone', 'label' => __('Phone', 'civic-engagement')],
+            ['key' => 'latest_whatsapp', 'label' => __('WhatsApp', 'civic-engagement')],
+            ['key' => 'latest_address', 'label' => __('Address', 'civic-engagement')],
+            ['key' => 'latest_eircode', 'label' => __('Eircode', 'civic-engagement')],
+            ['key' => 'latest_electoral_area', 'label' => __('Electoral Area', 'civic-engagement')],
+            ['key' => 'consent_email', 'label' => __('Email Consent', 'civic-engagement'), 'callback' => $yesNo('consent_email')],
+            ['key' => 'consent_call', 'label' => __('Call Consent', 'civic-engagement'), 'callback' => $yesNo('consent_call')],
+            ['key' => 'consent_sms', 'label' => __('SMS Consent', 'civic-engagement'), 'callback' => $yesNo('consent_sms')],
+            ['key' => 'consent_post', 'label' => __('Post Consent', 'civic-engagement'), 'callback' => $yesNo('consent_post')],
+            ['key' => 'consent_updated_at', 'label' => __('Consent Updated At', 'civic-engagement')],
+        ];
+    }
+
+    /**
      * Build an export URL.
      *
      * @param array<string, mixed> $filters Current filters.
@@ -241,6 +243,11 @@ class ContactsListPage
             add_query_arg(array_merge(['page' => self::PAGE_SLUG, 'civic_contact_export' => 1], $filters), admin_url('admin.php')),
             'civic_contact_export'
         );
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        return $prefix . '-' . current_time('Y-m-d-Hi');
     }
 
     /**

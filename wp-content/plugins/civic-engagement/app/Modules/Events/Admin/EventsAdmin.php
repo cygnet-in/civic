@@ -128,6 +128,61 @@ class EventsAdmin
     {
         add_action('admin_menu', [$this, 'registerMenus']);
         add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
+        add_action('admin_init', [$this, 'handleExport']);
+    }
+
+    /**
+     * Handle XLSX exports for event admin lists.
+     *
+     * @return void
+     */
+    public function handleExport(): void
+    {
+        if (!$this->isExportRequest()) {
+            return;
+        }
+
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to export event records.', 'civic-engagement'));
+        }
+
+        $export = isset($_GET['civic_export']) ? wp_unslash($_GET['civic_export']) : '';
+
+        if (is_array($export) || is_object($export)) {
+            return;
+        }
+
+        if ('events' === (string) $export) {
+            check_admin_referer('civic_events_export');
+            $this->listPage->export();
+        }
+
+        if ('event-registrations' === (string) $export) {
+            check_admin_referer('civic_event_registrations_export');
+            $this->registrationsListPage->export();
+        }
+    }
+
+    /**
+     * Determine whether the current request is an Events export request.
+     *
+     * @return bool
+     */
+    private function isExportRequest(): bool
+    {
+        if (!isset($_GET['page'], $_GET['civic_export'])) {
+            return false;
+        }
+
+        $page = wp_unslash($_GET['page']);
+        $export = wp_unslash($_GET['civic_export']);
+
+        if (is_array($page) || is_object($page) || is_array($export) || is_object($export)) {
+            return false;
+        }
+
+        return in_array((string) $page, [self::LIST_SLUG, self::REGISTRATIONS_SLUG], true)
+            && in_array((string) $export, ['events', 'event-registrations'], true);
     }
 
     /**

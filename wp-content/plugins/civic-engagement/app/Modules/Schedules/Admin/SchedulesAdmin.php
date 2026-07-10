@@ -64,6 +64,47 @@ class SchedulesAdmin
     {
         add_action('admin_menu', [$this, 'registerMenus']);
         add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
+        add_action('admin_init', [$this, 'handleExport']);
+    }
+
+    /**
+     * Handle XLSX export requests for the schedules admin list.
+     *
+     * @return void
+     */
+    public function handleExport(): void
+    {
+        if (!$this->isExportRequest()) {
+            return;
+        }
+
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to export schedule records.', 'civic-engagement'));
+        }
+
+        check_admin_referer('civic_schedules_export');
+        $this->listPage->export();
+    }
+
+    /**
+     * Determine whether the current request is a Schedules export request.
+     *
+     * @return bool
+     */
+    private function isExportRequest(): bool
+    {
+        if (!isset($_GET['page'], $_GET['civic_export'])) {
+            return false;
+        }
+
+        $page = wp_unslash($_GET['page']);
+        $export = wp_unslash($_GET['civic_export']);
+
+        if (is_array($page) || is_object($page) || is_array($export) || is_object($export)) {
+            return false;
+        }
+
+        return self::LIST_SLUG === (string) $page && 'schedules' === (string) $export;
     }
 
     /**

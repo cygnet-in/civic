@@ -62,6 +62,7 @@ class RepsAdmin
     {
         add_action('admin_menu', [$this, 'registerMenus']);
         add_action('admin_menu', [$this, 'hideInternalMenuPages'], 999);
+        add_action('admin_init', [$this, 'handleExport']);
     }
 
     /**
@@ -129,6 +130,20 @@ class RepsAdmin
         $this->listPage->render();
     }
 
+    public function handleExport(): void
+    {
+        if (!$this->isExportRequest()) {
+            return;
+        }
+
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_die(esc_html__('You do not have permission to export representations.', 'civic-engagement'));
+        }
+
+        check_admin_referer('civic_reps_export');
+        $this->listPage->export();
+    }
+
     /**
      * Render the Representation detail admin page.
      *
@@ -141,5 +156,19 @@ class RepsAdmin
         }
 
         $this->detailPage->render();
+    }
+
+    private function isExportRequest(): bool
+    {
+        if (!isset($_GET['page'], $_GET['civic_export'])) {
+            return false;
+        }
+
+        if (is_array($_GET['page']) || is_object($_GET['page']) || is_array($_GET['civic_export']) || is_object($_GET['civic_export'])) {
+            return false;
+        }
+
+        return self::MENU_SLUG === sanitize_key((string) wp_unslash($_GET['page']))
+            && 'representations' === sanitize_key((string) wp_unslash($_GET['civic_export']));
     }
 }

@@ -242,6 +242,23 @@ abstract class BaseRepository
     }
 
     /**
+     * Execute an unpaginated SELECT for export-style queries.
+     *
+     * @param array<int, string> $whereSql Where SQL fragments.
+     * @param array<int, mixed> $whereValues Prepared statement values.
+     * @param string $order Order clause.
+     * @return array<int, array<string, mixed>>
+     */
+    protected function getUnpagedResults(array $whereSql, array $whereValues, string $order): array
+    {
+        $whereClause = $this->buildWhereSql($whereSql);
+        $itemsSql = "SELECT * FROM {$this->table}{$whereClause} ORDER BY {$order}";
+        $items = $this->wpdb->get_results($this->prepare($itemsSql, $whereValues), ARRAY_A);
+
+        return is_array($items) ? $items : [];
+    }
+
+    /**
      * Ensure table names are stored with the current WordPress prefix.
      *
      * @param string $tableName Table name, with or without prefix.

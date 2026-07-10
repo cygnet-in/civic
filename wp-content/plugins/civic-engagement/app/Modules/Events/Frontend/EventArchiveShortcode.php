@@ -133,14 +133,14 @@ class EventArchiveShortcode
 
     private function registrationStatus(array $event): string
     {
-        return !empty($event['registration_enabled'])
+        return $this->events->isAcceptingRegistrations($event)
             ? __('Registration: Open', 'civic-engagement')
             : __('Registration: Closed', 'civic-engagement');
     }
 
     private function registrationContainerStatus(array $event): string
     {
-        return !empty($event['registration_enabled'])
+        return $this->events->isAcceptingRegistrations($event)
             ? 'civic-card__status--open'
             : 'civic-card__status--closed';
     }

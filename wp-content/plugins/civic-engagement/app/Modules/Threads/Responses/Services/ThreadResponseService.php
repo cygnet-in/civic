@@ -91,7 +91,7 @@ class ThreadResponseService
             return $this->buildResult(false, null, 0, 'thread_not_found');
         }
 
-        if (empty($thread['response_enabled'])) {
+        if (!$this->threads->isAcceptingResponses($thread)) {
             return $this->buildResult(false, null, 0, 'responses_closed');
         }
 

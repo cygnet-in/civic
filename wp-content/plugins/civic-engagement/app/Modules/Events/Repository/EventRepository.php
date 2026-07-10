@@ -280,8 +280,8 @@ class EventRepository extends BaseRepository
 
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildEventFilters($args);
-        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR end_date >= %s)';
-        $where['values'][] = current_time('mysql');
+        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR DATE(end_date) >= %s)';
+        $where['values'][] = current_time('Y-m-d');
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'start_date', 'ASC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
@@ -299,13 +299,48 @@ class EventRepository extends BaseRepository
 
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildEventFilters($args);
-        $where['sql'][] = '(status = %s OR (status = %s AND end_date IS NOT NULL AND end_date != "" AND end_date < %s))';
+        $where['sql'][] = '(status = %s OR (status = %s AND end_date IS NOT NULL AND end_date != "" AND DATE(end_date) < %s))';
         $where['values'][] = 'closed';
         $where['values'][] = 'published';
-        $where['values'][] = current_time('mysql');
+        $where['values'][] = current_time('Y-m-d');
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'end_date', 'DESC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Determine whether a public event can accept registrations.
+     *
+     * This mirrors the documented Active event lifecycle: the event must be
+     * public, published, registration-enabled, and not past its configured end
+     * date.
+     *
+     * @param array<string, mixed> $event Event row.
+     * @return bool True when public registrations are currently accepted.
+     */
+    public function isAcceptingRegistrations(array $event): bool
+    {
+        if (empty($event['is_public']) || 'published' !== (string) ($event['status'] ?? '')) {
+            return false;
+        }
+
+        if (empty($event['registration_enabled'])) {
+            return false;
+        }
+
+        $endDate = trim((string) ($event['end_date'] ?? ''));
+
+        if ('' === $endDate) {
+            return true;
+        }
+
+        $endTimestamp = strtotime($endDate);
+
+        if (false === $endTimestamp) {
+            return true;
+        }
+
+        return wp_date('Y-m-d', $endTimestamp) >= current_time('Y-m-d');
     }
 
     /**

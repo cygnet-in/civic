@@ -143,6 +143,10 @@ class EventRegistrationForm
         $result = $this->registrations->submit($values);
 
         if (empty($result['success'])) {
+            if ('registration_closed' === (string) ($result['error'] ?? '')) {
+                return $this->buildResponse(true, false, 'Registrations for this event have closed.', $values, [], 'registration_closed');
+            }
+
             return $this->buildResponse(true, false, 'We could not submit your registration. Please try again.', $values, [], (string) ($result['error'] ?? 'submission_failed'));
         }
 

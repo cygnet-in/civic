@@ -356,8 +356,8 @@ class ThreadRepository extends BaseRepository
 
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildThreadFilters($args);
-        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR end_date >= %s)';
-        $where['values'][] = current_time('mysql');
+        $where['sql'][] = '(end_date IS NULL OR end_date = "" OR DATE(end_date) >= %s)';
+        $where['values'][] = current_time('Y-m-d');
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'created_at', 'DESC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
@@ -376,11 +376,46 @@ class ThreadRepository extends BaseRepository
 
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildThreadFilters($args);
-        $where['sql'][] = '(response_enabled = 0 OR (end_date IS NOT NULL AND end_date != "" AND end_date < %s))';
-        $where['values'][] = current_time('mysql');
+        $where['sql'][] = '(response_enabled = 0 OR (end_date IS NOT NULL AND end_date != "" AND DATE(end_date) < %s))';
+        $where['values'][] = current_time('Y-m-d');
         $order = $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'end_date', 'DESC');
 
         return $this->getPagedResults($where['sql'], $where['values'], $order, $pagination);
+    }
+
+    /**
+     * Determine whether a public consultation can accept responses.
+     *
+     * This mirrors the documented Active consultation lifecycle: the
+     * consultation must be published/public, response-enabled, and not past its
+     * configured end date.
+     *
+     * @param array<string, mixed> $thread Thread row.
+     * @return bool True when public responses are currently accepted.
+     */
+    public function isAcceptingResponses(array $thread): bool
+    {
+        if (empty($thread['is_public']) || 'published' !== (string) ($thread['status'] ?? '')) {
+            return false;
+        }
+
+        if (empty($thread['response_enabled'])) {
+            return false;
+        }
+
+        $endDate = trim((string) ($thread['end_date'] ?? ''));
+
+        if ('' === $endDate) {
+            return true;
+        }
+
+        $endTimestamp = strtotime($endDate);
+
+        if (false === $endTimestamp) {
+            return true;
+        }
+
+        return wp_date('Y-m-d', $endTimestamp) >= current_time('Y-m-d');
     }
 
     /**

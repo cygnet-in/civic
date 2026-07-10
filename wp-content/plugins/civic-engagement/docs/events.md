@@ -87,6 +87,8 @@ An event is Archived when:
 
 Main public event listings use Active events. `[civic_events_archive]` renders archived events with full cards and pagination by default, or a compact title/link list when `limit` is supplied.
 
+Archived events remain publicly viewable, but they are read-only. The detail page hides the registration form once the event is no longer Active, and the registration workflow rejects direct submissions after closure.
+
 ---
 
 ## Public Event URLs
@@ -101,3 +103,9 @@ The admin workflow should:
 - preserve stable public URLs after creation where possible
 
 Only public published or closed events resolve through public slug URLs. Numeric ID detail URLs are retained temporarily and redirect to the canonical URL.
+
+---
+
+## Event Registrations
+
+Registrations are accepted only while the event is public, published, registration-enabled, and not past its configured end date. Closed or archived events display a closed message instead of the public registration form.

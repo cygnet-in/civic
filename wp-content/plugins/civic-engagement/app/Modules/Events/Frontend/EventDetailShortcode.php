@@ -94,8 +94,9 @@ class EventDetailShortcode
             return (string) ob_get_clean();
         }
 
-        $this->renderEvent($event);
-        $this->renderRegistrationFormSection($event);
+        $acceptingRegistrations = $this->events->isAcceptingRegistrations($event);
+        $this->renderEvent($event, $acceptingRegistrations);
+        $this->renderRegistrationFormSection($event, $acceptingRegistrations);
 
         echo '</div>';
 
@@ -106,9 +107,10 @@ class EventDetailShortcode
      * Render public event content.
      *
      * @param array<string, mixed> $event Event row.
+     * @param bool $acceptingRegistrations Whether registrations are currently accepted.
      * @return void
      */
-    private function renderEvent(array $event): void
+    private function renderEvent(array $event, bool $acceptingRegistrations): void
     {
         echo '<article class="civic-card civic-card-main-details civic-event-detail__content">';
         echo '<div class="civic-card__content">';
@@ -139,7 +141,7 @@ class EventDetailShortcode
         echo '<dt class="civic-card__status civic-event-detail__registration-status">';
         echo '<strong>' . esc_html__('Registration Status:', 'civic-engagement') . '</strong>';
         echo '</dt>';
-        echo '<dd>' . esc_html($this->registrationStatus($event)) . '</dd>';
+        echo '<dd>' . esc_html($this->registrationStatus($acceptingRegistrations)) . '</dd>';
         echo '</dl>';
        
         echo '</div>';
@@ -150,28 +152,31 @@ class EventDetailShortcode
      * Render the registration form section when registrations are open.
      *
      * @param array<string, mixed> $event Event row.
+     * @param bool $acceptingRegistrations Whether registrations are currently accepted.
      * @return void
      */
-    private function renderRegistrationFormSection(array $event): void
+    private function renderRegistrationFormSection(array $event, bool $acceptingRegistrations): void
     {
-        if (empty($event['is_public']) || empty($event['registration_enabled'])) {
-            return;
+        echo '<section id="civic-event-registration-form" class="civic-event-detail__registration-form civic-form">';
+
+        if ($acceptingRegistrations) {
+            echo $this->registrationForm->render($event);
+        } else {
+            echo '<p class="civic-event-detail__closed-message">' . esc_html__('Registrations for this event have closed.', 'civic-engagement') . '</p>';
         }
 
-        echo '<section id="civic-event-registration-form" class="civic-event-detail__registration-form civic-form">';
-        echo $this->registrationForm->render($event);
         echo '</section>';
     }
 
     /**
      * Build a registration status label.
      *
-     * @param array<string, mixed> $event Event row.
+     * @param bool $acceptingRegistrations Whether registrations are currently accepted.
      * @return string Registration status.
      */
-    private function registrationStatus(array $event): string
+    private function registrationStatus(bool $acceptingRegistrations): string
     {
-        return !empty($event['registration_enabled'])
+        return $acceptingRegistrations
             ? __('Registration is currently open', 'civic-engagement')
             : __('Registration is currently closed', 'civic-engagement');
     }

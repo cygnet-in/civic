@@ -127,13 +127,14 @@ class ThreadDetailShortcode
             return (string) ob_get_clean();
         }
 
+        $acceptingResponses = $this->threads->isAcceptingResponses($thread);
         $actualResponseCount = $this->responses->countByThreadId((int) ($thread['id'] ?? 0));
         $responseCount = max(0, (int) ($thread['starting_response_count'] ?? 0)) + $actualResponseCount;
         $publicResponses = $showPublicResponses
             ? $this->publicResponses((int) ($thread['id'] ?? 0))
             : ['items' => [], 'total' => 0];
-        $this->renderThread($thread, $publicResponses, $showPublicResponses, $responseCount, $this->media->getByEntity('consultation', (int) ($thread['id'] ?? 0)));
-        $this->renderResponseFormSection($thread);
+        $this->renderThread($thread, $publicResponses, $showPublicResponses, $responseCount, $acceptingResponses, $this->media->getByEntity('consultation', (int) ($thread['id'] ?? 0)));
+        $this->renderResponseFormSection($thread, $acceptingResponses);
 
         if ($showPublicResponses) {
             $this->renderPublicResponsesSection($publicResponses['items']);
@@ -151,6 +152,7 @@ class ThreadDetailShortcode
      * @param array<string, mixed> $publicResponses Public response result.
      * @param bool $showPublicResponses Whether public responses are enabled.
      * @param int $responseCount Displayed response count.
+     * @param bool $acceptingResponses Whether responses are currently accepted.
      * @return void
      */
     private function renderThread(
@@ -158,6 +160,7 @@ class ThreadDetailShortcode
         array $publicResponses,
         bool $showPublicResponses,
         int $responseCount,
+        bool $acceptingResponses,
         array $media
     ): void
     {
@@ -179,7 +182,7 @@ class ThreadDetailShortcode
         $this->renderMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
         $this->renderMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
         echo '</dl>';
-        $this->renderActionLinks($thread, $publicResponses, $showPublicResponses, $responseCount);
+        $this->renderActionLinks($publicResponses, $showPublicResponses, $responseCount, $acceptingResponses);
         echo '</div>';
         echo '</article>';
     }
@@ -187,35 +190,35 @@ class ThreadDetailShortcode
     /**
      * Render lightweight action links for responding and viewing responses.
      *
-     * @param array<string, mixed> $thread Thread row.
      * @param array<string, mixed> $publicResponses Public response result.
      * @param bool $showPublicResponses Whether public responses are enabled.
      * @param int $responseCount Displayed response count.
+     * @param bool $acceptingResponses Whether responses are currently accepted.
      * @return void
      */
     private function renderActionLinks(
-        array $thread,
         array $publicResponses,
         bool $showPublicResponses,
-        int $responseCount
+        int $responseCount,
+        bool $acceptingResponses
     ): void
     {
         $publicResponseTotal = $showPublicResponses && isset($publicResponses['total'])
             ? (int) $publicResponses['total']
             : 0;
 
-        if (empty($thread['response_enabled']) && $responseCount <= 0) {
+        if (!$acceptingResponses && $responseCount <= 0) {
             return;
         }
 
         echo '<p class="civic-card__actions civic-thread-detail__actions">';
 
-        if (!empty($thread['response_enabled'])) {
+        if ($acceptingResponses) {
             echo '<a href="#civic-thread-response-form" class="civic-button civic-button--primary">' . esc_html__('Have Your Say', 'civic-engagement') . '</a>';
         }
 
-        if (!empty($thread['response_enabled']) || $responseCount > 0) {
-            if (!empty($thread['response_enabled'])) {
+        if ($acceptingResponses || $responseCount > 0) {
+            if ($acceptingResponses) {
                 echo ' | ';
             }
 
@@ -233,16 +236,17 @@ class ThreadDetailShortcode
      * Render the response form section.
      *
      * @param array<string, mixed> $thread Thread row.
+     * @param bool $acceptingResponses Whether responses are currently accepted.
      * @return void
      */
-    private function renderResponseFormSection(array $thread): void
+    private function renderResponseFormSection(array $thread, bool $acceptingResponses): void
     {
         echo '<section id="civic-thread-response-form" class="civic-thread-detail__response-form">';
 
-        if (!empty($thread['response_enabled'])) {
+        if ($acceptingResponses) {
             echo $this->responseForm->render($thread);
         } else {
-            echo '<p>' . esc_html__('Responses are currently closed for this consultation.', 'civic-engagement') . '</p>';
+            echo '<p class="civic-thread-detail__closed-message">' . esc_html__('This consultation has closed and is no longer accepting responses.', 'civic-engagement') . '</p>';
         }
 
         echo '</section>';

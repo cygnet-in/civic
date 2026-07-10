@@ -91,11 +91,7 @@ class EventRegistrationService
             return $this->buildResult(false, null, 0, 'event_not_found');
         }
 
-        if (empty($event['is_public'])) {
-            return $this->buildResult(false, null, 0, 'event_not_public');
-        }
-
-        if (empty($event['registration_enabled'])) {
+        if (!$this->events->isAcceptingRegistrations($event)) {
             return $this->buildResult(false, null, 0, 'registration_closed');
         }
 

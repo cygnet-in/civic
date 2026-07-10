@@ -145,6 +145,10 @@ class ThreadResponseForm
         $result = $this->responses->submit($values);
 
         if (empty($result['success'])) {
+            if ('responses_closed' === (string) ($result['error'] ?? '')) {
+                return $this->buildResponse(true, false, 'This consultation has closed and is no longer accepting responses.', $values, [], 'responses_closed');
+            }
+
             return $this->buildResponse(true, false, 'We could not submit your response. Please try again.', $values, [], (string) ($result['error'] ?? 'submission_failed'));
         }
 

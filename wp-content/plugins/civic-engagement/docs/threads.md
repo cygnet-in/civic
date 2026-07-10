@@ -93,6 +93,8 @@ A consultation is Archived when:
 
 Main public consultation listings use Active consultations. `[civic_threads_archive]` renders archived consultations with full cards and pagination by default, or a compact title/link list when `limit` is supplied.
 
+Archived consultations remain publicly viewable, but they are read-only. The detail page hides the response form and "Have Your Say" action once the consultation is no longer Active, and the response submission workflow rejects direct submissions after closure.
+
 ---
 
 # Future Possibilities
@@ -125,6 +127,8 @@ Consultation responses may optionally capture electoral area information.
 Electoral area values should originate from shared civic reference data where possible.
 
 The initial implementation may use manually managed electoral area records while preserving repository abstraction for future extensibility.
+
+Responses are accepted only while the consultation is published/public, response-enabled, and not past its configured end date. Closed or archived consultations display a closed message instead of the public response form.
 
 ---
 

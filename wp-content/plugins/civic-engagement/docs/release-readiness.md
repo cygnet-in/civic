@@ -30,10 +30,12 @@ Core completed features:
 - Representation to Schedule conversion prefill workflow.
 - Consultation listing and detail shortcodes.
 - Consultation response submission.
+- Consultation lifecycle enforcement: archived consultations remain public but read-only.
 - Consultation custom fields.
 - Starting Response Count display.
 - Event listing and detail shortcodes.
 - Event registration workflow.
+- Event lifecycle enforcement: archived events remain public but read-only.
 - Event custom registration fields.
 - Schedule listing and detail shortcodes.
 - Schedule notes.
@@ -184,6 +186,8 @@ A consultation is Archived when:
 
 Public consultation listings should reserve full `civic-card` presentation for Active consultations. Standalone archive shortcodes can render full archive cards or limited compact title/link lists.
 
+Archived consultations remain publicly viewable through their detail pages, but they are read-only. The public response form and "Have Your Say" action are shown only while the consultation is Active. Response submissions are also blocked in the response workflow once the consultation is no longer Active.
+
 ## Event Lifecycle
 
 An event is Active when:
@@ -199,6 +203,8 @@ An event is Archived when:
 - or the event is no longer public.
 
 Public event listings should reserve full `civic-card` presentation for Active events. Standalone archive shortcodes can render full archive cards or limited compact title/link lists.
+
+Archived events remain publicly viewable through their detail pages, but they are read-only. The public registration form is shown only while the event is Active. Registration submissions are also blocked in the registration workflow once the event is no longer Active.
 
 ## Schedule Lifecycle
 

@@ -24,29 +24,66 @@ Key component classes:
 - `civic-form__field--full`
 - `civic-form__consent`
 - `civic-form__actions`
+- `civic-form__captcha`
 - `civic-statistics`
 - `civic-stat-card`
 
 This file should be treated as the plugin-owned home for reusable frontend components produced by plugin shortcodes.
 
+The reusable CAPTCHA wrapper `civic-form__captcha` belongs here because it is part of the shared Civic Form design system. Provider-rendered Turnstile iframe internals should not be styled directly.
+
 ### `assets/css/civic-admin.css`
 
-Plugin admin stylesheet enqueued by `DashboardAdmin` for restricted Civic users.
+Plugin admin stylesheet enqueued by `DashboardAdmin` for restricted Civic users and Civic Platform admin pages.
 
 Current responsibilities:
 
 - Adds polish to the simplified Civic admin experience.
 - Hides selected WordPress notices and update noise for restricted Civic users.
 - Styles dashboard cards and recent sections under `body.civic-admin`.
-- Applies only when the plugin adds the `civic-admin` body class.
+- Styles the fixed branded Civic admin header under `body.civic-admin-fixed-header-active`.
+- Styles the Civic Manager documentation manual.
+- Applies restricted-user cleanup only when the plugin adds the `civic-admin` body class.
+- Applies Civic page header styles only when the plugin adds the `civic-admin-page` body class.
 
 Key classes:
 
 - `body.civic-admin`
+- `body.civic-admin-page`
+- `body.civic-admin-fixed-header-active`
+- `civic-admin-fixed-header`
+- `civic-admin-fixed-header__identity`
+- `civic-admin-fixed-header__logo`
+- `civic-admin-fixed-header__title`
+- `civic-admin-fixed-header__version`
+- `civic-admin-fixed-header__actions`
+- `civic-admin-fixed-header__documentation`
+- `civic-admin-fixed-header__visit`
+- `civic-admin-brand`
+- `civic-admin-brand__logo`
+- `civic-admin-brand__title`
+- `civic-admin-brand__version`
+- `civic-admin-brand__visit`
+- `civic-admin-manual`
+- `civic-admin-manual__section`
 - `civic-dashboard__cards`
 - `civic-dashboard__card`
 - `civic-dashboard__recent-grid`
 - `civic-dashboard__recent-section`
+
+### `assets/css/civic-login.css`
+
+Plugin login stylesheet enqueued by `DashboardAdmin` on the WordPress login screen.
+
+Current responsibilities:
+
+- Replaces the default WordPress login logo with Civic Platform branding.
+- Applies Civic visual identity to the standard WordPress authentication form.
+- Preserves the underlying WordPress login workflow.
+
+Key scope:
+
+- `body.login`
 
 ### `assets/css/admin-dashboard.css`
 
@@ -227,7 +264,11 @@ Public frontend:
 
 Plugin restricted admin:
 
-- Plugin enqueues `assets/css/civic-admin.css` for restricted Civic users through `DashboardAdmin`.
+- Plugin enqueues `assets/css/civic-admin.css` for restricted Civic users and Civic Platform admin pages through `DashboardAdmin`.
+
+Login:
+
+- Plugin enqueues `assets/css/civic-login.css` on the WordPress login screen through `DashboardAdmin`.
 
 Theme civic manager admin:
 

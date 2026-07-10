@@ -11,6 +11,7 @@
  * @var string $formAction Hidden action value.
  * @var string $nonceAction Nonce action.
  * @var string $nonceField Nonce field name.
+ * @var string $captchaWidget Rendered CAPTCHA widget markup.
  */
 
 if (!defined('ABSPATH')) {
@@ -154,6 +155,8 @@ $messageClass = !empty($response['success']) ? 'civic-rep-form__message--success
 
         <input type="hidden" name="civic_rep[map_lat]" value="<?php echo esc_attr((string) ($values['map_lat'] ?? '')); ?>">
         <input type="hidden" name="civic_rep[map_lng]" value="<?php echo esc_attr((string) ($values['map_lng'] ?? '')); ?>">
+
+        <?php echo $captchaWidget; ?>
 
         <p class="civic-rep-form__actions civic-form__actions">
             <button type="submit"><?php echo esc_html__('Submit Representation', 'civic-engagement'); ?></button>

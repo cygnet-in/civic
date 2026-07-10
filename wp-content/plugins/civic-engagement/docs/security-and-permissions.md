@@ -132,6 +132,7 @@ Access to:
 - platform configuration
 - future notification settings
 - future integration settings
+- CAPTCHA / Turnstile security settings
 
 ---
 
@@ -183,6 +184,25 @@ All admin actions must:
 - validate request data
 - validate nonce when appropriate
 - avoid direct SQL execution outside repositories
+
+# CAPTCHA Architecture
+
+Version 1.0 introduces shared CAPTCHA infrastructure using Cloudflare Turnstile.
+
+Implementation:
+
+- `CaptchaService` renders the Turnstile widget for Civic frontend forms.
+- `CaptchaService` verifies submitted Turnstile tokens server-side.
+- `CivicSettingsService` reads and writes the shared Security settings.
+- `SecuritySettingsPage` provides the Civic Manager admin configuration screen.
+
+Configured settings:
+
+- Enable CAPTCHA
+- Cloudflare Site Key
+- Cloudflare Secret Key
+
+Representation submission, Consultation response, and Event registration forms integrate CAPTCHA by rendering the shared widget and calling the shared validation API before processing submissions. Provider-specific rendering and verification logic remains centralized in `CaptchaService`.
 
 # Principle 5: Centralized Permission Management
 

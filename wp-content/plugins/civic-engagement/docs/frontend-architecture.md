@@ -83,6 +83,7 @@ Public-facing forms now share the Civic form class vocabulary:
 - `civic-form__actions`
 - `civic-form__message`
 - `civic-form__error`
+- `civic-form__captcha`
 
 Implemented public forms:
 
@@ -105,6 +106,10 @@ All public forms use namespaced request arrays:
 - `civic_event_registration[...]`
 
 All public forms include nonce validation and delegate workflow processing to frontend handlers and services rather than templates.
+
+Shared CAPTCHA infrastructure is provided by `CaptchaService`. It renders a Cloudflare Turnstile widget inside the Civic Form design system using `civic-form__captcha` and validates submitted tokens server-side.
+
+When CAPTCHA is enabled in Civic Manager > Dashboard > Security, Representation submission, Consultation response, and Event registration forms render the shared widget and validate the token before processing the workflow.
 
 ## Statistics Cards
 

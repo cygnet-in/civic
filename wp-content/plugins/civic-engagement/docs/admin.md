@@ -19,6 +19,8 @@ Implemented admin areas include:
 * Schedules
 * Contacts
 * Activities
+* Security Settings
+* System / Documentation
 * Account / Change Password
 
 ## Current Simplifications
@@ -47,6 +49,7 @@ Current capabilities include:
 * `manage_civic_schedules`
 * `view_civic_activities`
 * `manage_civic_contacts`
+* `manage_civic_settings`
 
 ## Dashboard
 
@@ -60,11 +63,56 @@ It displays:
 * upcoming schedules;
 * latest events.
 
+## Security Settings
+
+Security Settings are implemented inside the Civic Manager administration area, not as a standard WordPress Settings API page.
+
+The page is registered under the System menu:
+
+* `admin.php?page=civic-security-settings`
+
+It is implemented by `SecuritySettingsPage` and stores shared public form security configuration through `CivicSettingsService`.
+
+Current settings:
+
+* Enable CAPTCHA
+* Cloudflare Turnstile Site Key
+* Cloudflare Turnstile Secret Key
+
+Security Settings are grouped under the System admin menu.
+
+## System Documentation
+
+The System menu includes a Documentation page:
+
+* `admin.php?page=civic-system`
+
+It is implemented by `DocumentationPage` and provides a lightweight Civic Manager user manual covering Dashboard, Representations, Consultations, Events, Schedules, Contacts, Activities, System, Security and Account workflows.
+
+## Login and Branding
+
+Version 1.0 uses the normal WordPress authentication system with Civic Platform branding applied by `DashboardAdmin`.
+
+Implemented behavior:
+
+* the WordPress login logo is replaced with Civic Platform branding
+* `assets/css/civic-login.css` styles the login screen
+* `/civic-admin` is the preferred administrator login entry point
+* `/civic-admin` redirects through WordPress login with the Civic Dashboard as the redirect target
+* logged-in Civic users visiting `/civic-admin` are sent to the Civic Dashboard
+* logged-in non-Civic users visiting `/civic-admin` are sent to normal WordPress admin
+* Civic admin pages display a fixed branded Civic Platform header with logo, title, plugin version, Documentation action and "Visit Website" action
+* the branded header is scoped to Civic Platform admin pages only
+* the "Visit Website" action opens the public site in a new browser tab
+
 ## Main Admin Sections
 
 Current admin sections:
 
 * Dashboard
+* System
+* Documentation
+* Security Settings
 * Account
 * Representations
 * Consultations
@@ -87,11 +135,6 @@ Communication is not currently implemented as an admin section.
 
 Pending release-readiness items:
 
-* custom login page
-* replace WordPress login branding
-* support `/civic-admin` login URL
-* add "Visit Website" link in admin
-* add branded admin header
 * final admin UI polish
 
 ## Future Possibilities

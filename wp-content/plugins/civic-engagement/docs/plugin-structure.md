@@ -73,22 +73,49 @@ Purpose:
 
 - Civic operational dashboard in wp-admin.
 - Public statistics shortcode.
+- Login and Civic admin branding hooks.
 
 Key classes:
 
 - `DashboardModule`
 - `DashboardAdmin`
 - `DashboardPage`
+- `DocumentationPage`
+- `SecuritySettingsPage`
 - `PublicStatisticsService`
 - `StatisticsShortcode`
 
 Admin page:
 
 - `admin.php?page=civic-dashboard`
+- `admin.php?page=civic-system`
+- `admin.php?page=civic-security-settings`
+
+Admin/login branding:
+
+- `DashboardAdmin` brands the WordPress login screen using `assets/css/civic-login.css`.
+- `/civic-admin` redirects into the normal WordPress authentication flow with the Civic Dashboard as the target.
+- Civic admin pages receive a fixed branded header with the Civic Platform logo, dynamic plugin version, Documentation action, and "Visit Website" action.
+- The System admin group contains Documentation and Security.
+- `DocumentationPage` renders a lightweight Civic Manager user manual.
 
 Public shortcode:
 
 - `[civic_statistics]`
+
+### Shared Services
+
+Shared platform services live under `app/Services`.
+
+Security-related services:
+
+- `CivicSettingsService`
+  - stores shared Civic security settings in WordPress options
+  - currently manages CAPTCHA enabled state and Cloudflare Turnstile keys
+- `CaptchaService`
+  - renders a reusable Turnstile widget for Civic frontend forms
+  - verifies Turnstile tokens server-side
+  - exposes a validation API that public form controllers can call before processing submissions
 
 ### Account
 
@@ -478,4 +505,3 @@ The router:
 - prevents WordPress canonical redirects from replacing Civic prefixed routes with hosting page URLs
 
 Slug uniqueness is enforced within each module. Short codes are globally checked across consultations, events, and schedules.
-

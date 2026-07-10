@@ -196,7 +196,7 @@ The current focus of development is:
 5. Testing and documentation.
 6. Version 1.0 release readiness tasks documented in `docs/release-readiness.md`.
 
-Pending Version 1.0 work includes CAPTCHA integration, final homepage/card/sidebar polish, login/admin branding, `/civic-admin` login URL support, and final admin UI polish.
+Pending Version 1.0 work includes final homepage/card/sidebar polish, final admin UI polish, and the sidebar representation prompt widget documented in `docs/release-readiness.md`.
 
 ---
 
@@ -205,7 +205,6 @@ Pending Version 1.0 work includes CAPTCHA integration, final homepage/card/sideb
 Potential future enhancements include:
 
 * Configurable Short URL prefix.
-* Login branding.
 * Civic design system.
 * Enhanced public homepage.
 * Email platform integration.

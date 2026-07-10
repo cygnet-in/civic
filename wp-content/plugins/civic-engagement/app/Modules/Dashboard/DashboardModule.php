@@ -13,6 +13,7 @@ use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
+use CivicPlatform\Services\CivicSettingsService;
 
 /** Bootstraps the Civic Dashboard administration experience. */
 class DashboardModule
@@ -45,6 +46,6 @@ class DashboardModule
             new ScheduleRepository($this->wpdb),
             new ContactRepository($this->wpdb)
         );
-        (new DashboardAdmin($page))->register();
+        (new DashboardAdmin($page, new SecuritySettingsPage(new CivicSettingsService()), new DocumentationPage()))->register();
     }
 }

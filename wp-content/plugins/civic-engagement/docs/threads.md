@@ -16,7 +16,6 @@ Examples:
 
 * No forum-style replies.
 * No advanced moderation workflow.
-* CAPTCHA is not yet integrated and remains pending for Version 1.0.
 
 ---
 
@@ -46,17 +45,20 @@ Admin can:
 
 1. User opens thread.
 2. User enters contact details.
-3. User submits response.
-4. User may optionally make response public.
+3. User may optionally make response public.
+4. When CAPTCHA is enabled, user completes the shared Turnstile challenge.
+5. User submits response.
 
 ---
 
 # System Behavior
 
-1. Check email in civic_contacts.
-2. Update/create contact.
-3. Store snapshot data in civic_thread_responses.
-4. Create civic_activities entry.
+1. Confirm the consultation is still accepting responses.
+2. When CAPTCHA is enabled, validate the submitted Turnstile token before processing the response.
+3. Check email in civic_contacts.
+4. Update/create contact.
+5. Store snapshot data in civic_thread_responses.
+6. Create civic_activities entry.
 
 ---
 
@@ -129,6 +131,8 @@ Electoral area values should originate from shared civic reference data where po
 The initial implementation may use manually managed electoral area records while preserving repository abstraction for future extensibility.
 
 Responses are accepted only while the consultation is published/public, response-enabled, and not past its configured end date. Closed or archived consultations display a closed message instead of the public response form.
+
+When CAPTCHA is enabled, the response form renders the shared Cloudflare Turnstile widget through `CaptchaService` and validates the submitted token before calling the response workflow.
 
 ---
 

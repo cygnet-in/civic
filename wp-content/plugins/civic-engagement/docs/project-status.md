@@ -321,12 +321,9 @@ Version 1.0 is not yet release-ready. Core workflows are operational, but the re
 
 Current pending Version 1.0 work includes:
 
-* CAPTCHA integration
 * homepage card layout finalisation
 * `civic-cards-home-list` and `civic-cards-main-list` standardisation
 * sidebar and homepage consistency review
-* custom login/admin branding work
-* `/civic-admin` login URL support
 * final admin UI polish
 * sidebar HTML widget encouraging representation submissions
 

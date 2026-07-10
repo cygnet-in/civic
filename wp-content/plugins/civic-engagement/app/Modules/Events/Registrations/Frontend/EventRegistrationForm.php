@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Events\Registrations\Frontend;
 use CivicPlatform\Modules\Events\Repository\EventFieldRepository;
 use CivicPlatform\Modules\Events\Registrations\Services\EventRegistrationService;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
+use CivicPlatform\Services\CaptchaService;
 
 /**
  * Handles public event registration form rendering and submission processing.
@@ -53,6 +54,13 @@ class EventRegistrationForm
     private EventFieldRepository $fields;
 
     /**
+     * Shared CAPTCHA service.
+     *
+     * @var CaptchaService
+     */
+    private CaptchaService $captcha;
+
+    /**
      * @param EventRegistrationService $registrations Event registration workflow service.
      * @param ElectoralAreaRepository $electoralAreas Electoral area repository.
      * @param EventFieldRepository $fields Event field repository.
@@ -60,11 +68,13 @@ class EventRegistrationForm
     public function __construct(
         EventRegistrationService $registrations,
         ElectoralAreaRepository $electoralAreas,
-        EventFieldRepository $fields
+        EventFieldRepository $fields,
+        ?CaptchaService $captcha = null
     ) {
         $this->registrations = $registrations;
         $this->electoralAreas = $electoralAreas;
         $this->fields = $fields;
+        $this->captcha = $captcha ?? new CaptchaService();
     }
 
     /**
@@ -104,6 +114,7 @@ class EventRegistrationForm
         $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
         $this->renderConsentFields($values);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
+        echo $this->captcha->renderWidget('civic-event-registration-form');
 
         echo '<p class="civic-event-registration-form__actions civic-form__actions">';
         echo '<button type="submit" class="button button-primary">';
@@ -135,9 +146,18 @@ class EventRegistrationForm
 
         $values = $this->sanitizeRequestValues($eventId, $fieldDefinitions);
         $errors = $this->validateValues($values, $fieldDefinitions);
+        $captcha = $this->captcha->validateRequest($_POST);
+
+        if (empty($captcha['success'])) {
+            $errors['captcha'] = $this->captcha->failureMessage($captcha);
+        }
 
         if (!empty($errors)) {
-            return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
+            $message = isset($errors['captcha'])
+                ? $errors['captcha']
+                : 'Please check the highlighted fields.';
+
+            return $this->buildResponse(true, false, $message, $values, $errors, 'validation_failed');
         }
 
         $result = $this->registrations->submit($values);

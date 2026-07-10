@@ -28,6 +28,7 @@ Core completed features:
 - Representation submission workflow.
 - Representation image upload.
 - Representation to Schedule conversion prefill workflow.
+- Shared CAPTCHA infrastructure and public form integration using Cloudflare Turnstile. Production verification pending deployment to the live hostname.
 - Consultation listing and detail shortcodes.
 - Consultation response submission.
 - Consultation lifecycle enforcement: archived consultations remain public but read-only.
@@ -52,6 +53,9 @@ Core completed features:
 - Short URL routing using `/go/{short_code}`.
 - Civic Manager role and capabilities.
 - Custom wp-admin Civic operational menus.
+- Civic Platform login branding and `/civic-admin` login entry point.
+- Fixed branded Civic admin header with dynamic plugin version, Documentation action, and "Visit Website" action.
+- System admin group with Documentation and Security settings.
 - Civic theme homepage implementation.
 - Theme/plugin responsibility split documented.
 - CSS ownership documented.
@@ -60,7 +64,23 @@ Core completed features:
 
 ### Core Features
 
-- CAPTCHA integration.
+No remaining core workflow features are currently marked pending.
+
+## CAPTCHA
+
+Version 1.0 uses a shared CAPTCHA service.
+
+The shared infrastructure is implemented in `CaptchaService`.
+
+Initial implementation uses Cloudflare Turnstile.
+
+The service renders Turnstile widgets, verifies submitted Turnstile tokens server-side, and exposes a reusable validation API for public forms.
+
+CAPTCHA settings are configured from Civic Manager > Dashboard > Security.
+
+Representation submission, Consultation responses, and Event registrations render the shared Turnstile widget when CAPTCHA is enabled and validate the submitted token before processing the workflow.
+
+Live Turnstile verification depends on the configured Cloudflare keys and may not be testable in a local development environment when production-restricted keys are used.
 
 #### Representation to Schedule Workflow
 
@@ -78,10 +98,6 @@ The implemented conversion:
 
 The workflow starts from the Representation detail screen and opens the normal Schedule create screen. No Schedule is created until the administrator submits the Schedule form.
 
-#### CAPTCHA integration is pending. 
-
-Documentation should not describe CAPTCHA as already implemented.
-
 ### Homepage / Public UI
 
 - Finalise homepage card layouts.
@@ -91,12 +107,25 @@ Documentation should not describe CAPTCHA as already implemented.
 
 ### Administration
 
-- Custom login page.
-- Replace WordPress login branding.
-- Support `/civic-admin` login URL.
-- Add "Visit Website" link in admin.
-- Add branded admin header.
 - Final admin UI polish.
+
+## Login and Administration Branding
+
+Version 1.0 uses WordPress authentication with Civic Platform branding.
+
+Implemented behavior:
+
+- the default WordPress login logo is replaced with Civic Platform branding,
+- the login page uses `assets/css/civic-login.css`,
+- `/civic-admin` is the preferred administrator login entry point,
+- unauthenticated `/civic-admin` requests redirect to WordPress login with the Civic Dashboard as the redirect target,
+- logged-in Civic users visiting `/civic-admin` are redirected to the Civic Dashboard,
+- logged-in non-Civic users visiting `/civic-admin` are redirected to normal WordPress admin,
+- Civic admin pages display a fixed branded header containing the Civic Platform logo, platform title, dynamic plugin version, Documentation action and "Visit Website" action,
+- the "Visit Website" action opens the public site in a new browser tab,
+- the System admin group contains Documentation and Security settings,
+- the Documentation page provides a lightweight Civic Manager user manual,
+- the branded header is scoped to Civic Platform admin page slugs only.
 
 ### Public Website
 
@@ -229,7 +258,7 @@ Resolved during this review:
 - `docs/shortcodes.md` referenced outdated `[civic_schedule_list]`; current source uses `[civic_schedules]`.
 - `docs/shortcodes.md` referenced a standalone `[civic_event_registration]`; current source renders event registration inside `[civic_event_detail]`.
 - `docs/shortcodes.md` described global public slug uniqueness and `SlugService`; current source uses module-local slug uniqueness and `ShortUrlService` for global short code checks.
-- `docs/threads.md` implied CAPTCHA existed; current source does not implement CAPTCHA.
+- Earlier CAPTCHA documentation described infrastructure-only status; current public representation, consultation response, and event registration forms now call the shared service.
 - Active/Archived lifecycle rules were missing as a source-of-truth decision.
 
 Remaining known documentation concerns:
@@ -241,7 +270,7 @@ Remaining known documentation concerns:
 
 Recommended documentation still to add before Version 1.0:
 
-- CAPTCHA integration notes after the chosen approach is implemented.
+- Final CAPTCHA deployment notes after production Cloudflare Turnstile keys are configured and verified.
 - Login/admin branding architecture after implementation.
 - Final public listing lifecycle implementation notes after Active/Archived sections are built.
 - Final visual UI component contract for `civic-cards-home-list` and `civic-cards-main-list`.

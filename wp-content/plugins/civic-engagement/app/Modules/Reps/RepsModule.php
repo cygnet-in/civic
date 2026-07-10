@@ -17,6 +17,7 @@ use CivicPlatform\Modules\Schedules\Repository\ScheduleRepository;
 use CivicPlatform\Modules\Users\Repository\ContactRepository;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\ActivityService;
+use CivicPlatform\Services\CaptchaService;
 use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\RepService;
 
@@ -69,7 +70,9 @@ class RepsModule
     {
         return new RepFormController(
             $this->createRepService(),
-            new ElectoralAreaRepository($this->wpdb)
+            new ElectoralAreaRepository($this->wpdb),
+            null,
+            $this->createCaptchaService()
         );
     }
 
@@ -129,5 +132,10 @@ class RepsModule
             'contacts' => $contactService,
             'activities' => $activityService,
         ];
+    }
+
+    private function createCaptchaService(): CaptchaService
+    {
+        return new CaptchaService();
     }
 }

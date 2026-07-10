@@ -7,6 +7,7 @@ namespace CivicPlatform\Modules\Threads\Responses\Frontend;
 use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
+use CivicPlatform\Services\CaptchaService;
 
 /**
  * Handles public consultation response form rendering and submission processing.
@@ -53,6 +54,13 @@ class ThreadResponseForm
     private ElectoralAreaRepository $electoralAreas;
 
     /**
+     * Shared CAPTCHA service.
+     *
+     * @var CaptchaService
+     */
+    private CaptchaService $captcha;
+
+    /**
      * @param ThreadResponseService $responses Thread response workflow service.
      * @param ThreadFieldRepository $fields Thread field repository.
      * @param ElectoralAreaRepository $electoralAreas Electoral area repository.
@@ -60,11 +68,13 @@ class ThreadResponseForm
     public function __construct(
         ThreadResponseService $responses,
         ThreadFieldRepository $fields,
-        ElectoralAreaRepository $electoralAreas
+        ElectoralAreaRepository $electoralAreas,
+        ?CaptchaService $captcha = null
     ) {
         $this->responses = $responses;
         $this->fields = $fields;
         $this->electoralAreas = $electoralAreas;
+        $this->captcha = $captcha ?? new CaptchaService();
     }
 
     /**
@@ -105,6 +115,7 @@ class ThreadResponseForm
         $this->renderConsentFields($values);
         $this->renderTextareaField('response_text', __('Response', 'civic-engagement'), (string) $values['response_text'], $errors, true);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
+        echo $this->captcha->renderWidget('civic-thread-response-form');
 
         echo '<p class="civic-thread-response-form__actions civic-form__actions">';
         echo '<button type="submit" class="button button-primary">';
@@ -137,9 +148,18 @@ class ThreadResponseForm
 
         $values = $this->sanitizeRequestValues($threadId, $fieldDefinitions);
         $errors = $this->validateValues($values, $fieldDefinitions);
+        $captcha = $this->captcha->validateRequest($_POST);
+
+        if (empty($captcha['success'])) {
+            $errors['captcha'] = $this->captcha->failureMessage($captcha);
+        }
 
         if (!empty($errors)) {
-            return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
+            $message = isset($errors['captcha'])
+                ? $errors['captcha']
+                : 'Please check the highlighted fields.';
+
+            return $this->buildResponse(true, false, $message, $values, $errors, 'validation_failed');
         }
 
         $result = $this->responses->submit($values);

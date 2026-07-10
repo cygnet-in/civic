@@ -38,16 +38,19 @@ Admin can:
 1. User opens event registration form.
 2. User enters contact details.
 3. User fills dynamic registration fields.
-4. User submits registration.
+4. When CAPTCHA is enabled, user completes the shared Turnstile challenge.
+5. User submits registration.
 
 ---
 
 # System Behavior
 
-1. Check email in civic_contacts.
-2. Update/create contact.
-3. Store snapshot data in civic_event_registrations.
-4. Create civic_activities entry.
+1. Confirm the event is still accepting registrations.
+2. When CAPTCHA is enabled, validate the submitted Turnstile token before processing the registration.
+3. Check email in civic_contacts.
+4. Update/create contact.
+5. Store snapshot data in civic_event_registrations.
+6. Create civic_activities entry.
 
 ---
 
@@ -109,3 +112,5 @@ Only public published or closed events resolve through public slug URLs. Numeric
 ## Event Registrations
 
 Registrations are accepted only while the event is public, published, registration-enabled, and not past its configured end date. Closed or archived events display a closed message instead of the public registration form.
+
+When CAPTCHA is enabled, the registration form renders the shared Cloudflare Turnstile widget through `CaptchaService` and validates the submitted token before calling the registration workflow.

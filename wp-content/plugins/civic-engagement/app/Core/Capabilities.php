@@ -49,6 +49,11 @@ class Capabilities
     private const MANAGE_CONTACTS = 'manage_civic_contacts';
 
     /**
+     * Platform settings management capability.
+     */
+    private const MANAGE_SETTINGS = 'manage_civic_settings';
+
+    /**
      * Register initial roles and capabilities.
      *
      * @return void
@@ -80,6 +85,7 @@ class Capabilities
                     self::MANAGE_SCHEDULES => true,
                     self::VIEW_ACTIVITIES => true,
                     self::MANAGE_CONTACTS => true,
+                    self::MANAGE_SETTINGS => true,
                 ]
             );
 
@@ -92,6 +98,7 @@ class Capabilities
         $role->add_cap(self::MANAGE_SCHEDULES);
         $role->add_cap(self::VIEW_ACTIVITIES);
         $role->add_cap(self::MANAGE_CONTACTS);
+        $role->add_cap(self::MANAGE_SETTINGS);
     }
 
     /**
@@ -113,5 +120,6 @@ class Capabilities
         $role->add_cap(self::MANAGE_SCHEDULES);
         $role->add_cap(self::VIEW_ACTIVITIES);
         $role->add_cap(self::MANAGE_CONTACTS);
+        $role->add_cap(self::MANAGE_SETTINGS);
     }
 }

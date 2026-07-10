@@ -10,8 +10,10 @@ The project has two related admin customization layers:
 
 1. Plugin restricted Civic admin layer
    - Adds `body.civic-admin`.
+   - Adds `body.civic-admin-page` on Civic Platform admin pages.
    - Enqueues `assets/css/civic-admin.css`.
-   - Applies to restricted Civic users detected by `DashboardAdmin`.
+   - Applies restricted-user cleanup to restricted Civic users detected by `DashboardAdmin`.
+   - Applies the fixed branded Civic header to Civic Platform admin pages only.
 
 2. Theme Civic Manager admin skin
    - Adds `body.civic-manager-admin`.
@@ -19,6 +21,8 @@ The project has two related admin customization layers:
    - Applies to users whose role array includes `civic_manager`.
 
 Both layers currently affect wp-admin presentation. The plugin layer focuses on Civic dashboard cleanup and restricted-user experience. The theme layer visually skins the broader wp-admin workspace.
+
+The WordPress login screen is branded by the plugin through `DashboardAdmin` login hooks and `assets/css/civic-login.css`. The preferred administrator login entry point is `/civic-admin`, which redirects through the normal WordPress login flow and then to the Civic Dashboard when appropriate.
 
 ## Roles and Capabilities
 
@@ -83,6 +87,9 @@ The plugin registers module-oriented admin menus:
 | Menu | Capability | Main slug |
 | --- | --- | --- |
 | Dashboard | `manage_civic_reps` | `civic-dashboard` |
+| System | `manage_civic_reps` | `civic-system` |
+| Documentation | `manage_civic_reps` | `civic-system` |
+| Security Settings | `manage_civic_settings` | `civic-security-settings` |
 | Account | `manage_civic_reps` | `civic-account` |
 | Representations | `manage_civic_reps` | `civic-platform` |
 | Consultations | `manage_civic_threads` | `civic-threads` |
@@ -93,6 +100,8 @@ The plugin registers module-oriented admin menus:
 Activities are registered as a submenu under the representations/Civic Platform area:
 
 - `civic-activities`
+
+Security Settings are registered under the System menu. The Documentation page is the System menu landing page and provides a lightweight Civic Manager user manual.
 
 Several internal add/edit/detail pages are registered as submenu pages and then hidden from the visible menu using `AdminMenuHelper` or module-specific hide methods. They remain accessible by direct URL.
 
@@ -106,10 +115,25 @@ assets/css/civic-admin.css
 
 Responsibilities:
 
+- fixed branded Civic Platform header on Civic admin pages
+- Civic Platform logo, title, dynamic plugin version, Documentation action, and "Visit Website" action
+- Civic Manager documentation card layout
 - dashboard card layout
 - recent section layout
 - notice cleanup
 - reduced WordPress admin noise for restricted Civic users
+
+Login stylesheet:
+
+```text
+assets/css/civic-login.css
+```
+
+Responsibilities:
+
+- replaces the default WordPress login logo with Civic Platform branding
+- applies Civic visual identity to the WordPress authentication screen
+- preserves WordPress authentication behavior
 
 Theme stylesheet:
 
@@ -125,18 +149,20 @@ Responsibilities:
 - table, form, button, notice, card, and postbox styling
 - footer cleanup
 
-## Release Readiness Admin Work
+## Login and Admin Branding
 
-The following admin-related items remain pending for Version 1.0:
+Implemented Version 1.0 branding behavior:
 
-- custom login page
-- replacement of WordPress login branding
-- `/civic-admin` login URL support
-- "Visit Website" link in admin
-- branded admin header
-- final admin UI polish
+- WordPress login branding is replaced with Civic Platform branding.
+- `/civic-admin` is supported as the preferred admin login entry point.
+- `/civic-admin` preserves WordPress authentication by redirecting to `wp-login.php` with the Civic Dashboard as the redirect target.
+- Logged-in Civic users visiting `/civic-admin` are sent to the Civic Dashboard.
+- Logged-in non-Civic users are sent to the normal WordPress admin area.
+- Civic admin pages display a fixed branded header with the Civic Platform logo, title, dynamic plugin version, Documentation action, and "Visit Website" action.
+- The "Visit Website" action opens the public site in a new browser tab.
+- The branded header is scoped to Civic admin page slugs and does not appear on unrelated WordPress admin screens.
 
-These are not implemented in the current source.
+Final admin UI polish remains a release-readiness task.
 
 ## Admin Page Structure
 

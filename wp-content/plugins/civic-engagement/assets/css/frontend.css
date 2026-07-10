@@ -482,6 +482,10 @@ font-size:2.3rem;
     margin: 6px 0 0;
 }
 
+.civic-form__captcha {
+    margin: 4px 0 0;
+}
+
 .civic-form__actions button,
 .civic-form__actions .button,
 .civic-form__actions .button-primary,

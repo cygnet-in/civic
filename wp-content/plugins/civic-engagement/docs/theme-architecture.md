@@ -151,7 +151,7 @@ The homepage includes a bottom CTA band before `get_footer()`.
 - `admin_body_class` filtering to add `civic-manager-admin`
 - conditional enqueue of `assets/css/civic-manager-admin.css` for civic manager users
 
-This is separate from the plugin's own restricted Civic admin styling, which uses the `civic-admin` body class and `assets/css/civic-admin.css`.
+This is separate from the plugin's own Civic admin styling, which uses the `civic-admin` and `civic-admin-page` body classes with `assets/css/civic-admin.css`, and from plugin-owned login branding in `assets/css/civic-login.css`.
 
 ## Assets
 

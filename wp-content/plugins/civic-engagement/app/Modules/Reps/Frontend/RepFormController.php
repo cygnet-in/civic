@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Reps\Frontend;
 
 use CivicPlatform\Repositories\ElectoralAreaRepository;
+use CivicPlatform\Services\CaptchaService;
 use CivicPlatform\Services\RepService;
 
 /**
@@ -57,6 +58,13 @@ class RepFormController
     private ElectoralAreaRepository $electoralAreas;
 
     /**
+     * Shared CAPTCHA service.
+     *
+     * @var CaptchaService
+     */
+    private CaptchaService $captcha;
+
+    /**
      * Template path.
      *
      * @var string
@@ -71,10 +79,12 @@ class RepFormController
     public function __construct(
         RepService $reps,
         ElectoralAreaRepository $electoralAreas,
-        ?string $templatePath = null
+        ?string $templatePath = null,
+        ?CaptchaService $captcha = null
     ) {
         $this->reps = $reps;
         $this->electoralAreas = $electoralAreas;
+        $this->captcha = $captcha ?? new CaptchaService();
         $this->templatePath = $templatePath
             ?? dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'rep-form.php';
     }
@@ -93,6 +103,7 @@ class RepFormController
         $formAction = self::ACTION;
         $nonceAction = self::NONCE_ACTION;
         $nonceField = self::NONCE_FIELD;
+        $captchaWidget = $this->captcha->renderWidget('civic-rep-form');
 
         unset($atts);
 
@@ -122,6 +133,11 @@ class RepFormController
 
         $values = $this->sanitizeRequestValues();
         $errors = $this->validateValues($values);
+        $captcha = $this->captcha->validateRequest($_POST);
+
+        if (empty($captcha['success'])) {
+            $errors['captcha'] = $this->captcha->failureMessage($captcha);
+        }
 
         if (empty($errors)) {
             $upload = $this->handleImageUpload();
@@ -134,7 +150,11 @@ class RepFormController
         }
 
         if (!empty($errors)) {
-            return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
+            $message = isset($errors['captcha'])
+                ? $errors['captcha']
+                : 'Please check the highlighted fields.';
+
+            return $this->buildResponse(true, false, $message, $values, $errors, 'validation_failed');
         }
     
         $result = $this->reps->submitRep($values);

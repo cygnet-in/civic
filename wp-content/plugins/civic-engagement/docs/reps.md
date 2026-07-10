@@ -34,27 +34,30 @@ Users can submit civic issues, requests, or complaints.
    * details
 3. User optionally uploads image.
 4. User optionally selects map location.
-5. User submits form.
+5. When CAPTCHA is enabled, user completes the shared Turnstile challenge.
+6. User submits form.
 
 ---
 
 # System Behavior
 
-1. Check whether email exists in civic_contacts.
+1. When CAPTCHA is enabled, validate the submitted Turnstile token before processing the representation.
 
-2. If exists:
+2. Check whether email exists in civic_contacts.
+
+3. If exists:
 
    * update latest contact details.
 
-3. If not:
+4. If not:
 
    * create new contact.
 
-4. Store snapshot data in civic_reps.
+5. Store snapshot data in civic_reps.
 
-5. If an image is provided, create one WordPress Media Library attachment and store its attachment ID on the representation.
+6. If an image is provided, create one WordPress Media Library attachment and store its attachment ID on the representation.
 
-6. Create civic_activities entry.
+7. Create civic_activities entry.
 
 ---
 
@@ -79,6 +82,7 @@ Admin can:
 * Public users cannot edit reps after submission.
 * Representations support one optional JPG, JPEG, PNG, or WebP image. The Media Library attachment ID is stored in `image_attachment_id`.
 * Public representation detail output excludes all contact snapshots.
+* CAPTCHA is handled through the shared `CaptchaService`; the representation workflow does not duplicate Turnstile rendering or verification logic.
 
 ---
 

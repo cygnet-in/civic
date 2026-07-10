@@ -30,6 +30,7 @@ use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Repositories\MediaRepository;
 use CivicPlatform\Repositories\ShortUrlRepository;
 use CivicPlatform\Services\ActivityService;
+use CivicPlatform\Services\CaptchaService;
 use CivicPlatform\Services\ContactService;
 use CivicPlatform\Services\MediaService;
 use CivicPlatform\Services\ShortUrlService;
@@ -89,7 +90,8 @@ class ThreadsModule
             new ThreadResponseForm(
                 $this->createThreadResponseService(),
                 new ThreadFieldRepository($this->wpdb),
-                new ElectoralAreaRepository($this->wpdb)
+                new ElectoralAreaRepository($this->wpdb),
+                $this->createCaptchaService()
             ),
             $this->createMediaService()
         );
@@ -232,6 +234,11 @@ class ThreadsModule
     private function createMediaService(): MediaService
     {
         return new MediaService(new MediaRepository($this->wpdb));
+    }
+
+    private function createCaptchaService(): CaptchaService
+    {
+        return new CaptchaService();
     }
 
     private function createShortUrlService(): ShortUrlService

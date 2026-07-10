@@ -50,6 +50,7 @@ The plugin owns:
 - canonical routing
 - short URLs
 - wp-admin operational screens
+- login/admin branding hooks
 - capabilities
 
 The theme owns:
@@ -173,6 +174,7 @@ Public forms should use:
 - `civic-form__actions`
 - `civic-form__message`
 - `civic-form__error`
+- `civic-form__captcha`
 
 Keep module-specific classes alongside shared classes:
 
@@ -187,6 +189,8 @@ Public request fields must remain namespaced:
 - `civic_rep[...]`
 - `civic_thread_response[...]`
 - `civic_event_registration[...]`
+
+Shared CAPTCHA handling belongs in `CaptchaService`. Representation submission, Consultation responses, and Event registrations render the shared Cloudflare Turnstile widget and validate the submitted token before processing when CAPTCHA is enabled.
 
 ## Statistics Component Conventions
 
@@ -253,6 +257,10 @@ Preserve:
 - admin page slugs where practical
 - module-specific CSS hooks
 
+Login and admin branding are implemented in `DashboardAdmin`. `/civic-admin` should remain a lightweight redirect into normal WordPress authentication rather than a separate authentication system. Civic admin headers should remain scoped to Civic Platform admin page slugs.
+
+The Civic admin header is fixed and includes the platform title, plugin version, Documentation action and a Visit Website action. System-level pages are grouped under the System menu; Documentation is the System landing page and Security remains available as `civic-security-settings` under System.
+
 When adding shared classes, add them alongside existing classes rather than replacing existing hooks.
 
 ## Preferred Development Workflow
@@ -297,6 +305,6 @@ Avoid:
 
 Pending Version 1.0 work is tracked in `docs/release-readiness.md`.
 
-Do not describe a pending item as implemented until the source code exists and has been reviewed. Current pending items include CAPTCHA integration, final public UI polish, login/admin branding, `/civic-admin` login URL support, and a sidebar representation prompt widget.
+Do not describe a pending item as implemented until the source code exists and has been reviewed. Current pending items include final public UI polish and a sidebar representation prompt widget.
 
 Active/Archived lifecycle rules for consultations, events, and schedules are documented in `docs/release-readiness.md` and the relevant module documents. Those rules are documentation source-of-truth for future implementation.

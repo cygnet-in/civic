@@ -1,0 +1,288 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CivicPlatform\Modules\Threads\Frontend;
+
+use CivicPlatform\Helpers\DateHelper;
+use CivicPlatform\Core\CanonicalSlugRouter;
+use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Media\Frontend\MediaRenderer;
+use CivicPlatform\Services\MediaService;
+
+/**
+ * Registers and renders the public threads listing shortcode.
+ *
+ * Rendering remains lightweight and data access is delegated to the thread
+ * repository.
+ */
+class ThreadsListShortcode
+{
+    /**
+     * Thread repository.
+     *
+     * @var ThreadRepository
+     */
+    private ThreadRepository $threads;
+
+    /**
+     * Date helper.
+     *
+     * @var DateHelper
+     */
+    private DateHelper $dates;
+
+    private MediaService $media;
+
+    /**
+     * @param ThreadRepository $threads Thread repository.
+     * @param DateHelper $dates Date helper.
+     */
+    public function __construct(ThreadRepository $threads, DateHelper $dates, MediaService $media)
+    {
+        $this->threads = $threads;
+        $this->dates = $dates;
+        $this->media = $media;
+    }
+
+    /**
+     * Register the public threads shortcode.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        add_shortcode('civic_threads', [$this, 'render']);
+    }
+
+    /**
+     * Render published public consultations.
+     *
+     * @param mixed $atts Shortcode attributes.
+     * @return string Rendered shortcode output.
+     */
+    public function render($atts = []): string
+    {
+        if (!is_array($atts)) {
+            $atts = [];
+        }
+
+        $atts = shortcode_atts(
+            [
+                'detail_page_id' => 0,
+                'limit' => '',
+                'pagination' => '',
+            ],
+            $atts,
+            'civic_threads'
+        );
+
+        $page = $this->currentPage();
+        $perPage = $this->perPage($atts);
+        $paginationEnabled = $this->paginationEnabled($atts);
+        $detailPageId = absint($atts['detail_page_id']);
+        $result = $this->threads->getPublicActiveThreads(
+            [
+                'page' => $page,
+                'per_page' => $perPage,
+                'orderby' => 'created_at',
+                'order' => 'DESC',
+            ]
+        );
+        $items = isset($result['items']) && is_array($result['items']) ? $result['items'] : [];
+        $totalPages = isset($result['total_pages']) ? (int) $result['total_pages'] : 1;
+
+        ob_start();
+
+        echo '<div class="civic-threads ' . esc_attr($this->cardsWrapperClass($paginationEnabled)) . '">';
+
+        if (empty($items)) {
+            echo '<p class="civic-threads__empty">' . esc_html__('No consultations are currently available.', 'civic-engagement') . '</p>';
+        }
+
+        foreach ($items as $thread) {
+            $this->renderThread($thread, $detailPageId);
+        }
+
+        if ($paginationEnabled) {
+            $this->renderPagination($page, $totalPages);
+        }
+
+        echo '</div>';
+
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * Render a single consultation summary.
+     *
+     * @param array<string, mixed> $thread Thread row.
+     * @param int $detailPageId Detail page ID.
+     * @return void
+     */
+    private function renderThread(array $thread, int $detailPageId): void
+    {
+        $threadId = isset($thread['id']) ? (int) $thread['id'] : 0;
+
+        echo '<article class="civic-card civic-list-card civic-threads__item">';
+        echo MediaRenderer::listThumbnail($this->media->getPrimary('consultation', $threadId));
+        echo '<div class="civic-card__content">';
+        echo '<h2 class="civic-card__title civic-threads__title">' . esc_html((string) ($thread['title'] ?? '')) . '</h2>';
+
+        if (!empty($thread['summary'])) {
+            echo '<p class="civic-card__summary civic-threads__summary">' . esc_html((string) $thread['summary']) . '</p>';
+        }
+
+        echo '<div class="civic-card__footer">';
+        echo '<span  class="civic-card__date civic-card__left civic-threads__date">📅 ' . esc_html($this->dates->formatDate((string) ($thread['created_at'] ?? ''))) . '</span>';
+
+        echo '<span class="civic-card__actions civic-card__right civic-threads__actions">';
+        echo '<a href="' . esc_url($this->readMoreUrl((string) ($thread['slug'] ?? ''), $threadId, $detailPageId)) . '">' . esc_html__('More →', 'civic-engagement') . '</a>';
+        echo '</span>';
+        echo '</div>';
+        echo '</div>';
+        echo '</article>';
+    }
+
+    /**
+     * Build a placeholder read-more URL.
+     *
+     * @param int $threadId Thread ID.
+     * @param int $detailPageId Detail page ID.
+     * @return string Read-more URL.
+     */
+    private function readMoreUrl(string $slug, int $threadId, int $detailPageId): string
+    {
+        if ('' !== $slug) {
+            return CanonicalSlugRouter::url('consultation', $slug);
+        }
+
+        return add_query_arg(
+            ['thread_id' => $threadId],
+            $this->detailBaseUrl($detailPageId)
+        );
+    }
+
+    /**
+     * Resolve the detail page base URL.
+     *
+     * @param int $detailPageId Detail page ID.
+     * @return string Detail base URL or current page fallback.
+     */
+    private function detailBaseUrl(int $detailPageId): string
+    {
+        if ($detailPageId > 0) {
+            $permalink = get_permalink($detailPageId);
+
+            if (is_string($permalink) && '' !== $permalink) {
+                return $permalink;
+            }
+        }
+
+        $fallback = get_permalink();
+
+        return is_string($fallback) ? $fallback : '';
+    }
+
+    /**
+     * Render lightweight query-string pagination.
+     *
+     * @param int $page Current page.
+     * @param int $totalPages Total pages.
+     * @return void
+     */
+    private function renderPagination(int $page, int $totalPages): void
+    {
+        if ($totalPages <= 1) {
+            return;
+        }
+
+        echo '<nav class="civic-threads__pagination" aria-label="' . esc_attr__('Consultation pages', 'civic-engagement') . '">';
+
+        if ($page > 1) {
+            echo '<a class="civic-threads__pagination-previous" href="' . esc_url($this->pageUrl($page - 1)) . '">' . esc_html__('Previous', 'civic-engagement') . '</a>';
+        }
+
+        echo '<span class="civic-threads__pagination-current">' . esc_html(
+            sprintf(
+                /* translators: 1: current page, 2: total pages */
+                __('Page %1$d of %2$d', 'civic-engagement'),
+                $page,
+                $totalPages
+            )
+        ) . '</span>';
+
+        if ($page < $totalPages) {
+            echo '<a class="civic-threads__pagination-next" href="' . esc_url($this->pageUrl($page + 1)) . '">' . esc_html__('Next', 'civic-engagement') . '</a>';
+        }
+
+        echo '</nav>';
+    }
+
+    /**
+     * Build a pagination URL.
+     *
+     * @param int $page Page number.
+     * @return string Page URL.
+     */
+    private function pageUrl(int $page): string
+    {
+        return add_query_arg(
+            ['thread_page' => max(1, $page)],
+            get_permalink()
+        );
+    }
+
+    /**
+     * Get sanitized current frontend page number.
+     *
+     * @return int Current page.
+     */
+    private function currentPage(): int
+    {
+        if (!isset($_GET['thread_page'])) {
+            return 1;
+        }
+
+        $page = wp_unslash($_GET['thread_page']);
+
+        if (is_array($page) || is_object($page)) {
+            return 1;
+        }
+
+        return max(1, absint($page));
+    }
+
+    /**
+     * Resolve shortcode page size.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     * @return int Page size.
+     */
+    private function perPage(array $atts): int
+    {
+        $limit = isset($atts['limit']) ? absint($atts['limit']) : 0;
+
+        return $limit > 0 ? $limit : 20;
+    }
+
+    /**
+     * Resolve whether pagination should be displayed.
+     *
+     * @param array<string, mixed> $atts Shortcode attributes.
+     * @return bool True when pagination is enabled.
+     */
+    private function paginationEnabled(array $atts): bool
+    {
+        if ('' !== (string) ($atts['pagination'] ?? '')) {
+            return filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return '' === (string) ($atts['limit'] ?? '') || absint($atts['limit']) <= 0;
+    }
+
+    private function cardsWrapperClass(bool $paginationEnabled): string
+    {
+        return $paginationEnabled ? 'civic-cards-main-list' : 'civic-cards-home-list';
+    }
+}

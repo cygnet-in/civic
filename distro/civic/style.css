@@ -1,0 +1,1379 @@
+/*
+ Theme Name:   Civic Management System
+ Description:  Theme for CIVIC Management System
+ Author:       Cygnet Informatics
+ Template:     generatepress
+ Version:      1.0.0
+*/
+
+/* ======================================================
+   Font Face Declarations
+====================================================== */
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../civic/assets/fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../civic/assets/fonts/Inter-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../civic/assets/fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ======================================================
+   Design System
+====================================================== */
+
+:root {
+    --civic-primary: #103f66;
+    --civic-primary-dark: #0b2f4d;
+    --civic-secondary: #1e73be;
+    --civic-accent: #c5161d;
+
+    --civic-primary-hover: #1e73be;
+
+    --civic-bg: #f3f6fa;
+    --civic-bg-soft: #f8fafc;
+    --civic-surface: #ffffff;
+
+    --civic-text: #17324d;
+    --civic-text-light: #667085;
+    --civic-muted: #667085;
+    --civic-border: #dfe7ef;
+
+    --civic-radius: 22px;
+    --civic-radius-small: 14px;
+    --civic-shadow: 0 16px 40px rgba(16, 63, 102, .10);
+    --civic-shadow-soft: 0 8px 28px rgba(16, 63, 102, .07);
+
+    --civic-max-width: 1280px;
+    --civic-font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    font-family: var(--civic-font);
+    color: var(--civic-text);
+}
+
+a {
+    text-decoration: none !important;
+}
+
+/* ======================================================
+   GeneratePress / Global Refinements
+====================================================== */
+
+.site-header {
+    background: #ffffff;
+    border-bottom: 1px solid rgba(16, 63, 102, .08);
+    box-shadow: 0 2px 12px rgba(16, 63, 102, .04);
+}
+
+.inside-header {
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+.main-title a {
+    color: var(--civic-primary);
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: -.03em;
+    text-decoration: none;
+}
+
+.main-navigation {
+    background: transparent;
+}
+
+.main-navigation .main-nav ul li a {
+    color: var(--civic-text);
+    font-weight: 600;
+    font-size: .95rem;
+    padding-left: 18px;
+    padding-right: 18px;
+    text-decoration: none;
+}
+
+.main-navigation .main-nav ul li:hover > a,
+.main-navigation .main-nav ul li.current-menu-item > a {
+    color: var(--civic-accent);
+}
+
+.main-navigation .main-nav ul li.current-menu-item > a {
+    position: relative;
+}
+
+.main-navigation .main-nav ul li.current-menu-item > a::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 12px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--civic-accent);
+}
+
+.home .inside-article {
+    padding: 0;
+}
+
+.home .site-content {
+    display: block;
+}
+
+.home .content-area {
+    width: 100%;
+}
+
+.home .sidebar {
+    display: none;
+}
+
+/* ======================================================
+   Civic Home Base
+====================================================== */
+
+.civic-home {
+    background: var(--civic-bg);
+}
+
+.civic-home__container {
+    max-width: var(--civic-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.civic-home-section {
+    padding: 82px 0;
+}
+
+.civic-home-section__header {
+    max-width: 760px;
+    margin-bottom: 36px;
+}
+
+.civic-home-section__eyebrow,
+.civic-home-hero__eyebrow {
+    margin: 0 0 12px;
+    color: var(--civic-accent);
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+}
+
+.civic-home-section__title {
+    margin: 0;
+    color: var(--civic-primary);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+.civic-home-section__description {
+    max-width: 680px;
+    margin: 14px 0 0;
+    color: var(--civic-muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+/* ======================================================
+   Buttons
+====================================================== */
+
+.civic-home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform .2s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.civic-home-btn:hover {
+    transform: translateY(-2px);
+}
+
+.civic-home-btn--primary {
+    background: var(--civic-accent);
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(197, 22, 29, .22);
+}
+
+.civic-home-btn--primary:hover {
+    background: #991b1b;
+    color: #fff;
+}
+
+.civic-home-btn--secondary {
+    background: #fff;
+    color: var(--civic-primary);
+    border: 1px solid rgba(16, 63, 102, .22);
+}
+
+.civic-home-btn--secondary:hover {
+    background: var(--civic-primary);
+    color: #fff;
+}
+
+.civic-home-btn--light {
+    background: #fff;
+    color: var(--civic-primary);
+}
+
+.civic-home-btn--light:hover {
+    background: var(--civic-accent);
+    color: #fff;
+}
+
+/* ======================================================
+   Hero
+====================================================== */
+
+.civic-home-hero {
+    min-height: 720px;
+    display: flex;
+    align-items: center;
+    padding: 90px 0;
+    background:
+        radial-gradient(circle at 8% 18%, rgba(197, 22, 29, .10), transparent 30%),
+        radial-gradient(circle at 86% 12%, rgba(30, 115, 190, .18), transparent 34%),
+        linear-gradient(135deg, #ffffff 0%, #edf5fb 100%);
+}
+
+.civic-home-hero__inner {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 64px;
+    align-items: center;
+    min-height: 560px;
+}
+
+.civic-home-hero__title {
+    margin: 0 0 14px;
+    color: var(--civic-primary);
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: .95;
+    font-weight: 800;
+    letter-spacing: -.06em;
+}
+
+.civic-home-hero__tagline {
+    max-width: 660px;
+    margin: 0 0 20px;
+    color: var(--civic-text);
+    font-size: clamp(1.35rem, 2.5vw, 2rem);
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.civic-home-hero__text {
+    max-width: 650px;
+    margin: 0 0 30px;
+    color: var(--civic-muted);
+    font-size: 1.08rem;
+    line-height: 1.75;
+}
+
+.civic-home-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.civic-home-hero__highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    list-style: none;
+    padding: 0;
+    margin: 26px 0 0;
+}
+
+.civic-home-hero__highlights li {
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(16, 63, 102, .08);
+    color: var(--civic-primary);
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.civic-home-hero__photo-wrap {
+    position: relative;
+}
+
+.civic-home-hero__photo-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 24px -18px -18px 24px;
+    border-radius: 34px;
+    background: var(--civic-accent);
+    opacity: .14;
+}
+
+.civic-home-hero__photo {
+    position: relative;
+    width: 100%;
+    height: 560px;
+    max-height: 560px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 34px;
+    box-shadow: var(--civic-shadow);
+}
+
+/* ======================================================
+   Service / Quick Action Cards
+====================================================== */
+
+.civic-home-section--quick {
+    background: var(--civic-bg);
+}
+
+.civic-home-services {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 26px;
+}
+
+.civic-home-service {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    padding: 30px;
+    background: #fff;
+    border: 1px solid var(--civic-border);
+    border-radius: 24px;
+    box-shadow: var(--civic-shadow-soft);
+    text-decoration: none;
+    overflow: hidden;
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.civic-home-service::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 5px;
+    background: var(--civic-secondary);
+    opacity: .95;
+}
+
+.civic-home-service:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 18px 45px rgba(16, 63, 102, .14);
+    border-color: rgba(16, 63, 102, .18);
+}
+
+.civic-home-service__icon {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 24px;
+    border-radius: 22px;
+    background-color: #eef5fb;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 44px;
+    transition: transform .22s ease;
+}
+
+.civic-home-service:hover .civic-home-service__icon {
+    transform: scale(1.08) rotate(-2deg);
+}
+
+.civic-home-service__label {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: var(--civic-accent);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.civic-home-service strong {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--civic-primary);
+    font-size: 1.35rem;
+    line-height: 1.25;
+    font-weight: 800;
+}
+
+.civic-home-service small {
+    display: block;
+    color: var(--civic-muted);
+    font-size: .98rem;
+    line-height: 1.65;
+}
+
+.civic-home-service__link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 22px;
+    color: var(--civic-primary);
+    font-weight: 800;
+    font-size: .92rem;
+    transition: transform .22s ease, color .22s ease;
+}
+
+.civic-home-service:hover .civic-home-service__link {
+    color: var(--civic-accent);
+    transform: translateX(4px);
+}
+
+.civic-home-service--rep::before {
+    background: var(--civic-accent);
+}
+
+.civic-home-service--consultation::before {
+    background: #1e73be;
+}
+
+.civic-home-service--event::before {
+    background: #15803d;
+}
+
+.civic-home-service--schedule::before {
+    background: #d97706;
+}
+
+.civic-home-service--rep .civic-home-service__icon {
+    background-color: #fef2f2;
+    background-image: url("assets/images/icons/representation.png");
+}
+
+.civic-home-service--consultation .civic-home-service__icon {
+    background-color: #eef5fb;
+    background-image: url("assets/images/icons/consultation.png");
+}
+
+.civic-home-service--event .civic-home-service__icon {
+    background-color: #ecfdf3;
+    background-image: url("assets/images/icons/event.png");
+}
+
+.civic-home-service--schedule .civic-home-service__icon {
+    background-color: #fff7ed;
+    background-image: url("assets/images/icons/schedule.png");
+}
+
+/* ======================================================
+   About
+====================================================== */
+
+.civic-home-about {
+    background: #fff;
+}
+
+.civic-home-about__inner {
+    display: grid;
+    grid-template-columns: .9fr 1.1fr;
+    gap: 64px;
+    align-items: center;
+}
+
+.civic-home-about__photo {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: 28px;
+    box-shadow: var(--civic-shadow);
+}
+
+.civic-home-about__content p {
+    color: var(--civic-muted);
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+
+.civic-home-about__credentials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.civic-home-about__credentials span {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #eef5fb;
+    color: var(--civic-primary);
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.civic-home-about__content > h2 + p {
+    font-size:1.15rem;
+    line-height:1.8;
+    color:#3f4b59;
+    margin-top: 16px;
+}
+
+/* ======================================================
+   Home Statistics Section
+====================================================== */
+
+.civic-home-stats {
+    padding: 86px 0;
+    background:
+        radial-gradient(circle at 10% 20%, rgba(197, 22, 29, .12), transparent 30%),
+        linear-gradient(135deg, var(--civic-primary) 0%, var(--civic-primary-dark) 100%);
+    color: #fff;
+}
+
+.civic-home-stats .civic-home-section__eyebrow {
+    color: #fca5a5;
+}
+
+.civic-home-stats .civic-home-section__title {
+    color: #fff;
+}
+
+.civic-home-stats .civic-home-section__description {
+    color: rgba(255,255,255,.78);
+}
+
+.civic-stats-grid {
+    display: block;
+}
+
+.civic-statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(220px, 1fr));
+    gap: 28px;
+}
+
+.civic-stat-card {
+    position: relative;
+    min-height: 178px;
+    padding: 32px 26px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 22px;
+    box-shadow: 0 18px 45px rgba(0,0,0,.14);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    transition: transform .22s ease, background .22s ease, border-color .22s ease;
+}
+
+.civic-stat-card::before {
+    content: "";
+    position: absolute;
+    right: -24px;
+    top: -24px;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.10);
+}
+
+.civic-stat-card:hover {
+    transform: translateY(-6px);
+    background: rgba(255,255,255,.14);
+    border-color: rgba(255,255,255,.28);
+}
+
+.civic-stat-card__number {
+    position: relative;
+    margin-bottom: 14px;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -.05em;
+    color: #fff;
+    font-size:4.2rem;
+}
+
+.civic-stat-card__title {
+    position: relative;
+    max-width: 190px;
+    color: rgba(255,255,255,.86);
+    font-size: 1rem;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+/* ======================================================
+   Latest Activity
+====================================================== */
+
+.civic-home-section--activity {
+    background: var(--civic-bg);
+}
+
+.civic-home-latest {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.civic-home-latest__block {
+    background: #fff;
+    border: 1px solid var(--civic-border);
+    border-radius: var(--civic-radius);
+    padding: 24px;
+    box-shadow: var(--civic-shadow-soft);
+}
+
+.civic-home-latest__block h3 {
+    margin: 0 0 18px;
+    color: var(--civic-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.civic-home-latest .civic-threads,
+.civic-home-latest .civic-events,
+.civic-home-latest .civic-schedules {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    gap: 14px;
+}
+
+.civic-home-latest .civic-card {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 14px;
+    padding: 16px;
+    margin: 0;
+    border-radius: 14px;
+    box-shadow: none;
+}
+
+.civic-home-latest .civic-card__media {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    background-size: 30px;
+}
+
+.civic-home-latest .civic-card__title {
+    font-size: .95rem;
+    line-height: 1.35;
+}
+
+.civic-home-latest .civic-card__summary,
+.civic-home-latest .civic-card__description,
+.civic-home-latest .civic-card__details {
+    display: none;
+}
+
+/* Keep thread summaries visible only when specifically rendered as paragraph in compact homepage cards */
+.civic-home-latest p.civic-threads__summary {
+    display: inline-block !important;
+    line-height: 1.35 !important;
+    color: var(--civic-text-light);
+    font-size: .88rem;
+    margin-bottom: 10px;
+}
+
+.civic-home-latest .civic-card__status {
+    display: inline-block;
+    padding: 0;
+    border-radius: 6px;
+    background: transparent;
+    font-weight: 500;
+    font-size: .68rem;
+    margin: 0 0 8px;
+}
+
+.civic-home-latest .civic-card__actions a {
+    padding: 8px 13px;
+    font-size: .85rem;
+}
+
+.civic-home-latest__view-all {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 20px;
+    color: var(--civic-accent);
+    font-size: .92rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform .2s ease, color .2s ease;
+}
+
+.civic-home-latest__view-all:hover {
+    color: var(--civic-primary);
+    transform: translateX(4px);
+}
+
+/* ======================================================
+   CTA / Footer Band
+====================================================== */
+
+.civic-home-cta {
+    margin-top: 70px;
+    background: var(--civic-primary);
+    color: #fff;
+    padding: 90px 0;
+}
+
+.civic-home-cta__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    max-width: var(--civic-max-width);
+}
+
+.civic-home-cta h2 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 2rem;
+}
+
+.civic-home-cta p {
+    margin: 0;
+    color: rgba(255,255,255,.82);
+}
+
+/* ======================================================
+   Responsive
+====================================================== */
+
+@media (max-width: 1100px) {
+    .civic-home-services {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 980px) {
+    .civic-home-hero__inner,
+    .civic-home-about__inner {
+        grid-template-columns: 1fr;
+    }
+
+    .civic-home-latest {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .civic-statistics {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .civic-home__container {
+        padding: 0 16px;
+    }
+
+    .civic-home-hero,
+    .civic-home-section,
+    .civic-home-stats {
+        padding: 52px 0;
+        min-height: auto;
+    }
+
+    .civic-home-hero__photo {
+        height: auto;
+        max-height: none;
+    }
+
+    .civic-home-services,
+    .civic-home-latest,
+    .civic-statistics {
+        grid-template-columns: 1fr;
+    }
+
+    .civic-home-service {
+        min-height: auto;
+        padding: 26px;
+    }
+
+    .civic-home-cta__inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .civic-home-btn {
+        width: 100%;
+    }
+
+    .main-navigation .main-nav ul li.current-menu-item > a::after {
+        display: none;
+    }
+}
+
+/* ======================================================
+   Inner pages
+====================================================== */
+/* Inner page polish */
+
+body:not(.home) .site-content {
+    padding-top: 28px;
+    padding-bottom: 60px;
+}
+
+body:not(.home) .inside-article {
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(15, 61, 99, .06);
+}
+
+body:not(.home) .entry-title {
+    color: var(--civic-primary);
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    margin-bottom: 28px;
+}
+
+body:not(.home) .entry-content > p {
+    max-width: 760px;
+    color: var(--civic-text);
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+
+/* Form refinement */
+
+.civic-form {
+    margin-top: 36px;
+    border-radius: 24px;
+    border: 1px solid var(--civic-border);
+    box-shadow: 0 14px 36px rgba(15, 61, 99, .08);
+}
+
+.civic-form input,
+.civic-form select,
+.civic-form textarea {
+    background: #f8fafc;
+    border: 1px solid #dfe7ef;
+    border-radius: 10px;
+    min-height: 46px;
+}
+
+.civic-form textarea {
+    min-height: 130px;
+}
+
+.civic-form input:focus,
+.civic-form select:focus,
+.civic-form textarea:focus {
+    background: #fff;
+    border-color: var(--civic-primary);
+    box-shadow: 0 0 0 3px rgba(30,115,190,.14);
+    outline: none;
+}
+
+/* Consent group */
+
+.civic-rep-form fieldset {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 18px 20px;
+    border: 1px solid var(--civic-border);
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.civic-rep-form fieldset legend {
+    font-weight: 800;
+    color: var(--civic-primary);
+    padding: 0 8px;
+}
+
+.civic-rep-form fieldset label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 22px 0 0;
+}
+
+/* Sidebar widgets */
+
+.sidebar .widget {
+    border-radius: 20px;
+    border: 1px solid var(--civic-border);
+    box-shadow: 0 10px 28px rgba(15, 61, 99, .07);
+}
+
+.sidebar .widget-title {
+    color: var(--civic-primary);
+    font-weight: 800;
+    border-bottom: 1px solid var(--civic-border);
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+.civic-widget__item {
+    padding: 12px 0;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.civic-widget__item:last-child {
+    border-bottom: 0;
+}
+
+.civic-widget__item a {
+    color: var(--civic-primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.civic-widget__item a:hover {
+    color: var(--civic-accent);
+}
+
+.civic-widget__view-all a {
+    display: inline-flex;
+    padding: 9px 15px;
+    border: 1px solid var(--civic-primary);
+    border-radius: 999px;
+    color: var(--civic-primary);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.civic-widget__view-all a:hover {
+    background: var(--civic-primary);
+    color: #fff;
+}
+
+
+.civic-list-card {
+    display: flex;
+}
+
+.civic-thread-detail__content,
+.civic-event-detail__content,
+.civic-schedule-detail__content,
+.civic-thread-response {
+    display: block;
+}
+
+/* ======================================================
+   Civic Card Refinements
+====================================================== */
+
+
+.civic-card__meta {
+    font-size: 0.85em;
+
+}
+.civic-card__meta p {
+    margin-bottom:4px;
+}
+
+.civic-card__footer {
+    font-size: 0.8em;
+}
+
+a.civic-home-latest__view-all {
+    float: right;
+    padding: 8px 12px;
+    color: var(--civic-primary-dark);
+}
+
+.civic-cards-main-list .civic-card__media {
+    background-image: url("assets/images/icons/representation.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.civic-schedules__item .civic-card__media {
+    background-image: url("assets/images/icons/schedule.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.civic-events__item .civic-card__media {
+    background-image: url("assets/images/icons/event.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.civic-home-latest__block {
+    background-image: linear-gradient(var(--civic-primary-dark), #fff);
+}
+
+.civic-home-latest__block h3 {
+    color: #fff;
+}
+
+.civic-home-latest__block article {
+    background-color: #fff;
+    margin-bottom: 12px !important;
+}
+
+.civic-card__status--closed {
+    color: var(--civic-accent);
+}
+
+.civic-card__status--open {
+    color: green;
+}
+
+h2.civic-card__title {
+    font-weight: 600;
+}
+
+.civic-card__right {
+    float: right;
+}
+
+.civic-cards-main-list .civic-card__details, .civic-cards-main-list .civic-card__summary {
+    margin-bottom: 10px;
+}
+
+/* Base card styling */
+.civic-cards-main-list > article {
+    background: #fff;
+    border: 1px solid #e6ebf1;
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(18, 38, 63, 0.05);
+    overflow: hidden;
+    transition: all 0.25s ease;
+    border-top: 5px solid transparent;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Hover effect */
+.civic-cards-main-list > article:hover {
+    box-shadow: 0 10px 28px rgba(18, 38, 63, 0.10);
+    transform: translateY(-2px);
+}
+
+.civic-cards-main-list > article:nth-child(4n + 1) {
+    border-top: 5px solid #c62828;
+}
+
+.civic-cards-main-list > article:nth-child(4n + 2) {
+    border-top: 5px solid #1976d2;
+}
+
+.civic-cards-main-list > article:nth-child(4n + 3) {
+    border-top: 5px solid #2e7d32;
+}
+
+.civic-cards-main-list > article:nth-child(4n + 4) {
+    border-top: 5px solid #ef8f00;
+}
+
+.civic-cards-main-list .civic-card__media {
+    background-image: url("assets/images/icons/representation.png") !important;
+}
+
+.civic-cards-main-list .civic-card__media {
+    background-image: url("assets/images/icons/schedule.png") !important;
+    
+}
+
+.civic-cards-main-list .civic-card__media {
+    background-image: url("assets/images/icons/event.png") !important;
+}
+
+.civic-cards-main-list .civic-card__media {
+    width: 100px;
+    margin-right: 10px;
+    background-position: top center;
+    background-size: contain !important;
+    background-repeat: no-repeat;
+}
+
+.civic-event-detail__meta, .civic-thread-detail__meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1rem;
+    margin: 0;
+}
+
+.civic-card__meta dt {
+    font-weight: 600;
+    color: #666;
+    margin: 0;
+}
+
+.civic-card__meta dd {
+    margin: 0;
+    color: #222;
+}
+
+.civic-card-main-details .civic-card__meta, .civic-card-main-details .civic-card__summary, .civic-card-main-details .civic-card__description {
+    margin-bottom: 10px;
+}
+
+.civic-card-main-details .civic-media-gallery {
+    margin-bottom: 20px;
+}
+
+.civic-card__title {
+    font-size: 700;
+    color: var(--civic-primary);
+}
+
+/*----------------------------------------------------------------
+   Header styling
+-----------------------------------------------------------------*/
+/* Header branding */
+.site-header .site-branding {
+    position: relative;
+    z-index: 1;
+}
+
+.site-header .site-branding::before {
+    content: "";
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--civic-accent);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.site-header .main-title {
+    margin: 0;
+}
+
+.site-header .main-title a {
+    color: var(--civic-primary);
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: -.04em;
+    text-shadow:
+        1px 1px 0 #fff,
+        0 2px 8px rgba(0,0,0,.08);
+}
+.site-header {
+    background: linear-gradient(135deg, #ffffff 0%, #fffdfd 65%, #fff5f5 100%);
+    border-bottom: 1px solid rgba(197, 22, 29, .08);
+    box-shadow: 0 8px 24px rgba(18, 43, 70, .05);
+}
+
+.site-header .inside-header {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.main-navigation,
+.main-navigation ul ul {
+    background: transparent;
+}
+
+.main-navigation .main-nav ul li a {
+    color: var(--civic-primary);
+    font-weight: 800;
+    font-size: .92rem;
+    padding: 10px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+}
+
+.main-navigation .main-nav ul li:not([class*="current-menu-"]):hover > a {
+    background: #eef5fb;
+    color: var(--civic-primary);
+}
+
+.main-navigation .main-nav ul li[class*="current-menu-"] > a {
+    background: #fff4f4;
+    color: var(--civic-accent);
+}
+
+.main-navigation .main-nav ul li[class*="current-menu-"] > a::after {
+    display: none;
+}
+
+/* =====================================================
+   Inner Page Layout
+   Applies to all standard pages except the homepage
+===================================================== */
+
+/*
+ * #page currently has GeneratePress's grid-container class,
+ * which restricts it to the theme's maximum width.
+ * Make #page full width so the background spans the screen.
+ */
+body:not(.home) #page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background:
+        radial-gradient(
+            circle at 8% 10%,
+            rgba(197, 22, 29, .055),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 92% 8%,
+            rgba(30, 115, 190, .09),
+            transparent 32%
+        ),
+        linear-gradient(
+            135deg,
+            #f8fafc 0%,
+            #f1f6fa 52%,
+            #edf4fa 100%
+        );
+}
+
+/*
+ * Keep the actual page content centred.
+ * Your HTML has:
+ * #page > .site-content > .content-area + .widget-area
+ */
+body:not(.home) #page > .site-content {
+    width: min(1280px, calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: 58px;
+    padding-bottom: 76px;
+    box-sizing: border-box;
+    align-items: flex-start;
+}
+
+/* Do not turn the column wrappers themselves into cards */
+body:not(.home) .content-area,
+body:not(.home) .widget-area.sidebar,
+body:not(.home) .inside-right-sidebar {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Main white content panel */
+body:not(.home) .inside-article {
+    padding: clamp(34px, 4vw, 56px);
+    background: rgba(255, 255, 255, .97);
+    border: 1px solid rgba(15, 61, 99, .09);
+    border-radius: 26px;
+    box-shadow:
+        0 18px 48px rgba(15, 61, 99, .075);
+}
+
+/* Main page heading */
+body:not(.home) .entry-header {
+    margin-bottom: 30px;
+}
+
+body:not(.home) .entry-title {
+    margin: 0;
+    color: var(--civic-primary);
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -.045em;
+}
+
+/* Introductory page content */
+body:not(.home) .entry-content > p {
+    max-width: 850px;
+    color: var(--civic-text);
+    font-size: 1.04rem;
+    line-height: 1.78;
+}
+
+body:not(.home) .entry-content > p + p {
+    margin-top: 18px;
+}
+
+/* Sidebar widgets remain individual cards */
+body:not(.home) .inside-right-sidebar .widget {
+    margin-bottom: 24px;
+    padding: 28px;
+    background: rgba(255, 255, 255, .97);
+    border: 1px solid rgba(15, 61, 99, .09);
+    border-radius: 22px;
+    box-shadow:
+        0 14px 38px rgba(15, 61, 99, .07);
+}
+
+/* Remove GeneratePress/custom styling conflicts */
+body:not(.home) .sidebar .widget {
+    background-color: rgba(255, 255, 255, .97);
+}
+
+/* Sidebar heading */
+body:not(.home) .inside-right-sidebar .widget-title {
+    margin: 0 0 18px;
+    padding-bottom: 14px;
+    color: var(--civic-primary);
+    border-bottom: 1px solid var(--civic-border);
+    font-size: 1.18rem;
+    line-height: 1.3;
+    font-weight: 800;
+}
+
+/* Slightly improve the relationship between columns */
+@media (min-width: 769px) {
+    body:not(.home) .site-content .content-area {
+        width: 72%;
+        padding-right: 18px;
+    }
+
+    body:not(.home) .site-content .widget-area.is-right-sidebar {
+        width: 28%;
+        padding-left: 18px;
+    }
+}
+
+/* Tablet/mobile */
+@media (max-width: 768px) {
+    body:not(.home) #page > .site-content {
+        width: min(100% - 28px, 720px);
+        padding-top: 32px;
+        padding-bottom: 52px;
+    }
+
+    body:not(.home) .inside-article {
+        padding: 28px 22px;
+        border-radius: 20px;
+    }
+
+    body:not(.home) .inside-right-sidebar .widget {
+        padding: 24px 22px;
+        border-radius: 18px;
+    }
+}
+
+/* Sticky header */
+
+#masthead{
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    background: rgba(255,255,255,.88);
+
+    transition:
+        background .25s ease,
+        box-shadow .25s ease;
+}
+
+/* subtle divider */
+
+#masthead{
+    border-bottom:1px solid rgba(15,61,99,.08);
+}
+

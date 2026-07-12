@@ -104,8 +104,15 @@ Implemented behavior:
 * `/civic-admin` redirects through WordPress login with the Civic Dashboard as the redirect target
 * logged-in Civic users visiting `/civic-admin` are sent to the Civic Dashboard
 * logged-in non-Civic users visiting `/civic-admin` are sent to normal WordPress admin
+* Civic Managers who access `/wp-admin` are redirected to the Civic Dashboard
+* Administrators who access `/wp-admin` remain on the normal WordPress Dashboard
+* Administrators have a top-level Civic Admin menu item that opens the Civic Dashboard
+* standard WordPress admin pages show only the single top-level Civic Admin entry from the Civic Platform
+* Civic admin pages hide standard WordPress operational menus and show Civic Platform menus
 * Civic admin pages display a fixed branded Civic Platform header with logo, title, plugin version, Documentation action and "Visit Website" action
+* the fixed Civic header displays a "WP Admin" action only to Administrators
 * the branded header is scoped to Civic Platform admin pages only
+* the standard WordPress admin bar is hidden only on Civic Platform admin pages
 * the "Visit Website" action opens the public site in a new browser tab
 
 ## Main Admin Sections

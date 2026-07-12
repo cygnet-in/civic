@@ -5,26 +5,36 @@ function civic_is_civic_manager_user() {
     return $user && in_array( 'civic_manager', (array) $user->roles, true );
 }
 
+function civic_is_civic_admin_page() {
+    if ( ! is_admin() || empty( $_GET['page'] ) ) {
+        return false;
+    }
+
+    $page = sanitize_key( wp_unslash( $_GET['page'] ) );
+
+    return 0 === strpos( $page, 'civic-' );
+}
+
 add_filter( 'admin_body_class', function( $classes ) {
-    if ( civic_is_civic_manager_user() ) {
+    if ( civic_is_civic_admin_page() ) {
         $classes .= ' civic-manager-admin';
     }
 
     return $classes;
 } );
 
-add_action( 'admin_enqueue_scripts', function() {
-    if ( ! civic_is_civic_manager_user() ) {
-        return;
-    }
+// add_action( 'admin_enqueue_scripts', function() {
+//     if ( ! civic_is_civic_admin_page() ) {
+//         return;
+//     }
 
-    wp_enqueue_style(
-        'civic-manager-admin',
-        get_stylesheet_directory_uri() . '/assets/css/civic-manager-admin.css',
-        array(),
-        '1.0.0'
-    );
-} );
+//     wp_enqueue_style(
+//         'civic-manager-admin',
+//         get_stylesheet_directory_uri() . '/assets/css/civic-manager-admin.css',
+//         array(),
+//         '1.0.0'
+//     );
+// } );
 
 add_filter( 'generate_copyright', 'civic_generate_copyright' );
 

@@ -96,7 +96,10 @@ Admin/login branding:
 
 - `DashboardAdmin` brands the WordPress login screen using `assets/css/civic-login.css`.
 - `/civic-admin` redirects into the normal WordPress authentication flow with the Civic Dashboard as the target.
-- Civic admin pages receive a fixed branded header with the Civic Platform logo, dynamic plugin version, Documentation action, and "Visit Website" action.
+- Civic Managers who access `/wp-admin` are redirected to the Civic Dashboard.
+- WordPress Administrators remain on the normal WordPress Dashboard and access Civic tools through the top-level Civic Admin menu.
+- Civic admin pages receive a fixed branded header with the Civic Platform logo, dynamic plugin version, Documentation action, Administrator-only "WP Admin" action, and "Visit Website" action.
+- `DashboardAdmin` treats admin pages with a `civic-` page slug as Civic Platform pages and loads both plugin `assets/css/civic-admin.css` and theme `assets/css/civic-manager-admin.css` only for those pages.
 - The System admin group contains Documentation and Security.
 - `DocumentationPage` renders a lightweight Civic Manager user manual.
 

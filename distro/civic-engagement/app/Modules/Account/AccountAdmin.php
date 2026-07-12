@@ -21,7 +21,6 @@ class AccountAdmin
     {
         add_action('admin_menu', [$this, 'registerMenus'], 2);
         add_action('admin_menu', [$this, 'hideProfileMenu'], 999);
-        add_action('admin_head', [$this, 'hideAdminToolbar']);
         add_filter('show_admin_bar', [$this, 'hideFrontendToolbar']);
     }
 
@@ -71,15 +70,6 @@ class AccountAdmin
 
         remove_menu_page('profile.php');
         remove_submenu_page('users.php', 'profile.php');
-    }
-
-    public function hideAdminToolbar(): void
-    {
-        if (!$this->isRestrictedCivicUser()) {
-            return;
-        }
-
-        echo '<style>html.wp-toolbar{padding-top:0!important}#wpadminbar{display:none!important}</style>';
     }
 
     /** @param bool $show */

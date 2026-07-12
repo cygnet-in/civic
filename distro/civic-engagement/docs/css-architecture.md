@@ -34,7 +34,7 @@ The reusable CAPTCHA wrapper `civic-form__captcha` belongs here because it is pa
 
 ### `assets/css/civic-admin.css`
 
-Plugin admin stylesheet enqueued by `DashboardAdmin` for restricted Civic users and Civic Platform admin pages.
+Plugin admin stylesheet enqueued by `DashboardAdmin` only for Civic Platform admin pages whose `page` query argument starts with `civic-`.
 
 Current responsibilities:
 
@@ -43,7 +43,7 @@ Current responsibilities:
 - Styles dashboard cards and recent sections under `body.civic-admin`.
 - Styles the fixed branded Civic admin header under `body.civic-admin-fixed-header-active`.
 - Styles the Civic Manager documentation manual.
-- Applies restricted-user cleanup only when the plugin adds the `civic-admin` body class.
+- Applies Civic Platform admin styling only when the plugin adds the `civic-admin` body class.
 - Applies Civic page header styles only when the plugin adds the `civic-admin-page` body class.
 
 Key classes:
@@ -57,6 +57,7 @@ Key classes:
 - `civic-admin-fixed-header__title`
 - `civic-admin-fixed-header__version`
 - `civic-admin-fixed-header__actions`
+- `civic-admin-fixed-header__wp-admin`
 - `civic-admin-fixed-header__documentation`
 - `civic-admin-fixed-header__visit`
 - `civic-admin-brand`
@@ -140,7 +141,7 @@ Current status:
 
 ### `wp-content/themes/civic/assets/css/civic-manager-admin.css`
 
-Theme admin stylesheet conditionally enqueued by the Civic theme for users with the `civic_manager` role.
+Theme admin stylesheet enqueued by `DashboardAdmin` only for Civic Platform admin pages whose `page` query argument starts with `civic-`.
 
 Current responsibilities:
 
@@ -154,7 +155,7 @@ Key scope:
 
 - `body.civic-manager-admin`
 
-This stylesheet is theme-owned and separate from the plugin `civic-admin` restricted admin stylesheet.
+This stylesheet is theme-owned and separate from the plugin `civic-admin` stylesheet, but the plugin controls when both Civic admin stylesheets load so Administrators and Civic Managers receive the same Civic Platform interface.
 
 ## Plugin vs Theme Styling
 
@@ -263,9 +264,10 @@ Public frontend:
 - Plugin enqueues `assets/css/frontend.css`.
 - Theme automatically loads `wp-content/themes/civic/style.css` as the active child theme stylesheet.
 
-Plugin restricted admin:
+Plugin Civic admin:
 
-- Plugin enqueues `assets/css/civic-admin.css` for restricted Civic users and Civic Platform admin pages through `DashboardAdmin`.
+- Plugin enqueues `assets/css/civic-admin.css` only for Civic Platform admin pages through `DashboardAdmin`.
+- Plugin enqueues theme `wp-content/themes/civic/assets/css/civic-manager-admin.css` only for Civic Platform admin pages through `DashboardAdmin`.
 
 Login:
 
@@ -273,7 +275,8 @@ Login:
 
 Theme civic manager admin:
 
-- Theme enqueues `assets/css/civic-manager-admin.css` for users with the `civic_manager` role.
+- Theme owns `assets/css/civic-manager-admin.css`.
+- Runtime enqueue is page-scoped by the plugin so normal WordPress admin pages remain unaffected.
 
 No current runtime enqueue was found for:
 

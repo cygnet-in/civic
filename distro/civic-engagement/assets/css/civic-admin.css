@@ -81,6 +81,7 @@ body.civic-admin-fixed-header-active .civic-admin-fixed-header__actions {
     flex: 0 0 auto;
 }
 
+body.civic-admin-fixed-header-active .civic-admin-fixed-header__wp-admin,
 body.civic-admin-fixed-header-active .civic-admin-fixed-header__documentation,
 body.civic-admin-fixed-header-active .civic-admin-fixed-header__visit {
     white-space: nowrap;
@@ -261,7 +262,7 @@ body.civic-admin-page .civic-admin-manual__section ul {
     }
 
     body.civic-admin-fixed-header-active .civic-admin-fixed-header {
-        top: 46px;
+        top: 0;
         left: 0;
         align-items: flex-start;
         flex-direction: column;

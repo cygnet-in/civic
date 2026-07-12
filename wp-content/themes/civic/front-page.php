@@ -222,22 +222,71 @@ get_header();
 
 	<!-- Bottom CTA -->
 	<section class="civic-home-cta">
-		<div class="civic-home__container civic-home-cta__inner">
-			<div>
-				<h2>Have a local issue to raise?</h2>
-				<p>Submit your concern and help us understand what matters most in the community.</p>
-			</div>
+    <div class="civic-home__container">
 
-			<a class="civic-home-btn civic-home-btn--light" href="<?php echo esc_url( home_url( '/representation/' ) ); ?>">
-				Submit a Representation
-			</a>
-		</div>
-		<div class="civic-home__container civic-home-cta__inner">
-			<div class="civic-search civic-search-form">
-				<?php echo do_shortcode( '[civic_search_form]' ); ?>            
-        	</div>			
-		</div>
-	</section>
+        <div class="civic-home-cta__panel">
+
+            <div class="civic-home-cta__content">
+                <p class="civic-home-cta__eyebrow">
+                    Get in touch
+                </p>
+
+                <h2 class="civic-home-cta__title">
+                    Have a local issue to raise?
+                </h2>
+
+                <p class="civic-home-cta__text">
+                    Submit your concern, contact the office, or search current
+                    consultations, events, schedules, and community updates.
+                </p>
+            </div>
+
+            <div class="civic-home-cta__actions">
+
+                <a
+                    class="civic-home-btn civic-home-btn--light"
+                    href="https://tjoseph.ie/representation/"
+                >
+                    Submit a Representation
+                    <span aria-hidden="true">→</span>
+                </a>
+
+                <form
+                    class="civic-search-form__form"
+                    method="get"
+                    action="https://tjoseph.ie/search-results/"
+                    role="search"
+                >
+                    <label
+                        class="screen-reader-text"
+                        for="civic-search-input"
+                    >
+                        Search the civic platform
+                    </label>
+
+                    <input
+                        class="civic-search-form__input"
+                        type="search"
+                        id="civic-search-input"
+                        name="civic_search"
+                        value=""
+                        placeholder="Search the civic platform"
+                    >
+
+                    <button
+                        class="civic-search-form__button"
+                        type="submit"
+                    >
+                        Search
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
 
 </main>
 

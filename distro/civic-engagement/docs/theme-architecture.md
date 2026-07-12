@@ -8,7 +8,7 @@ Theme path:
 wp-content/themes/civic
 ```
 
-The Civic theme is a GeneratePress child theme. It is responsible for site presentation, homepage composition, branding, typography, layout, and a theme-level admin skin for users with the `civic_manager` role.
+The Civic theme is a GeneratePress child theme. It is responsible for site presentation, homepage composition, branding, typography, layout, and a theme-level Civic admin skin used by Civic Platform admin pages.
 
 ## Theme Files
 
@@ -18,9 +18,9 @@ Current theme files:
 | --- | --- |
 | `style.css` | Active child theme stylesheet, design tokens, GeneratePress refinements, homepage layout, inner page polish, plugin component presentation overrides. |
 | `style-old.css` | Older retained stylesheet. Not enqueued by the theme code. |
-| `functions.php` | Adds Civic Manager admin body class and conditionally enqueues `assets/css/civic-manager-admin.css`. |
+| `functions.php` | Adds `civic-manager-admin` body class on Civic Platform admin pages. Runtime Civic admin stylesheet loading is controlled by the plugin. |
 | `front-page.php` | Custom homepage template. |
-| `assets/css/civic-manager-admin.css` | Theme-level Civic Manager wp-admin visual skin. |
+| `assets/css/civic-manager-admin.css` | Theme-level Civic admin visual skin loaded by the plugin on Civic Platform admin pages. |
 | `assets/images/*` | Homepage profile images and feature icons. |
 | `assets/fonts/*` | Inter font files used by `style.css`. |
 
@@ -148,10 +148,10 @@ The homepage includes a bottom CTA band before `get_footer()`.
 `functions.php` provides:
 
 - `civic_is_civic_manager_user()`
-- `admin_body_class` filtering to add `civic-manager-admin`
-- conditional enqueue of `assets/css/civic-manager-admin.css` for civic manager users
+- `civic_is_civic_admin_page()`
+- `admin_body_class` filtering to add `civic-manager-admin` only when the current admin page slug starts with `civic-`
 
-This is separate from the plugin's own Civic admin styling, which uses the `civic-admin` and `civic-admin-page` body classes with `assets/css/civic-admin.css`, and from plugin-owned login branding in `assets/css/civic-login.css`.
+The plugin's `DashboardAdmin` now controls runtime loading of both the plugin `assets/css/civic-admin.css` stylesheet and the theme `assets/css/civic-manager-admin.css` stylesheet. Both load only on Civic Platform admin pages identified by the `civic-` page slug prefix. This keeps normal WordPress admin pages unaffected and gives Administrators and Civic Managers the same Civic Platform interface.
 
 ## Assets
 

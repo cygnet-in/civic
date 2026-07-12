@@ -13,33 +13,6 @@ class DashboardAdmin
     private const SYSTEM_PAGE_SLUG = 'civic-system';
     private const SECURITY_PAGE_SLUG = 'civic-security-settings';
     private const CIVIC_ADMIN_PATH = 'civic-admin';
-    private const CIVIC_PAGE_SLUGS = [
-        'civic-dashboard',
-        'civic-system',
-        'civic-security-settings',
-        'civic-account',
-        'civic-platform',
-        'civic-rep-view',
-        'civic-activities',
-        'civic-threads',
-        'civic-thread-create',
-        'civic-thread-view',
-        'civic-thread-edit',
-        'civic-thread-fields',
-        'civic-thread-field-edit',
-        'civic-thread-responses',
-        'civic-thread-response-view',
-        'civic-events',
-        'civic-event-edit',
-        'civic-event-fields',
-        'civic-event-field-edit',
-        'civic-event-registrations',
-        'civic-event-registration-view',
-        'civic-schedules',
-        'civic-schedule-edit',
-        'civic-contacts',
-    ];
-
     private DashboardPage $page;
     private SecuritySettingsPage $securityPage;
     private DocumentationPage $documentationPage;
@@ -55,6 +28,7 @@ class DashboardAdmin
     {
         add_action('admin_menu', [$this, 'registerMenu'], 1);
         add_action('admin_menu', [$this, 'hideWordPressDashboardForCivicUsers'], 999);
+        add_action('admin_menu', [$this, 'separateAdminNavigation'], 1000);
         add_action('admin_init', [$this, 'redirectWordPressDashboard']);
         add_action('wp_dashboard_setup', [$this, 'removeWordPressDashboardWidgets']);
         add_filter('login_redirect', [$this, 'redirectAfterLogin'], 10, 3);
@@ -64,14 +38,15 @@ class DashboardAdmin
         add_filter('login_headertext', [$this, 'loginHeaderText']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
         add_filter('admin_body_class', [$this, 'addAdminBodyClass']);
+        add_action('admin_head', [$this, 'hideWordPressAdminBar']);
         add_action('in_admin_header', [$this, 'renderAdminHeader']);
     }
 
     public function registerMenu(): void
     {
         add_menu_page(
-            __('Dashboard', 'civic-engagement'),
-            __('Dashboard', 'civic-engagement'),
+            __('Civic Dashboard', 'civic-engagement'),
+            current_user_can('manage_options') ? __('Civic Admin', 'civic-engagement') : __('Dashboard', 'civic-engagement'),
             self::CAPABILITY,
             self::PAGE_SLUG,
             [$this, 'renderPage'],
@@ -148,6 +123,20 @@ class DashboardAdmin
         remove_submenu_page('index.php', 'update-core.php');
     }
 
+    public function separateAdminNavigation(): void
+    {
+        if (!$this->isCivicUser()) {
+            return;
+        }
+
+        if ($this->isCivicAdminPage()) {
+            $this->hideNonCivicAdminMenus();
+            return;
+        }
+
+        $this->hideCivicOperationalMenus();
+    }
+
     public function redirectWordPressDashboard(): void
     {
         global $pagenow;
@@ -188,7 +177,7 @@ class DashboardAdmin
     /** @param string $hookSuffix */
     public function enqueueAssets(string $hookSuffix): void
     {
-        if (!$this->isRestrictedCivicUser() && !$this->isCivicAdminPage()) {
+        if (!$this->isCivicAdminPage()) {
             return;
         }
 
@@ -200,19 +189,31 @@ class DashboardAdmin
             [],
             CIVIC_ENGAGEMENT_VERSION
         );
+
+        wp_enqueue_style(
+            'civic-manager-admin',
+            get_stylesheet_directory_uri() . '/assets/css/civic-manager-admin.css',
+            [],
+            CIVIC_ENGAGEMENT_VERSION
+        );
     }
 
     public function addAdminBodyClass(string $classes): string
     {
-        if ($this->isRestrictedCivicUser()) {
-            $classes .= ' civic-admin';
-        }
-
         if ($this->isCivicAdminPage()) {
-            $classes .= ' civic-admin-page civic-admin-fixed-header-active';
+            $classes .= ' civic-admin civic-manager-admin civic-admin-page civic-admin-fixed-header-active';
         }
 
         return $classes;
+    }
+
+    public function hideWordPressAdminBar(): void
+    {
+        if (!$this->isCivicAdminPage()) {
+            return;
+        }
+
+        echo '<style>html.wp-toolbar{padding-top:0!important}#wpadminbar{display:none!important}</style>';
     }
 
     public function enqueueLoginAssets(): void
@@ -269,6 +270,9 @@ class DashboardAdmin
         echo '</div>';
         echo '</div>';
         echo '<div class="civic-admin-fixed-header__actions">';
+        if (current_user_can('manage_options')) {
+            echo '<a class="button civic-admin-fixed-header__wp-admin" href="' . esc_url(admin_url('index.php')) . '">' . esc_html__('WP Admin', 'civic-engagement') . '</a>';
+        }
         echo '<a class="button civic-admin-fixed-header__documentation" href="' . esc_url($this->documentationUrl()) . '">' . esc_html__('Documentation', 'civic-engagement') . '</a>';
         echo '<a class="button button-primary civic-admin-fixed-header__visit" href="' . esc_url(home_url('/')) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Visit Website', 'civic-engagement') . '</a>';
         echo '</div>';
@@ -295,6 +299,50 @@ class DashboardAdmin
         return admin_url('admin.php?page=' . self::SYSTEM_PAGE_SLUG);
     }
 
+    private function hideNonCivicAdminMenus(): void
+    {
+        foreach ($this->registeredTopLevelMenuSlugs() as $menuSlug) {
+            if (0 === strpos($menuSlug, 'civic-')) {
+                continue;
+            }
+
+            remove_menu_page($menuSlug);
+        }
+    }
+
+    private function hideCivicOperationalMenus(): void
+    {
+        foreach ($this->registeredTopLevelMenuSlugs() as $menuSlug) {
+            if (0 !== strpos($menuSlug, 'civic-') || self::PAGE_SLUG === $menuSlug) {
+                continue;
+            }
+
+            remove_menu_page($menuSlug);
+        }
+    }
+
+    /** @return array<int, string> */
+    private function registeredTopLevelMenuSlugs(): array
+    {
+        global $menu;
+
+        if (!is_array($menu)) {
+            return [];
+        }
+
+        $menuSlugs = [];
+
+        foreach ($menu as $menuItem) {
+            if (!is_array($menuItem) || !isset($menuItem[2]) || !is_string($menuItem[2])) {
+                continue;
+            }
+
+            $menuSlugs[] = $menuItem[2];
+        }
+
+        return $menuSlugs;
+    }
+
     private function isCivicAdminPage(): bool
     {
         if (!is_admin() || !isset($_GET['page'])) {
@@ -303,6 +351,6 @@ class DashboardAdmin
 
         $page = sanitize_key((string) wp_unslash($_GET['page']));
 
-        return in_array($page, self::CIVIC_PAGE_SLUGS, true);
+        return 0 === strpos($page, 'civic-');
     }
 }

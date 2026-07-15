@@ -59,6 +59,10 @@ class CanonicalSlugRouter
         $shortCode = isset($wp->query_vars['civic_short_code']) ? trim((string) $wp->query_vars['civic_short_code']) : '';
 
         if ('' !== $shortCode) {
+            if (null !== $this->pageShortcutUrl($shortCode)) {
+                return;
+            }
+
             $record = $this->shortUrls->findByShortCode($shortCode);
 
             if (!is_array($record) || !$this->findPublicRecord($record['entity_type'], $record['slug'])) {
@@ -132,7 +136,15 @@ class CanonicalSlugRouter
             return;
         }
 
-        $record = $this->shortUrls->findByShortCode(trim((string) $shortCode));
+        $shortCode = trim((string) $shortCode);
+        $pageShortcutUrl = $this->pageShortcutUrl($shortCode);
+
+        if (null !== $pageShortcutUrl) {
+            wp_safe_redirect($pageShortcutUrl, 301);
+            exit;
+        }
+
+        $record = $this->shortUrls->findByShortCode($shortCode);
 
         if (!is_array($record) || !$this->findPublicRecord($record['entity_type'], $record['slug'])) {
             return;
@@ -194,6 +206,30 @@ class CanonicalSlugRouter
         }
 
         return null;
+    }
+
+    private function pageShortcutUrl(string $shortCode): ?string
+    {
+        $shortcuts = [
+            'rep' => 'representation',
+            'consult' => 'threads',
+        ];
+
+        $shortCode = strtolower(trim($shortCode));
+
+        if (!isset($shortcuts[$shortCode])) {
+            return null;
+        }
+
+        $page = get_page_by_path($shortcuts[$shortCode]);
+
+        if (null === $page) {
+            return null;
+        }
+
+        $permalink = get_permalink($page);
+
+        return is_string($permalink) && '' !== $permalink ? $permalink : null;
     }
 
     private function requestId(string $key): int

@@ -157,6 +157,13 @@ Short URLs are implemented for:
 
 The short URL prefix defaults to `go` and is filterable through `civic_short_url_prefix`.
 
+The `/go/` route also includes routing-layer page shortcuts before the dynamic short URL lookup:
+
+- `/go/rep/` redirects to the `representation` WordPress page when it exists.
+- `/go/consult/` redirects to the `threads` WordPress page when it exists.
+
+If a mapped page does not exist, the request continues through the normal consultation/event/schedule short URL lookup. Unknown codes preserve the existing 404 behavior.
+
 ## Slug Rules
 
 Current source behavior:

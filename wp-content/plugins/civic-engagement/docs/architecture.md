@@ -301,6 +301,13 @@ Slug uniqueness is module-local. Short URL codes are globally checked across con
 
 Short URLs use `/go/{short_code}` by default and redirect permanently to the canonical slug URL when valid.
 
+The `/go/{short_code}` router also supports a small routing-layer page shortcut map before checking `ShortUrlService`:
+
+- `/go/rep/` redirects to the WordPress page with path `representation`
+- `/go/consult/` redirects to the WordPress page with path `threads`
+
+If the mapped WordPress page does not exist, routing falls back to the normal `ShortUrlService` lookup. If neither path resolves, the existing 404 behavior is preserved.
+
 ---
 
 # Release Readiness Source of Truth

@@ -572,12 +572,20 @@ Short URL route:
 
 The short URL prefix is filterable through `civic_short_url_prefix`.
 
+Before consulting `ShortUrlService`, the router checks a small page shortcut map:
+
+- `rep` => WordPress page path `representation`
+- `consult` => WordPress page path `threads`
+
+These shortcuts redirect to the matching WordPress page permalink when the page exists. Missing mapped pages fall through to the existing short URL lookup and 404 behavior.
+
 The router:
 
 - registers rewrite rules
 - registers query vars
 - resolves prefixed routes to existing pages that host detail shortcodes
 - validates that records are public before resolving
+- redirects configured page shortcuts such as `/go/rep/` and `/go/consult/`
 - redirects legacy numeric detail URLs to canonical slug URLs
 - redirects valid short URLs to canonical URLs
 - prevents WordPress canonical redirects from replacing Civic prefixed routes with hosting page URLs

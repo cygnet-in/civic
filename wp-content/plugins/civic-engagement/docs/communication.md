@@ -7,6 +7,7 @@ There is no standalone Communication module implemented in the current source.
 The implemented communication-related functionality is contact consent management:
 
 * public forms collect consent for email, call, SMS and post;
+* communication methods are selected by default for new public form submissions;
 * consent values are stored on contact records;
 * consent is cumulative in V1 and can only be promoted from No to Yes by public form submissions;
 * contact administration supports filtering and export by consent fields.

@@ -116,3 +116,5 @@ Registrations are accepted only while the event is public, published, registrati
 When CAPTCHA is enabled, the registration form renders the shared Cloudflare Turnstile widget through `CaptchaService` and validates the submitted token before calling the registration workflow.
 
 Event and event registration admin exports use the shared export framework. Admin list pages provide the active search/context filters, row data, column definitions, and timestamped filenames; `ExportManager` and `XlsxExporter` generate the workbooks.
+
+Public event listing cards trim event summary/details text to approximately 60 characters.

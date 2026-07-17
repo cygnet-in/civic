@@ -46,4 +46,14 @@ function civic_generate_copyright( $copyright ) {
     );
 }
 
+add_filter( 'the_author', 'custom_hide_author_name' );
+add_filter( 'get_the_author_display_name', 'custom_hide_author_name' );
+
+function custom_hide_author_name( $name ) {
+    if ( ! is_admin() ) {
+        return '';
+    }
+    return $name;
+}
+
 ?>

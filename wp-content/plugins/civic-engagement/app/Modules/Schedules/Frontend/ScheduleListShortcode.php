@@ -124,7 +124,7 @@ class ScheduleListShortcode
         echo '<div class="civic-card__content">';
         echo '<h2 class="civic-card__title civic-schedules__title">' . esc_html((string) ($schedule['title'] ?? '')) . '</h2>';
         echo '<div class="civic-card__meta">';
-        echo '<p class="civic-card__date civic-schedules__date">📅 From <span class="civic-schedules__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedules__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span></p>';
+        echo '<p class="civic-card__date civic-schedules__date">Status Date <span class="civic-schedules__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span></p>';
         echo '</div>';
 
         if (!empty($schedule['details'])) {
@@ -132,7 +132,7 @@ class ScheduleListShortcode
         }
 
         if (!empty($schedule['recent_update'])) {
-            echo '<p class="civic-card__recent-update civic-schedules__recent-update">' . esc_html((string) $schedule['recent_update']) . '</p>';
+            echo '<p class="civic-card__recent-update civic-schedules__recent-update">' . esc_html($this->shortRecentUpdate((string) $schedule['recent_update'])) . '</p>';
         }
         echo '<div class="civic-card__footer">';
         echo '<span class="civic-card__type civic-card__left civic-schedules__type">📌 ' . esc_html($this->typeLabel((string) ($schedule['type'] ?? ''))) . '</span>';
@@ -273,7 +273,23 @@ class ScheduleListShortcode
      */
     private function shortDetails(string $details): string
     {
-        return wp_trim_words(wp_strip_all_tags($details), 40, '...');
+        return $this->shortText($details, 60);
+    }
+
+    private function shortRecentUpdate(string $recentUpdate): string
+    {
+        return $this->shortText($recentUpdate, 30);
+    }
+
+    private function shortText(string $text, int $characters): string
+    {
+        $text = trim(wp_strip_all_tags($text));
+
+        if ('' === $text) {
+            return '';
+        }
+
+        return wp_html_excerpt($text, $characters, strlen($text) > $characters ? '...' : '');
     }
 
     /**

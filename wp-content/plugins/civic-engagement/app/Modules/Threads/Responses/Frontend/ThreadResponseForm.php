@@ -8,6 +8,7 @@ use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Responses\Services\ThreadResponseService;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\CaptchaService;
+use CivicPlatform\Helpers\FormRenderer;
 
 /**
  * Handles public consultation response form rendering and submission processing.
@@ -111,12 +112,13 @@ class ThreadResponseForm
         $this->renderTextField('phone', __('Phone', 'civic-engagement'), (string) $values['phone'], $errors, false);
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
         $this->renderTextField('eircode', __('Eircode', 'civic-engagement'), (string) $values['eircode'], $errors, false);
-        $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
-        $this->renderConsentFields($values);
+        $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));        
         $this->renderTextareaField('response_text', __('Response', 'civic-engagement'), (string) $values['response_text'], $errors, true);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
         echo $this->captcha->renderWidget('civic-thread-response-form');
-
+        
+        $this->renderConsentFields($values);
+        echo FormRenderer::privacyConsent('civic-thread-response-form', 'civic_thread_response');
         echo '<p class="civic-thread-response-form__actions civic-form__actions">';
         echo '<button type="submit" class="button button-primary">';
         echo esc_html__('Submit Response', 'civic-engagement');
@@ -187,11 +189,7 @@ class ThreadResponseForm
      */
     private function renderTextField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-thread-response-form__field civic-form__field">';
-        echo '<label for="civic-thread-response-' . esc_attr($name) . '">' . esc_html($label) . '</label>';
-        echo '<input type="text" id="civic-thread-response-' . esc_attr($name) . '" name="civic_thread_response[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
-        $this->renderFieldError($name, $errors);
-        echo '</p>';
+        echo FormRenderer::textInput('civic-thread-response-form', 'civic-thread-response-' . $name, 'civic_thread_response[' . $name . ']', $label, $value, $errors, $name, $required);
     }
 
     /**
@@ -206,11 +204,7 @@ class ThreadResponseForm
      */
     private function renderEmailField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-thread-response-form__field civic-form__field">';
-        echo '<label for="civic-thread-response-' . esc_attr($name) . '">' . esc_html($label) . '</label>';
-        echo '<input type="email" id="civic-thread-response-' . esc_attr($name) . '" name="civic_thread_response[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
-        $this->renderFieldError($name, $errors);
-        echo '</p>';
+        echo FormRenderer::textInput('civic-thread-response-form', 'civic-thread-response-' . $name, 'civic_thread_response[' . $name . ']', $label, $value, $errors, $name, $required, 'email');
     }
 
     /**
@@ -225,11 +219,12 @@ class ThreadResponseForm
      */
     private function renderTextareaField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-thread-response-form__field civic-form__field civic-form__field--full">';
-        echo '<label for="civic-thread-response-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
-        echo '<textarea id="civic-thread-response-' . esc_attr($name) . '" name="civic_thread_response[' . esc_attr($name) . ']" rows="5"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
-        $this->renderFieldError($name, $errors);
-        echo '</p>';
+        if ('address' === $name) {
+            echo FormRenderer::addressTextarea('civic-thread-response-form', 'civic-thread-response-address', 'civic_thread_response[address]', $value, $errors);
+            return;
+        }
+
+        echo FormRenderer::textarea('civic-thread-response-form', 'civic-thread-response-' . $name, 'civic_thread_response[' . $name . ']', $label, $value, $errors, $name, $required, 5);
     }
 
     /**
@@ -262,15 +257,7 @@ class ThreadResponseForm
      */
     private function renderConsentFields(array $values): void
     {
-        echo '<fieldset class="civic-thread-response-form__field civic-thread-response-form__consent civic-form__field civic-form__field--full civic-form__consent">';
-        echo '<legend>' . esc_html__('I agree to be contacted by:', 'civic-engagement') . '</legend>';
-
-        foreach (['email' => 'Email', 'call' => 'Call', 'sms' => 'SMS', 'post' => 'Post'] as $key => $label) {
-            $field = 'consent_' . $key;
-            echo '<label><input type="checkbox" name="civic_thread_response[' . esc_attr($field) . ']" value="1"' . checked(!empty($values[$field]), true, false) . '> ' . esc_html($label) . '</label> ';
-        }
-
-        echo '</fieldset>';
+        echo FormRenderer::communicationPreferences('civic-thread-response-form', 'civic_thread_response', $values);
     }
 
     /**
@@ -327,11 +314,7 @@ class ThreadResponseForm
      */
     private function renderCustomTextField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-thread-response-form__field civic-form__field">';
-        echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label>';
-        echo '<input type="text" id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
-        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
-        echo '</p>';
+        echo FormRenderer::textInput('civic-thread-response-form', 'civic-thread-response-custom-' . $fieldKey, 'civic_thread_response[custom_fields][' . $fieldKey . ']', $label, $value, $errors, 'custom_fields.' . $fieldKey, $required);
     }
 
     /**
@@ -346,11 +329,7 @@ class ThreadResponseForm
      */
     private function renderCustomTextareaField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-thread-response-form__field civic-form__field civic-form__field--full">';
-        echo '<label for="civic-thread-response-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
-        echo '<textarea id="civic-thread-response-custom-' . esc_attr($fieldKey) . '" name="civic_thread_response[custom_fields][' . esc_attr($fieldKey) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
-        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
-        echo '</p>';
+        echo FormRenderer::textarea('civic-thread-response-form', 'civic-thread-response-custom-' . $fieldKey, 'civic_thread_response[custom_fields][' . $fieldKey . ']', $label, $value, $errors, 'custom_fields.' . $fieldKey, $required, 4);
     }
 
     /**
@@ -389,11 +368,7 @@ class ThreadResponseForm
      */
     private function renderFieldError(string $name, array $errors): void
     {
-        if (empty($errors[$name])) {
-            return;
-        }
-
-        echo '<br><span class="civic-thread-response-form__error civic-form__error">' . esc_html($errors[$name]) . '</span>';
+        echo FormRenderer::validationMessage('civic-thread-response-form', $name, $errors);
     }
 
     /**
@@ -622,10 +597,10 @@ class ThreadResponseForm
             'eircode' => '',
             'electoral_area_id' => 0,
             'electoral_area' => '',
-            'consent_email' => 0,
-            'consent_call' => 0,
-            'consent_sms' => 0,
-            'consent_post' => 0,
+            'consent_email' => 1,
+            'consent_call' => 1,
+            'consent_sms' => 1,
+            'consent_post' => 1,
             'response_text' => '',
             'custom_fields' => [],
         ];

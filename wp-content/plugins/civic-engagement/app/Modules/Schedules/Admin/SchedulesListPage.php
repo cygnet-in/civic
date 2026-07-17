@@ -78,8 +78,7 @@ class SchedulesListPage
         echo ' <a href="' . esc_url($this->addUrl()) . '" class="page-title-action">' . esc_html__('Add New', 'civic-engagement') . '</a>';
         $this->renderNotices();
         $this->renderSearchForm($search);
-        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
-        $this->renderTable($items, $this->media->getCountsByEntityIds('schedule', $ids));
+        $this->renderTable($items);
         $this->renderPagination($page, $totalPages, $search);
         echo '</div>';
     }
@@ -149,11 +148,9 @@ class SchedulesListPage
     {
         $search = $this->searchKeyword();
         $items = $this->schedules->getForExport(['search' => $search]);
-        $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
-
         $this->exports->download(
             $items,
-            $this->exportColumns($this->media->getCountsByEntityIds('schedule', $ids)),
+            $this->exportColumns(),
             $this->exportFilename('schedules')
         );
     }
@@ -164,7 +161,7 @@ class SchedulesListPage
      * @param array<int, array<string, mixed>> $items Schedule rows.
      * @return void
      */
-    private function renderTable(array $items, array $mediaCounts): void
+    private function renderTable(array $items): void
     {
         echo '<table class="widefat fixed striped">';
         echo '<thead><tr>';
@@ -175,8 +172,8 @@ class SchedulesListPage
         echo '<th scope="col">' . esc_html__('Priority', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Public', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Archived', 'civic-engagement') . '</th>';
-        echo '<th scope="col">' . esc_html__('Start Date', 'civic-engagement') . '</th>';
-        echo '<th scope="col">' . esc_html__('Images', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Status Date', 'civic-engagement') . '</th>';
+        echo '<th scope="col">' . esc_html__('Recent Update', 'civic-engagement') . '</th>';
         echo '<th scope="col">' . esc_html__('Actions', 'civic-engagement') . '</th>';
         echo '</tr></thead>';
         echo '<tbody>';
@@ -186,7 +183,7 @@ class SchedulesListPage
         }
 
         foreach ($items as $item) {
-            $this->renderRow($item, $mediaCounts);
+            $this->renderRow($item);
         }
 
         echo '</tbody>';
@@ -199,7 +196,7 @@ class SchedulesListPage
      * @param array<string, mixed> $item Schedule row.
      * @return void
      */
-    private function renderRow(array $item, array $mediaCounts): void
+    private function renderRow(array $item): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
 
@@ -211,8 +208,8 @@ class SchedulesListPage
         echo '<td>' . esc_html((string) ($item['priority'] ?? 0)) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html(!empty($item['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')) . '</td>';
-        echo '<td>' . esc_html($this->dates->formatDateTime($item['start_date'] ?? null)) . '</td>';
-        echo '<td>' . esc_html((string) ($mediaCounts[$id] ?? 0)) . '</td>';
+        echo '<td>' . esc_html($this->dates->formatDateTime($item['end_date'] ?? null)) . '</td>';
+        echo '<td>' . esc_html((string) ($item['recent_update'] ?? '')) . '</td>';
         echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a></td>';
         echo '</tr>';
     }
@@ -317,7 +314,7 @@ class SchedulesListPage
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function exportColumns(array $mediaCounts): array
+    private function exportColumns(): array
     {
         return [
             ['key' => 'id', 'label' => __('ID', 'civic-engagement')],
@@ -327,8 +324,8 @@ class SchedulesListPage
             ['key' => 'priority', 'label' => __('Priority', 'civic-engagement')],
             ['key' => 'is_public', 'label' => __('Public', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['is_public']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')],
             ['key' => 'is_archived', 'label' => __('Archived', 'civic-engagement'), 'callback' => static fn(array $item): string => !empty($item['is_archived']) ? __('Yes', 'civic-engagement') : __('No', 'civic-engagement')],
-            ['key' => 'start_date', 'label' => __('Start Date', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['start_date'] ?? null)],
-            ['key' => 'images', 'label' => __('Images', 'civic-engagement'), 'callback' => static fn(array $item): string => (string) ($mediaCounts[(int) ($item['id'] ?? 0)] ?? 0)],
+            ['key' => 'end_date', 'label' => __('Status Date', 'civic-engagement'), 'callback' => fn(array $item): string => $this->dates->formatDateTime($item['end_date'] ?? null)],
+            ['key' => 'recent_update', 'label' => __('Recent Update', 'civic-engagement')],
         ];
     }
 

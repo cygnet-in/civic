@@ -41,7 +41,7 @@ class MediaRenderer
 
         if (count($media) > 1) {
             $html .= '<div class="civic-media-gallery__thumbnails">';
-            foreach (array_slice($media, 1) as $item) {
+            foreach ($media as $item) {
                 $thumbId = (int) ($item['attachment_id'] ?? 0);
                 $thumbUrl = $thumbId > 0 ? wp_get_attachment_image_url($thumbId, 'thumbnail') : false;
                 $fullUrl = $thumbId > 0 ? wp_get_attachment_image_url($thumbId, 'large') : false;

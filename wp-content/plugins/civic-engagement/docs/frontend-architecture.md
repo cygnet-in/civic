@@ -115,6 +115,18 @@ Shared CAPTCHA infrastructure is provided by `CaptchaService`. It renders a Clou
 
 When CAPTCHA is enabled in Civic Manager > Dashboard > Security, Representation submission, Consultation response, and Event registration forms render the shared widget and validate the token before processing the workflow.
 
+Reusable public form primitives are provided by `CivicPlatform\Helpers\FormRenderer`. It is intentionally limited to stable duplicated markup:
+
+- text and email inputs
+- textareas
+- the dedicated address textarea, which omits `civic-form__field--full`
+- image upload input
+- field validation messages
+- button-style communication preference checkboxes
+- mandatory privacy consent using the WordPress Privacy Policy page link
+
+Module renderers still own form workflow, hidden fields, nonces, custom select fields, and request namespaces. Communication preferences keep the existing submitted field names and values, and are selected by default for new public submissions.
+
 ## Statistics Cards
 
 The statistics component is rendered by:

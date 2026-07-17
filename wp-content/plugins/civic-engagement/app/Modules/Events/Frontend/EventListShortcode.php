@@ -130,7 +130,7 @@ class EventListShortcode
         echo '<h2 class="civic-card__title civic-events__title">' . esc_html((string) ($event['title'] ?? '')) . '</h2>';
 
         if (!empty($event['summary'])) {
-            echo '<p class="civic-card__summary civic-events__summary">' . esc_html((string) $event['summary']) . '</p>';
+            echo '<p class="civic-card__summary civic-events__summary">' . esc_html($this->shortDetails((string) $event['summary'])) . '</p>';
         }
 
         echo '<div class="civic-card__meta">';
@@ -290,5 +290,16 @@ class EventListShortcode
     private function cardsWrapperClass(bool $paginationEnabled): string
     {
         return $paginationEnabled ? 'civic-cards-main-list' : 'civic-cards-home-list';
+    }
+
+    private function shortDetails(string $details): string
+    {
+        $details = trim(wp_strip_all_tags($details));
+
+        if ('' === $details) {
+            return '';
+        }
+
+        return wp_html_excerpt($details, 60, strlen($details) > 60 ? '...' : '');
     }
 }

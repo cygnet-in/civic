@@ -418,10 +418,10 @@ class RepFormController
             'image_attachment_id' => 0,
             'map_lat' => '',
             'map_lng' => '',
-            'consent_email' => 0,
-            'consent_call' => 0,
-            'consent_sms' => 0,
-            'consent_post' => 0,
+            'consent_email' => 1,
+            'consent_call' => 1,
+            'consent_sms' => 1,
+            'consent_post' => 1,
         ];
     }
 

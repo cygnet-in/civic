@@ -177,11 +177,11 @@ class ThreadDetailShortcode
             echo '<div class="civic-card__description civic-thread-detail__description">' . wpautop(esc_html((string) $thread['description'])) . '</div>';
         }
 
-        echo '<dl class="civic-card__meta civic-thread-detail__meta">';
-        $this->renderMetaItem(__('Created', 'civic-engagement'), $this->dates->formatDate((string) ($thread['created_at'] ?? '')));
-        $this->renderMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
-        $this->renderMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
-        echo '</dl>';
+        echo '<p class="civic-card__meta civic-thread-detail__meta">';
+        $this->renderThreadMetaItem(__('Created', 'civic-engagement'), $this->dates->formatDate((string) ($thread['created_at'] ?? '')));
+        $this->renderThreadMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
+        $this->renderThreadMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
+        echo '</p>';
         $this->renderActionLinks($publicResponses, $showPublicResponses, $responseCount, $acceptingResponses);
         echo '</div>';
         echo '</article>';
@@ -214,18 +214,18 @@ class ThreadDetailShortcode
         echo '<p class="civic-card__actions civic-thread-detail__actions">';
 
         if ($acceptingResponses) {
-            echo '<a href="#civic-thread-response-form" class="civic-button civic-button--primary">' . esc_html__('Have Your Say', 'civic-engagement') . '</a>';
+            echo '<a href="#civic-thread-response-form" class="civic-button civic-button--primary">' . esc_html__('Submit a Response', 'civic-engagement') . '</a>';
         }
 
         if ($acceptingResponses || $responseCount > 0) {
             if ($acceptingResponses) {
-                echo ' | ';
+                //echo ' | ';
             }
 
             if ($showPublicResponses && $publicResponseTotal > 0) {
-                echo '<a href="#civic-thread-public-responses">' . esc_html(sprintf(__('Responses Received (%d)', 'civic-engagement'), $responseCount)) . '</a>';
+                //echo '<a href="#civic-thread-public-responses">' . esc_html(sprintf(__('Responses Received (%d)', 'civic-engagement'), $responseCount)) . '</a>';
             } else {
-                echo '<span class="civic-thread-detail__response-count">' . esc_html(sprintf(__('Responses Received (%d)', 'civic-engagement'), $responseCount)) . '</span>';
+                //echo '<span class="civic-thread-detail__response-count">' . esc_html(sprintf(__('Responses Received (%d)', 'civic-engagement'), $responseCount)) . '</span>';
             }
         }
 
@@ -332,10 +332,10 @@ class ThreadDetailShortcode
      * @param string $value Metadata value.
      * @return void
      */
-    private function renderMetaItem(string $label, string $value): void
+    private function renderThreadMetaItem(string $label, string $value): void
     {
-        echo '<dt>' . esc_html($label) . '</dt>';
-        echo '<dd>' . esc_html($value) . '</dd>';
+        echo '<span class="label">' . esc_html($label) . '</span>';
+        echo '<span class="value">' . esc_html($value) . '</span>';
     }
 
     /**

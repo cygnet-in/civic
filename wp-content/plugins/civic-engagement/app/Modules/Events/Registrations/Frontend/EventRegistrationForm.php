@@ -8,6 +8,7 @@ use CivicPlatform\Modules\Events\Repository\EventFieldRepository;
 use CivicPlatform\Modules\Events\Registrations\Services\EventRegistrationService;
 use CivicPlatform\Repositories\ElectoralAreaRepository;
 use CivicPlatform\Services\CaptchaService;
+use CivicPlatform\Helpers\FormRenderer;
 
 /**
  * Handles public event registration form rendering and submission processing.
@@ -112,10 +113,12 @@ class EventRegistrationForm
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
         $this->renderTextField('eircode', __('Eircode', 'civic-engagement'), (string) $values['eircode'], $errors, false);
         $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));
-        $this->renderConsentFields($values);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
         echo $this->captcha->renderWidget('civic-event-registration-form');
 
+        $this->renderConsentFields($values);
+        echo FormRenderer::privacyConsent('civic-event-registration-form', 'civic_event_registration');
+        
         echo '<p class="civic-event-registration-form__actions civic-form__actions">';
         echo '<button type="submit" class="button button-primary">';
         echo esc_html__('Submit Registration', 'civic-engagement');
@@ -185,11 +188,7 @@ class EventRegistrationForm
      */
     private function renderTextField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-event-registration-form__field civic-form__field">';
-        echo '<label for="civic-event-registration-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
-        echo '<input type="text" id="civic-event-registration-' . esc_attr($name) . '" name="civic_event_registration[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
-        $this->renderFieldError($name, $errors);
-        echo '</p>';
+        echo FormRenderer::textInput('civic-event-registration-form', 'civic-event-registration-' . $name, 'civic_event_registration[' . $name . ']', $label, $value, $errors, $name, $required);
     }
 
     /**
@@ -204,11 +203,7 @@ class EventRegistrationForm
      */
     private function renderEmailField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-event-registration-form__field civic-form__field">';
-        echo '<label for="civic-event-registration-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
-        echo '<input type="email" id="civic-event-registration-' . esc_attr($name) . '" name="civic_event_registration[' . esc_attr($name) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
-        $this->renderFieldError($name, $errors);
-        echo '</p>';
+        echo FormRenderer::textInput('civic-event-registration-form', 'civic-event-registration-' . $name, 'civic_event_registration[' . $name . ']', $label, $value, $errors, $name, $required, 'email');
     }
 
     /**
@@ -223,11 +218,12 @@ class EventRegistrationForm
      */
     private function renderTextareaField(string $name, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-event-registration-form__field civic-form__field civic-form__field--full">';
-        echo '<label for="civic-event-registration-' . esc_attr($name) . '">' . esc_html($label) . '</label><br>';
-        echo '<textarea id="civic-event-registration-' . esc_attr($name) . '" name="civic_event_registration[' . esc_attr($name) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
-        $this->renderFieldError($name, $errors);
-        echo '</p>';
+        if ('address' === $name) {
+            echo FormRenderer::addressTextarea('civic-event-registration-form', 'civic-event-registration-address', 'civic_event_registration[address]', $value, $errors);
+            return;
+        }
+
+        echo FormRenderer::textarea('civic-event-registration-form', 'civic-event-registration-' . $name, 'civic_event_registration[' . $name . ']', $label, $value, $errors, $name, $required, 4);
     }
 
     /**
@@ -260,15 +256,7 @@ class EventRegistrationForm
      */
     private function renderConsentFields(array $values): void
     {
-        echo '<fieldset class="civic-event-registration-form__field civic-event-registration-form__consent civic-form__field civic-form__field--full civic-form__consent">';
-        echo '<legend>' . esc_html__('I agree to be contacted by:', 'civic-engagement') . '</legend>';
-
-        foreach (['email' => 'Email', 'call' => 'Call', 'sms' => 'SMS', 'post' => 'Post'] as $key => $label) {
-            $field = 'consent_' . $key;
-            echo '<label><input type="checkbox" name="civic_event_registration[' . esc_attr($field) . ']" value="1"' . checked(!empty($values[$field]), true, false) . '> ' . esc_html($label) . '</label> ';
-        }
-
-        echo '</fieldset>';
+        echo FormRenderer::communicationPreferences('civic-event-registration-form', 'civic_event_registration', $values);
     }
 
     /**
@@ -325,11 +313,7 @@ class EventRegistrationForm
      */
     private function renderCustomTextField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-event-registration-form__field civic-form__field">';
-        echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
-        echo '<input type="text" id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']" value="' . esc_attr($value) . '"' . ($required ? ' required' : '') . '>';
-        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
-        echo '</p>';
+        echo FormRenderer::textInput('civic-event-registration-form', 'civic-event-registration-custom-' . $fieldKey, 'civic_event_registration[custom_fields][' . $fieldKey . ']', $label, $value, $errors, 'custom_fields.' . $fieldKey, $required);
     }
 
     /**
@@ -344,11 +328,7 @@ class EventRegistrationForm
      */
     private function renderCustomTextareaField(string $fieldKey, string $label, string $value, array $errors, bool $required): void
     {
-        echo '<p class="civic-event-registration-form__field civic-form__field civic-form__field--full">';
-        echo '<label for="civic-event-registration-custom-' . esc_attr($fieldKey) . '">' . esc_html($label) . '</label><br>';
-        echo '<textarea id="civic-event-registration-custom-' . esc_attr($fieldKey) . '" name="civic_event_registration[custom_fields][' . esc_attr($fieldKey) . ']" rows="4"' . ($required ? ' required' : '') . '>' . esc_textarea($value) . '</textarea>';
-        $this->renderFieldError('custom_fields.' . $fieldKey, $errors);
-        echo '</p>';
+        echo FormRenderer::textarea('civic-event-registration-form', 'civic-event-registration-custom-' . $fieldKey, 'civic_event_registration[custom_fields][' . $fieldKey . ']', $label, $value, $errors, 'custom_fields.' . $fieldKey, $required, 4);
     }
 
     /**
@@ -387,11 +367,7 @@ class EventRegistrationForm
      */
     private function renderFieldError(string $name, array $errors): void
     {
-        if (empty($errors[$name])) {
-            return;
-        }
-
-        echo '<br><span class="civic-event-registration-form__error civic-form__error">' . esc_html($errors[$name]) . '</span>';
+        echo FormRenderer::validationMessage('civic-event-registration-form', $name, $errors);
     }
 
     /**
@@ -699,10 +675,10 @@ class EventRegistrationForm
             'eircode' => '',
             'electoral_area_id' => 0,
             'electoral_area' => '',
-            'consent_email' => 0,
-            'consent_call' => 0,
-            'consent_sms' => 0,
-            'consent_post' => 0,
+            'consent_email' => 1,
+            'consent_call' => 1,
+            'consent_sms' => 1,
+            'consent_post' => 1,
             'custom_fields' => [],
             'registration_data' => [
                 'custom_fields' => [],

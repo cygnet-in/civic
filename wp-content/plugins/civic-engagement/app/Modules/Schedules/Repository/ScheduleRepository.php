@@ -614,7 +614,7 @@ class ScheduleRepository extends BaseRepository
     }
 
     /**
-     * Build schedule ordering with priority as the default sort key.
+     * Build schedule ordering with priority and status date as default sort keys.
      *
      * @param array<string, mixed> $args Query arguments.
      * @return string Safe order clause.
@@ -625,6 +625,6 @@ class ScheduleRepository extends BaseRepository
             return $this->buildOrderClause($args, $this->getAllowedOrderColumns(), 'priority', 'DESC');
         }
 
-        return 'priority DESC, start_date ASC';
+        return 'priority DESC, end_date ASC';
     }
 }

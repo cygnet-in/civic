@@ -71,9 +71,12 @@ Admin can:
 * Only public schedules are visible on the frontend.
 * Archived schedules are hidden from active listings.
 * Private schedules remain admin-only.
-* Public schedules are ordered by priority, then start date.
+* Public schedules are ordered by priority, then status date.
 * The first schedule image is displayed as the listing thumbnail; detail pages show the primary image and remaining images as selectable thumbnails.
 * Schedule admin export uses the shared export framework. The list page provides filtered rows, column definitions, and a timestamped filename; `ExportManager` and `XlsxExporter` generate the workbook.
+* The admin list shows Status Date and Recent Update rather than Start Date and Images.
+* Default schedule ordering is Priority, then Status Date.
+* Public schedule cards display Status Date, trim Details to approximately 60 characters, and trim Recent Update to approximately 30 characters.
 
 ---
 

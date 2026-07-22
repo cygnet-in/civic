@@ -220,6 +220,125 @@ get_header();
 		</div>
 	</section>
 
+
+	<!-- Latest News / Blog Posts -->
+	<section class="civic-home-section civic-home-news">
+		<div class="civic-home__container">
+
+			<div class="civic-home-section__header civic-home-news__header">
+				<div>
+					<p class="civic-home-section__eyebrow">News & Updates</p>
+
+					<h2 class="civic-home-section__title">
+						Latest from Thomas Joseph
+					</h2>
+
+					<p class="civic-home-section__description">
+						Updates on council work, community matters, local initiatives,
+						and issues affecting Dún Laoghaire.
+					</p>
+				</div>
+
+				<a
+					class="civic-home-news__view-all"
+					href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"
+				>
+					View all updates →
+				</a>
+			</div>
+
+			<div class="civic-home-news__grid">
+
+				<?php
+				$civic_news_query = new WP_Query(
+					array(
+						'post_type'           => 'post',
+						'post_status'         => 'publish',
+						'posts_per_page'      => 3,
+						'ignore_sticky_posts' => true,
+					)
+				);
+
+				if ( $civic_news_query->have_posts() ) :
+					while ( $civic_news_query->have_posts() ) :
+						$civic_news_query->the_post();
+						?>
+
+						<article <?php post_class( 'civic-home-news-card' ); ?>>
+
+							<a
+								class="civic-home-news-card__image"
+								href="<?php the_permalink(); ?>"
+								aria-label="<?php echo esc_attr( get_the_title() ); ?>"
+							>
+								<?php if ( has_post_thumbnail() ) : ?>
+									<?php
+									the_post_thumbnail(
+										'medium_large',
+										array(
+											'loading' => 'lazy',
+										)
+									);
+									?>
+								<?php else : ?>
+									<span class="civic-home-news-card__placeholder" aria-hidden="true"></span>
+								<?php endif; ?>
+							</a>
+
+							<div class="civic-home-news-card__content">
+
+								<time
+									class="civic-home-news-card__date"
+									datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"
+								>
+									<?php echo esc_html( get_the_date( 'j F Y' ) ); ?>
+								</time>
+
+								<h3 class="civic-home-news-card__title">
+									<a href="<?php the_permalink(); ?>">
+										<?php the_title(); ?>
+									</a>
+								</h3>
+
+								<p class="civic-home-news-card__excerpt">
+									<?php
+									echo esc_html(
+										wp_trim_words(
+											get_the_excerpt(),
+											22,
+											'…'
+										)
+									);
+									?>
+								</p>
+
+								<a
+									class="civic-home-news-card__link"
+									href="<?php the_permalink(); ?>"
+								>
+									Read article →
+								</a>
+
+							</div>
+
+						</article>
+
+						<?php
+					endwhile;
+
+					wp_reset_postdata();
+				else :
+					?>
+					<p class="civic-home-news__empty">
+						No updates have been published yet.
+					</p>
+				<?php endif; ?>
+
+			</div>
+
+		</div>
+	</section>
+
 	<!-- Bottom CTA -->
 	<section class="civic-home-cta">
     <div class="civic-home__container">

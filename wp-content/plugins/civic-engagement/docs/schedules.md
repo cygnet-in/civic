@@ -64,6 +64,8 @@ Admin can:
 * export the filtered schedule list as a native `.xlsx` file,
 * create schedules from representations through a prefilled create form.
 
+Schedule Start Date and Status Date are managed as date-only admin fields using native browser date inputs. Submitted values are validated as `Y-m-d` and converted to MySQL datetime format (`Y-m-d 00:00:00`) before persistence. Status Date continues to use the existing `end_date` storage field.
+
 ---
 
 # Public Visibility Rules

@@ -68,7 +68,7 @@ class ThreadResponseService
      * Submit a public consultation response.
      *
      * Expected keys: thread_id, name, email, phone, address, eircode,
-     * response_text, and custom_fields.
+     * and custom_fields.
      *
      * @param array<string, mixed> $data Submission data.
      * @return array<string, mixed> Structured workflow result.
@@ -81,7 +81,7 @@ class ThreadResponseService
             return $this->buildResult(false, null, 0, 'invalid_thread_id');
         }
 
-        if ('' === $normalized['name'] || '' === $normalized['email'] || '' === $normalized['response_text']) {
+        if ('' === $normalized['name'] || '' === $normalized['email']) {
             return $this->buildResult(false, null, 0, 'validation_failed');
         }
 
@@ -138,7 +138,6 @@ class ThreadResponseService
             'consent_call' => !empty($data['consent_call']) ? 1 : 0,
             'consent_sms' => !empty($data['consent_sms']) ? 1 : 0,
             'consent_post' => !empty($data['consent_post']) ? 1 : 0,
-            'response_text' => $this->stringValue($data['response_text'] ?? ''),
             'custom_fields' => $this->customFields($data['custom_fields'] ?? []),
         ];
     }
@@ -163,7 +162,6 @@ class ThreadResponseService
             'electoral_area_id' => $data['electoral_area_id'],
             'electoral_area_snapshot' => $data['electoral_area'],
             'response_data' => [
-                'response_text' => $data['response_text'],
                 'custom_fields' => $data['custom_fields'],
             ],
             'is_public' => 0,

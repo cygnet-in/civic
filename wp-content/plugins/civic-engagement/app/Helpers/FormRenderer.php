@@ -76,7 +76,7 @@ class FormRenderer
             $errors,
             $errorKey,
             false,
-            3,
+            2,
             false
         );
     }
@@ -141,7 +141,7 @@ class FormRenderer
         $html .= '<label><input type="checkbox" name="' . esc_attr($fieldPrefix . '[privacy_consent]') . '" value="1" required> ';
         $html .= sprintf(
             /* translators: %s: Privacy Policy link. */
-            esc_html__('I have read and agree to the %s.', 'civic-engagement'),
+            esc_html__('I have read and agree to the %s', 'civic-engagement'),
             $link
         );
         $html .= '</label>';

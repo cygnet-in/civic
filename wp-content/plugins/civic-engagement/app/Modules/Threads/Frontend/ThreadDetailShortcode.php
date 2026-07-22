@@ -180,7 +180,7 @@ class ThreadDetailShortcode
         echo '<p class="civic-card__meta civic-thread-detail__meta">';
         $this->renderThreadMetaItem(__('Created', 'civic-engagement'), $this->dates->formatDate((string) ($thread['created_at'] ?? '')));
         $this->renderThreadMetaItem(__('Start Date', 'civic-engagement'), $this->dates->formatDate($thread['start_date'] ?? null));
-        $this->renderThreadMetaItem(__('End Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
+        $this->renderThreadMetaItem(__('Status Date', 'civic-engagement'), $this->dates->formatDate($thread['end_date'] ?? null));
         echo '</p>';
         $this->renderActionLinks($publicResponses, $showPublicResponses, $responseCount, $acceptingResponses);
         echo '</div>';
@@ -214,7 +214,7 @@ class ThreadDetailShortcode
         echo '<p class="civic-card__actions civic-thread-detail__actions">';
 
         if ($acceptingResponses) {
-            echo '<a href="#civic-thread-response-form" class="civic-button civic-button--primary">' . esc_html__('Submit a Response', 'civic-engagement') . '</a>';
+            //echo '<a href="#civic-thread-response-form" class="civic-button civic-button--primary">' . esc_html__('Submit a Response', 'civic-engagement') . '</a>';
         }
 
         if ($acceptingResponses || $responseCount > 0) {
@@ -289,7 +289,10 @@ class ThreadDetailShortcode
         echo '<article class="civic-thread-response">';
         echo '<h3 class="civic-card__title civic-thread-response__name">' . esc_html((string) ($response['name_snapshot'] ?? '')) . '</h3>';
         echo '<p class="civic-card__date civic-thread-response__date">' . esc_html($this->dates->formatDate((string) ($response['created_at'] ?? ''))) . '</p>';
-        echo '<div class="civic-card__text civic-thread-response__text">' . wpautop(esc_html($this->responseText($response['response_data'] ?? ''))) . '</div>';
+        $responseText = $this->responseText($response['response_data'] ?? '');
+        if ('' !== trim($responseText)) {
+            echo '<div class="civic-card__text civic-thread-response__text">' . wpautop(esc_html($responseText)) . '</div>';
+        }
         $this->renderCustomFields($response['response_data'] ?? '', $fieldLabels);
         echo '</article>';
     }

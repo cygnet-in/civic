@@ -102,7 +102,7 @@ class ThreadCreatePage
             return $this->buildResponse(true, false, 'The consultation could not be created.', $values, [], 'thread_create_failed');
         }
 
-        return $this->buildResponse(true, true, 'Consultation created successfully.', $this->defaultValues(), [], null);
+        return $this->buildResponse(true, true, 'Consultation created as a draft. Add response fields before publishing; publishing is available from the Edit screen.', $this->defaultValues(), [], null);
     }
 
     /**
@@ -141,9 +141,8 @@ class ThreadCreatePage
         $this->renderTextInput('short_code', __('Short URL Code', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('summary', __('Summary', 'civic-engagement'), $values, $errors, 3);
         $this->renderTextarea('content', __('Content', 'civic-engagement'), $values, $errors, 8);
-        $this->renderStatusSelect($values, $errors);
         $this->renderNumberInput('starting_response_count', __('Starting Response Count', 'civic-engagement'), $values, $errors);
-        $this->renderResponseEnabledField($values);
+        $this->renderResponseEnabledField($values, $errors);
         echo '</tbody></table>';
         submit_button(__('Create Consultation', 'civic-engagement'));
         echo '</form>';
@@ -253,7 +252,7 @@ class ThreadCreatePage
      * @param array<string, mixed> $values Form values.
      * @return void
      */
-    private function renderResponseEnabledField(array $values): void
+    private function renderResponseEnabledField(array $values, array $errors): void
     {
         $enabled = !empty($values['response_enabled']);
 
@@ -261,6 +260,7 @@ class ThreadCreatePage
         echo '<th scope="row">' . esc_html__('Responses', 'civic-engagement') . '</th>';
         echo '<td>';
         echo '<label><input type="checkbox" name="civic_thread[response_enabled]" value="1"' . checked($enabled, true, false) . '> ' . esc_html__('Enable public responses', 'civic-engagement') . '</label>';
+        $this->renderFieldError('response_enabled', $errors);
         echo '</td>';
         echo '</tr>';
     }
@@ -339,7 +339,6 @@ class ThreadCreatePage
             'short_code' => $this->shortUrls->normalize($this->requestValue($data, 'short_code')),
             'summary' => sanitize_textarea_field($this->requestValue($data, 'summary')),
             'content' => sanitize_textarea_field($this->requestValue($data, 'content')),
-            'status' => sanitize_text_field($this->requestValue($data, 'status')),
             'starting_response_count' => absint($this->requestValue($data, 'starting_response_count')),
             'response_enabled' => !empty($data['response_enabled']) ? 1 : 0,
         ];
@@ -391,10 +390,6 @@ class ThreadCreatePage
             $errors['title'] = 'Title is required.';
         }
 
-        if (!in_array($values['status'], ['draft', 'published'], true)) {
-            $errors['status'] = 'Status must be draft or published.';
-        }
-
         $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'consultation');
         if (null !== $shortUrlError) {
             $errors['short_code'] = $shortUrlError;
@@ -422,10 +417,10 @@ class ThreadCreatePage
             'summary' => $values['summary'],
             'description' => $values['content'],
             'response_enabled' => $values['response_enabled'],
-            'is_public' => 'published' === $values['status'] ? 1 : 0,
+            'is_public' => 0,
             'starting_response_count' => $values['starting_response_count'],
             'created_by' => get_current_user_id(),
-            'status' => $values['status'],
+            'status' => 'draft',
         ];
     }
 
@@ -458,7 +453,6 @@ class ThreadCreatePage
             'short_code' => '',
             'summary' => '',
             'content' => '',
-            'status' => 'draft',
             'starting_response_count' => 0,
             'response_enabled' => 1,
         ];

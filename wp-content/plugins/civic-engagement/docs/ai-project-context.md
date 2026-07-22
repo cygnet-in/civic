@@ -194,6 +194,8 @@ Public request fields must remain namespaced:
 
 Shared CAPTCHA handling belongs in `CaptchaService`. Representation submission, Consultation responses, and Event registrations render the shared Cloudflare Turnstile widget and validate the submitted token before processing when CAPTCHA is enabled.
 
+Consultation response forms collect consultation-specific input exclusively through configured Custom Fields. Do not reintroduce a built-in free-text Response textarea for new submissions. Historical `response_data['response_text']` values remain display-compatible only. Response counts are based on response records, plus any starting count offset, not on response text.
+
 Shared public form HTML primitives belong in `CivicPlatform\Helpers\FormRenderer`. Keep this helper limited to stable duplicated controls such as text inputs, textareas, the dedicated address textarea, image upload, validation messages, communication preference checkboxes, and privacy consent. Do not move workflow-specific hidden fields, nonce logic, select option loading, or business validation into the renderer.
 
 ## Statistics Component Conventions

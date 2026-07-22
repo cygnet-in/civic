@@ -183,7 +183,7 @@ class EventRegistrationRepository extends BaseRepository
 
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildRegistrationFilters($args);
-        $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
+        $search = $this->buildRegistrationSearchClause($keyword);
 
         if ('' !== $search['sql']) {
             $where['sql'][] = $search['sql'];
@@ -207,7 +207,7 @@ class EventRegistrationRepository extends BaseRepository
         $search = isset($args['search']) ? trim((string) $args['search']) : '';
 
         if ('' !== $search) {
-            $searchClause = $this->buildSearchClause($search, $this->getSearchColumns());
+            $searchClause = $this->buildRegistrationSearchClause($search);
 
             if ('' !== $searchClause['sql']) {
                 $where['sql'][] = $searchClause['sql'];
@@ -235,6 +235,34 @@ class EventRegistrationRepository extends BaseRepository
                 'contact_id' => ['column' => 'contact_id', 'format' => '%d'],
             ]
         );
+    }
+
+    /**
+     * Build registration search SQL including the parent event title.
+     *
+     * @param string $keyword Search keyword.
+     * @return array{sql: string, values: array<int, string>}
+     */
+    private function buildRegistrationSearchClause(string $keyword): array
+    {
+        $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
+
+        if ('' === $search['sql']) {
+            return $search;
+        }
+
+        $eventsTable = $this->prefixTableName('civic_events');
+        $like = $this->buildLikeTerm($keyword);
+
+        $search['sql'] = sprintf(
+            '(%s OR EXISTS (SELECT 1 FROM %s parent_event WHERE parent_event.id = %s.event_id AND parent_event.title LIKE %%s))',
+            $search['sql'],
+            $eventsTable,
+            $this->table
+        );
+        $search['values'][] = $like;
+
+        return $search;
     }
 
     /**

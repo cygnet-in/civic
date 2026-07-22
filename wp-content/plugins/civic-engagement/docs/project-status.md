@@ -165,6 +165,7 @@ Admin Features:
 * consultation fields
 * consultation responses
 * response moderation
+* draft-first consultation creation with field-count guidance before publishing
 
 Public Features:
 
@@ -194,6 +195,8 @@ Citizen responses are immutable.
 
 Moderation controls visibility only.
 
+Consultation-specific input is collected exclusively through Custom Fields. Public response counts are based on created response records, plus any configured starting response count offset, and do not depend on a built-in response text field.
+
 ---
 
 ## Consultation Custom Fields
@@ -222,6 +225,8 @@ Stored inside:
 `response_data['custom_fields']`
 
 Using stable field keys.
+
+Historical responses may contain `response_data['response_text']` and remain display-compatible.
 
 ---
 

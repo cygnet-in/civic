@@ -868,10 +868,6 @@ body:not(.home) .entry-content > p {
     min-height: 46px;
 }
 
-.civic-form textarea {
-    min-height: 130px;
-}
-
 .civic-form input:focus,
 .civic-form select:focus,
 .civic-form textarea:focus {
@@ -1919,7 +1915,6 @@ body:not(.home) .inside-right-sidebar .widget-title {
     gap: 0.75rem;
     margin-top: 0.5rem;
     border: none;
-    padding: 0;
 }
 
 .civic-form__consent legend {
@@ -2008,8 +2003,8 @@ body:not(.home) .inside-right-sidebar .widget-title {
 
 .civic-form__button-checkbox input:checked + span {
 
-    background: var(--civic-primary-color, #2563eb);
-    border-color: var(--civic-primary-color, #2563eb);
+    background: var(--civic-primary-color, #3c5d79);
+    border-color: var(--civic-primary-dark);
     color: #fff;
 
     box-shadow: 0 2px 6px rgba(0,0,0,.15);
@@ -2017,11 +2012,24 @@ body:not(.home) .inside-right-sidebar .widget-title {
 
 .civic-form__button-checkbox span::before {
 
-    content: "✓";
+    /*content: "✓";*/
     margin-right: .5rem;
     opacity: .25;
     transition: opacity .2s ease;
 }
+.civic-form__button-checkbox[for="civic-thread-response-form-consent_email"] span::before, .civic-form__button-checkbox[for="civic-event-registration-form-consent_email"] span::before, .civic-form__button-checkbox[for="civic-rep-form-consent_email"] span::before {
+    content: "✉";
+}
+.civic-form__button-checkbox[for="civic-thread-response-form-consent_call"] span::before, .civic-form__button-checkbox[for="civic-event-registration-form-consent_call"] span::before, .civic-form__button-checkbox[for="civic-rep-form-consent_call"] span::before {
+    content: "📞";
+}
+.civic-form__button-checkbox[for="civic-thread-response-form-consent_sms"] span::before, .civic-form__button-checkbox[for="civic-event-registration-form-consent_sms"] span::before, .civic-form__button-checkbox[for="civic-rep-form-consent_sms"] span::before {
+    content: "💬";
+}
+.civic-form__button-checkbox[for="civic-thread-response-form-consent_post"] span::before, .civic-form__button-checkbox[for="civic-event-registration-form-consent_post"] span::before, .civic-form__button-checkbox[for="civic-rep-form-consent_post"] span::before {
+    content: "📫";
+}
+
 
 .civic-form__button-checkbox input:checked + span::before {
 
@@ -2151,3 +2159,204 @@ body:not(.home) .inside-right-sidebar .widget-title {
     font-weight:700;
 }
 
+/* =====================================================
+   Homepage News / Blog Section
+===================================================== */
+
+.civic-home-news {
+    background: #fff;
+}
+
+.civic-home-news__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    max-width: none;
+    margin: 0 0 42px;
+    text-align: left;
+}
+
+.civic-home-news__header > div {
+    max-width: 720px;
+}
+
+.civic-home-news__view-all {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    margin-bottom: 6px;
+    color: var(--civic-accent);
+    font-size: .92rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+        color .2s ease,
+        transform .2s ease;
+}
+
+.civic-home-news__view-all:hover,
+.civic-home-news__view-all:focus {
+    color: #a91319;
+    transform: translateX(4px);
+}
+
+.civic-home-news__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 26px;
+}
+
+.civic-home-news-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--civic-border);
+    border-radius: 22px;
+    box-shadow: 0 12px 34px rgba(15, 61, 99, .07);
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease;
+}
+
+.civic-home-news-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(15, 61, 99, .18);
+    box-shadow: 0 20px 46px rgba(15, 61, 99, .12);
+}
+
+.civic-home-news-card__image {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #edf4fa;
+}
+
+.civic-home-news-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+
+.civic-home-news-card:hover .civic-home-news-card__image img {
+    transform: scale(1.045);
+}
+
+.civic-home-news-card__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(
+            circle at 22% 30%,
+            rgba(197, 22, 29, .12),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #edf4fa,
+            #dfeaf3
+        );
+}
+
+.civic-home-news-card__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 24px;
+}
+
+.civic-home-news-card__date {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--civic-accent);
+    font-size: .74rem;
+    line-height: 1.4;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.civic-home-news-card__title {
+    margin: 0 0 12px;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    font-weight: 800;
+}
+
+.civic-home-news-card__title a {
+    color: var(--civic-primary);
+    text-decoration: none;
+}
+
+.civic-home-news-card__title a:hover,
+.civic-home-news-card__title a:focus {
+    color: var(--civic-accent);
+}
+
+.civic-home-news-card__excerpt {
+    margin: 0 0 20px;
+    color: var(--civic-muted);
+    font-size: .95rem;
+    line-height: 1.65;
+}
+
+.civic-home-news-card__link {
+    display: inline-flex;
+    margin-top: auto;
+    color: var(--civic-primary);
+    font-size: .88rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+        color .2s ease,
+        transform .2s ease;
+}
+
+.civic-home-news-card__link:hover,
+.civic-home-news-card__link:focus {
+    color: var(--civic-accent);
+    transform: translateX(4px);
+}
+
+.civic-home-news__empty {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 26px;
+    background: #f5f8fb;
+    border-radius: 16px;
+    color: var(--civic-muted);
+}
+
+/* Responsive */
+
+@media (max-width: 960px) {
+    .civic-home-news__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .civic-home-news-card:last-child {
+        display: none;
+    }
+}
+
+@media (max-width: 680px) {
+    .civic-home-news__header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .civic-home-news__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .civic-home-news-card:last-child {
+        display: flex;
+    }
+}

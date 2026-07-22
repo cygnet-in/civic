@@ -102,6 +102,15 @@ class ThreadResponseForm
             echo '<p class="civic-thread-response-form__message civic-form__message ' . esc_attr($class) . '">' . esc_html((string) $response['message']) . '</p>';
         }
 
+        if (empty($fieldDefinitions)) {
+            if (empty($response['message'])) {
+                echo '<p class="civic-thread-response-form__message civic-form__message civic-thread-response-form__message--error civic-form__message--error">' . esc_html__('This consultation is not accepting responses because no response fields have been configured.', 'civic-engagement') . '</p>';
+            }
+            echo '</section>';
+
+            return (string) ob_get_clean();
+        }
+
         echo '<form method="post" class="civic-thread-response-form__form civic-form__form">';
         echo '<input type="hidden" name="civic_action" value="' . esc_attr(self::ACTION) . '">';
         echo '<input type="hidden" name="civic_thread_response[thread_id]" value="' . esc_attr((string) $threadId) . '">';
@@ -113,7 +122,6 @@ class ThreadResponseForm
         $this->renderTextareaField('address', __('Address', 'civic-engagement'), (string) $values['address'], $errors, false);
         $this->renderTextField('eircode', __('Eircode', 'civic-engagement'), (string) $values['eircode'], $errors, false);
         $this->renderElectoralAreaField((int) ($values['electoral_area_id'] ?? 0));        
-        $this->renderTextareaField('response_text', __('Response', 'civic-engagement'), (string) $values['response_text'], $errors, true);
         $this->renderCustomFields($fieldDefinitions, $values, $errors);
         echo $this->captcha->renderWidget('civic-thread-response-form');
         
@@ -146,6 +154,10 @@ class ThreadResponseForm
 
         if (!$this->hasValidNonce()) {
             return $this->buildResponse(true, false, 'Security check failed. Please try again.', $this->defaultValues($threadId), [], 'invalid_nonce');
+        }
+
+        if (empty($fieldDefinitions)) {
+            return $this->buildResponse(true, false, 'This consultation is not accepting responses because no response fields have been configured.', $this->defaultValues($threadId), [], 'response_fields_required');
         }
 
         $values = $this->sanitizeRequestValues($threadId, $fieldDefinitions);
@@ -437,7 +449,6 @@ class ThreadResponseForm
             'consent_call' => !empty($data['consent_call']) ? 1 : 0,
             'consent_sms' => !empty($data['consent_sms']) ? 1 : 0,
             'consent_post' => !empty($data['consent_post']) ? 1 : 0,
-            'response_text' => sanitize_textarea_field($this->requestValue($data, 'response_text')),
             'custom_fields' => $this->sanitizeCustomFields($data, $fieldDefinitions),
         ];
     }
@@ -460,10 +471,6 @@ class ThreadResponseForm
             $errors['email'] = 'Email is required.';
         } elseif (function_exists('is_email') && !is_email((string) $values['email'])) {
             $errors['email'] = 'Please enter a valid email address.';
-        }
-
-        if ('' === $values['response_text']) {
-            $errors['response_text'] = 'Response is required.';
         }
 
         foreach ($fieldDefinitions as $field) {
@@ -601,7 +608,6 @@ class ThreadResponseForm
             'consent_call' => 1,
             'consent_sms' => 1,
             'consent_post' => 1,
-            'response_text' => '',
             'custom_fields' => [],
         ];
     }

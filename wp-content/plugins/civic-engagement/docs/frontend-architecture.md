@@ -95,6 +95,8 @@ Implemented public forms:
 - Consultation response: `app/Modules/Threads/Responses/Frontend/ThreadResponseForm.php`
 - Event registration: `app/Modules/Events/Registrations/Frontend/EventRegistrationForm.php`
 
+The consultation response form collects consultation-specific input exclusively through configured Custom Fields. It does not render a built-in free-text Response textarea for new submissions. Historical consultation responses that include stored `response_text` continue to display it when present.
+
 Module-specific classes remain alongside shared classes:
 
 - `civic-rep-form`

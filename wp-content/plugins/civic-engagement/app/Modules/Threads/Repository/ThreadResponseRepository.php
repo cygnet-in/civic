@@ -253,7 +253,7 @@ class ThreadResponseRepository extends BaseRepository
 
         $pagination = $this->parsePaginationArgs($args);
         $where = $this->buildResponseFilters($args);
-        $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
+        $search = $this->buildResponseSearchClause($keyword);
 
         if ('' !== $search['sql']) {
             $where['sql'][] = $search['sql'];
@@ -277,7 +277,7 @@ class ThreadResponseRepository extends BaseRepository
         $search = isset($args['search']) ? trim((string) $args['search']) : '';
 
         if ('' !== $search) {
-            $searchClause = $this->buildSearchClause($search, $this->getSearchColumns());
+            $searchClause = $this->buildResponseSearchClause($search);
 
             if ('' !== $searchClause['sql']) {
                 $where['sql'][] = $searchClause['sql'];
@@ -306,6 +306,34 @@ class ThreadResponseRepository extends BaseRepository
                 'is_public' => ['column' => 'is_public', 'format' => '%d'],
             ]
         );
+    }
+
+    /**
+     * Build response search SQL including the parent consultation title.
+     *
+     * @param string $keyword Search keyword.
+     * @return array{sql: string, values: array<int, string>}
+     */
+    private function buildResponseSearchClause(string $keyword): array
+    {
+        $search = $this->buildSearchClause($keyword, $this->getSearchColumns());
+
+        if ('' === $search['sql']) {
+            return $search;
+        }
+
+        $threadsTable = $this->prefixTableName('civic_threads');
+        $like = $this->buildLikeTerm($keyword);
+
+        $search['sql'] = sprintf(
+            '(%s OR EXISTS (SELECT 1 FROM %s parent_thread WHERE parent_thread.id = %s.thread_id AND parent_thread.title LIKE %%s))',
+            $search['sql'],
+            $threadsTable,
+            $this->table
+        );
+        $search['values'][] = $like;
+
+        return $search;
     }
 
     /**

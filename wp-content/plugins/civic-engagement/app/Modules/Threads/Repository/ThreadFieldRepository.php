@@ -155,6 +155,32 @@ class ThreadFieldRepository extends BaseRepository
     }
 
     /**
+     * Get field counts for a set of consultations.
+     *
+     * @param array<int, int> $threadIds Consultation IDs.
+     * @return array<int, int> Counts keyed by consultation ID.
+     */
+    public function getCountsByThreadIds(array $threadIds): array
+    {
+        $threadIds = array_values(array_unique(array_filter(array_map('absint', $threadIds))));
+
+        if (empty($threadIds)) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($threadIds), '%d'));
+        $sql = "SELECT thread_id, COUNT(*) AS item_count FROM {$this->table} WHERE thread_id IN ({$placeholders}) GROUP BY thread_id";
+        $rows = $this->wpdb->get_results($this->prepare($sql, $threadIds), ARRAY_A);
+        $counts = [];
+
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $counts[(int) ($row['thread_id'] ?? 0)] = (int) ($row['item_count'] ?? 0);
+        }
+
+        return $counts;
+    }
+
+    /**
      * Check whether a field key already exists for a thread.
      *
      * @param int $threadId Thread ID.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CivicPlatform\Modules\Threads\Admin;
 
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
+use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Media\Admin\MediaAdminPanel;
 use CivicPlatform\Services\MediaService;
 use CivicPlatform\Services\ShortUrlService;
@@ -44,6 +45,8 @@ class ThreadEditPage
      */
     private ThreadRepository $threads;
 
+    private ThreadFieldRepository $fields;
+
     private ShortUrlService $shortUrls;
 
     private MediaService $media;
@@ -53,9 +56,10 @@ class ThreadEditPage
     /**
      * @param ThreadRepository $threads Thread repository.
      */
-    public function __construct(ThreadRepository $threads, MediaService $media, ShortUrlService $shortUrls)
+    public function __construct(ThreadRepository $threads, ThreadFieldRepository $fields, MediaService $media, ShortUrlService $shortUrls)
     {
         $this->threads = $threads;
+        $this->fields = $fields;
         $this->media = $media;
         $this->shortUrls = $shortUrls;
         $this->mediaPanel = new MediaAdminPanel($media);
@@ -118,7 +122,7 @@ class ThreadEditPage
         $errors = $this->validateValues($values, $threadId);
 
         if (!empty($errors)) {
-            return $this->buildResponse(true, false, 'Please check the highlighted fields.', $values, $errors, 'validation_failed');
+            return $this->buildResponse(true, false, $this->validationMessage($errors), $values, $errors, 'validation_failed');
         }
 
         $updated = $this->threads->update($threadId, $this->buildThreadData($values));
@@ -176,9 +180,9 @@ class ThreadEditPage
         $this->renderTextarea('description', __('Description', 'civic-engagement'), $values, $errors, 8);
         $this->renderStatusSelect($values, $errors);
         $this->renderNumberInput('starting_response_count', __('Starting Response Count', 'civic-engagement'), $values, $errors);
-        $this->renderResponseEnabledField($values);
-        $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
-        $this->renderTextInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
+        $this->renderResponseEnabledField($values, $errors);
+        $this->renderDateInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
+        $this->renderDateInput('end_date', __('End Date', 'civic-engagement'), $values, $errors, false);
         echo '</tbody></table>';
         $this->mediaPanel->render('consultation', $threadId);
         submit_button(__('Update Consultation', 'civic-engagement'));
@@ -222,6 +226,27 @@ class ThreadEditPage
                 echo '<p class="description"><code>' . esc_html(ShortUrlService::url((string) $values[$key])) . '</code></p>';
             }
         }
+        $this->renderFieldError($key, $errors);
+        echo '</td>';
+        echo '</tr>';
+    }
+
+    /**
+     * Render a date input field.
+     *
+     * @param string $key Field key.
+     * @param string $label Field label.
+     * @param array<string, mixed> $values Form values.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderDateInput(string $key, string $label, array $values, array $errors, bool $required): void
+    {
+        echo '<tr>';
+        echo '<th scope="row"><label for="civic-thread-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
+        echo '<td>';
+        echo '<input class="regular-text" id="civic-thread-' . esc_attr($key) . '" name="civic_thread[' . esc_attr($key) . ']" type="date" value="' . esc_attr((string) ($values[$key] ?? '')) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
@@ -296,7 +321,7 @@ class ThreadEditPage
      * @param array<string, mixed> $values Form values.
      * @return void
      */
-    private function renderResponseEnabledField(array $values): void
+    private function renderResponseEnabledField(array $values, array $errors): void
     {
         $enabled = !empty($values['response_enabled']);
 
@@ -304,6 +329,7 @@ class ThreadEditPage
         echo '<th scope="row">' . esc_html__('Responses', 'civic-engagement') . '</th>';
         echo '<td>';
         echo '<label><input type="checkbox" name="civic_thread[response_enabled]" value="1"' . checked($enabled, true, false) . '> ' . esc_html__('Enable public responses', 'civic-engagement') . '</label>';
+        $this->renderFieldError('response_enabled', $errors);
         echo '</td>';
         echo '</tr>';
     }
@@ -450,12 +476,45 @@ class ThreadEditPage
             $errors['status'] = 'Status must be draft or published.';
         }
 
+        foreach (['start_date', 'end_date'] as $dateField) {
+            if (!$this->isValidDateValue((string) ($values[$dateField] ?? ''))) {
+                $errors[$dateField] = sprintf(
+                    __('%s must use the YYYY-MM-DD format.', 'civic-engagement'),
+                    $this->dateFieldLabel($dateField)
+                );
+            }
+        }
+
         $shortUrlError = $this->shortUrls->validationError((string) $values['short_code'], 'consultation', $threadId);
         if (null !== $shortUrlError) {
             $errors['short_code'] = $shortUrlError;
         }
 
+        if ('published' === $values['status'] && !empty($values['response_enabled']) && !$this->hasResponseFields($threadId)) {
+            $errors['response_enabled'] = 'Add at least one custom response field before publishing a consultation that accepts public responses.';
+        }
+
         return $errors;
+    }
+
+    private function hasResponseFields(int $threadId): bool
+    {
+        return $threadId > 0 && !empty($this->fields->findByThreadId($threadId));
+    }
+
+    /**
+     * Build the top-level validation message for the edit form.
+     *
+     * @param array<string, string> $errors Validation errors.
+     * @return string Validation message.
+     */
+    private function validationMessage(array $errors): string
+    {
+        if (isset($errors['response_enabled'])) {
+            return __('This consultation cannot be published because no Response Fields have been configured. Please add at least one Response Field before publishing.', 'civic-engagement');
+        }
+
+        return __('Please check the highlighted fields.', 'civic-engagement');
     }
 
     /**
@@ -473,8 +532,8 @@ class ThreadEditPage
             'description' => $values['description'],
             'response_enabled' => $values['response_enabled'],
             'is_public' => 'published' === $values['status'] ? 1 : 0,
-            'start_date' => $values['start_date'],
-            'end_date' => $values['end_date'],
+            'start_date' => $this->dateStorageValue((string) $values['start_date']),
+            'end_date' => $this->dateStorageValue((string) $values['end_date']),
             'status' => $values['status'],
             'starting_response_count' => $values['starting_response_count'],
         ];
@@ -513,7 +572,54 @@ class ThreadEditPage
             return '';
         }
 
-        return (string) $value;
+        $date = substr(trim((string) $value), 0, 10);
+
+        return $this->isValidDateValue($date) ? $date : '';
+    }
+
+    /**
+     * Convert a date form value to MySQL datetime storage format.
+     *
+     * @param string $value Submitted date value.
+     * @return string Storage value.
+     */
+    private function dateStorageValue(string $value): string
+    {
+        $value = trim($value);
+
+        return '' === $value ? '' : $value . ' 00:00:00';
+    }
+
+    /**
+     * Validate an optional Y-m-d date value.
+     *
+     * @param string $value Date value.
+     * @return bool True when empty or valid.
+     */
+    private function isValidDateValue(string $value): bool
+    {
+        $value = trim($value);
+
+        if ('' === $value) {
+            return true;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+
+        return false !== $date && $date->format('Y-m-d') === $value;
+    }
+
+    /**
+     * Get a user-facing label for a date field.
+     *
+     * @param string $key Date field key.
+     * @return string Field label.
+     */
+    private function dateFieldLabel(string $key): string
+    {
+        return 'end_date' === $key
+            ? __('End Date', 'civic-engagement')
+            : __('Start Date', 'civic-engagement');
     }
 
     /**

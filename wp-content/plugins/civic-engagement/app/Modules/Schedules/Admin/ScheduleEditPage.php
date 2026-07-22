@@ -266,8 +266,8 @@ class ScheduleEditPage
         $this->renderNumberInput('priority', __('Priority', 'civic-engagement'), $values, $errors);
         $this->renderCheckbox('is_public', __('Public', 'civic-engagement'), __('Make this schedule visible publicly', 'civic-engagement'), $values);
         $this->renderCheckbox('is_archived', __('Archived', 'civic-engagement'), __('Mark this schedule as archived', 'civic-engagement'), $values);
-        $this->renderTextInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
-        $this->renderTextInput('end_date', __('Status Date', 'civic-engagement'), $values, $errors, false);
+        $this->renderDateInput('start_date', __('Start Date', 'civic-engagement'), $values, $errors, false);
+        $this->renderDateInput('end_date', __('Status Date', 'civic-engagement'), $values, $errors, false);
         $this->renderTextarea('history_note', __('History Note', 'civic-engagement'), $values, $errors, 4);
         echo '</tbody></table>';
         $this->mediaPanel->render('schedule', $scheduleId);
@@ -395,6 +395,26 @@ class ScheduleEditPage
             }
         }
 
+        $this->renderFieldError($key, $errors);
+        echo '</td>';
+        echo '</tr>';
+    }
+
+    /**
+     * Render a date input field.
+     *
+     * @param string $key Field key.
+     * @param string $label Field label.
+     * @param array<string, mixed> $values Form values.
+     * @param array<string, string> $errors Validation errors.
+     * @param bool $required Whether the field is required.
+     * @return void
+     */
+    private function renderDateInput(string $key, string $label, array $values, array $errors, bool $required): void
+    {
+        echo '<tr>';
+        echo '<th scope="row"><label for="civic-schedule-' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
+        echo '<td><input class="regular-text" id="civic-schedule-' . esc_attr($key) . '" name="civic_schedule[' . esc_attr($key) . ']" type="date" value="' . esc_attr((string) ($values[$key] ?? '')) . '"' . ($required ? ' required' : '') . '>';
         $this->renderFieldError($key, $errors);
         echo '</td>';
         echo '</tr>';
@@ -733,6 +753,15 @@ class ScheduleEditPage
             $errors['status'] = 'Status is invalid.';
         }
 
+        foreach (['start_date', 'end_date'] as $dateField) {
+            if (!$this->isValidDateValue((string) ($values[$dateField] ?? ''))) {
+                $errors[$dateField] = sprintf(
+                    __('%s must use the YYYY-MM-DD format.', 'civic-engagement'),
+                    $this->dateFieldLabel($dateField)
+                );
+            }
+        }
+
         $slug = $this->buildSlug((string) $values['slug'], (string) $values['title']);
 
         if ($this->schedules->slugExists($slug, $scheduleId > 0 ? $scheduleId : null)) {
@@ -787,8 +816,8 @@ class ScheduleEditPage
             'priority' => $values['priority'],
             'is_public' => $values['is_public'] ? 1 : 0,
             'is_archived' => $values['is_archived'] ? 1 : 0,
-            'start_date' => $values['start_date'],
-            'end_date' => $values['end_date'],
+            'start_date' => $this->dateStorageValue((string) $values['start_date']),
+            'end_date' => $this->dateStorageValue((string) $values['end_date']),
             'source_type' => $values['source_type'],
             'source_id' => $values['source_id'],
             'created_by' => $values['created_by'],
@@ -905,7 +934,54 @@ class ScheduleEditPage
             return '';
         }
 
-        return (string) $value;
+        $date = substr(trim((string) $value), 0, 10);
+
+        return $this->isValidDateValue($date) ? $date : '';
+    }
+
+    /**
+     * Convert a date form value to MySQL datetime storage format.
+     *
+     * @param string $value Submitted date value.
+     * @return string Storage value.
+     */
+    private function dateStorageValue(string $value): string
+    {
+        $value = trim($value);
+
+        return '' === $value ? '' : $value . ' 00:00:00';
+    }
+
+    /**
+     * Validate an optional Y-m-d date value.
+     *
+     * @param string $value Date value.
+     * @return bool True when empty or valid.
+     */
+    private function isValidDateValue(string $value): bool
+    {
+        $value = trim($value);
+
+        if ('' === $value) {
+            return true;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+
+        return false !== $date && $date->format('Y-m-d') === $value;
+    }
+
+    /**
+     * Get a user-facing label for a date field.
+     *
+     * @param string $key Date field key.
+     * @return string Field label.
+     */
+    private function dateFieldLabel(string $key): string
+    {
+        return 'end_date' === $key
+            ? __('Status Date', 'civic-engagement')
+            : __('Start Date', 'civic-engagement');
     }
 
     /**

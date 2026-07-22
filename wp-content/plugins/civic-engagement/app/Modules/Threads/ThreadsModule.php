@@ -125,6 +125,7 @@ class ThreadsModule
             new ThreadRepository($this->wpdb),
             new DateHelper(),
             new ThreadResponseRepository($this->wpdb),
+            new ThreadFieldRepository($this->wpdb),
             $this->createMediaService(),
             new ExportManager()
         );
@@ -203,7 +204,12 @@ class ThreadsModule
      */
     private function createEditPage(): ThreadEditPage
     {
-        return new ThreadEditPage(new ThreadRepository($this->wpdb), $this->createMediaService(), $this->createShortUrlService());
+        return new ThreadEditPage(
+            new ThreadRepository($this->wpdb),
+            new ThreadFieldRepository($this->wpdb),
+            $this->createMediaService(),
+            $this->createShortUrlService()
+        );
     }
 
     /**

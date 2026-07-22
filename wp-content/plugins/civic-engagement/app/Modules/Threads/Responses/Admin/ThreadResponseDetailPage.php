@@ -173,7 +173,10 @@ class ThreadResponseDetailPage
         $this->renderDetailRow(__('Address Snapshot', 'civic-engagement'), (string) ($response['address_snapshot'] ?? ''));
         $this->renderDetailRow(__('Eircode Snapshot', 'civic-engagement'), (string) ($response['eircode_snapshot'] ?? ''));
         $this->renderDetailRow(__('Electoral Area Snapshot', 'civic-engagement'), (string) ($response['electoral_area_snapshot'] ?? ''));
-        $this->renderDetailRow(__('Response Text', 'civic-engagement'), $this->responseText($response['response_data'] ?? ''));
+        $responseText = $this->responseText($response['response_data'] ?? '');
+        if ('' !== trim($responseText)) {
+            $this->renderDetailRow(__('Response Text', 'civic-engagement'), $responseText);
+        }
         $this->renderCustomFieldRows($response);
         $this->renderDetailRow(__('Public', 'civic-engagement'), $this->yesNo($response['is_public'] ?? 0));
         $this->renderDetailRow(__('Created At', 'civic-engagement'), $this->dates->formatDateTime($response['created_at'] ?? null));

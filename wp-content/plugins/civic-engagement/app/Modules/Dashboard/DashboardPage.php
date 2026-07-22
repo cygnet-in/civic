@@ -135,6 +135,23 @@ class DashboardPage
     {
         $data = json_decode((string) ($response['response_data'] ?? ''), true);
         $text = is_array($data) ? (string) ($data['response_text'] ?? '') : '';
+        if ('' === trim($text) && is_array($data)) {
+            $customFields = isset($data['custom_fields']) && is_array($data['custom_fields'])
+                ? $data['custom_fields']
+                : [];
+
+            foreach ($customFields as $value) {
+                if (is_array($value) || is_object($value)) {
+                    continue;
+                }
+
+                $text = trim((string) $value);
+
+                if ('' !== $text) {
+                    break;
+                }
+            }
+        }
         return '' !== trim($text) ? wp_trim_words(wp_strip_all_tags($text), 12, '...') : (string) ($response['name_snapshot'] ?? '');
     }
 

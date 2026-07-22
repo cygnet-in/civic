@@ -118,7 +118,7 @@ class ScheduleDetailShortcode
 
         echo '<p class="civic-card__date civic-schedule-detail__date">';
         echo '<strong>' . esc_html__('Date:', 'civic-engagement') . '</strong><br>';
-        echo 'From <span class="civic-schedule-detail__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> to <span class="civic-schedule-detail__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span>';
+        echo 'Start Date: <span class="civic-schedule-detail__date-start">' . esc_html($this->dates->formatDate($schedule['start_date'] ?? null)) . '</span> Status Date: <span class="civic-schedule-detail__date-end">' . esc_html($this->dates->formatDate($schedule['end_date'] ?? null)) . '</span>';
         echo '</p>';
         echo '</div>';
         echo '</article>';

@@ -307,6 +307,8 @@ Stores public thread responses.
 
 * Snapshot contact data required.
 * response_data stored as JSON.
+* New consultation responses store submitted Custom Field values in `response_data['custom_fields']`.
+* Historical rows may also contain `response_data['response_text']`; this remains display-only backward-compatible data.
 * Public visibility controlled separately.
 
 ---

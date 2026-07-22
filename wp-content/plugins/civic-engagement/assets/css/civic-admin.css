@@ -280,3 +280,8 @@ body.civic-admin-page .civic-admin-manual__section ul {
         margin-right: 12px;
     }
 }
+
+a.count-0-fields{
+    color: var(--civic-admin-accent) ;
+    font-weight: 600 ;
+}

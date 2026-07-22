@@ -6,6 +6,7 @@ namespace CivicPlatform\Modules\Threads\Admin;
 
 use CivicPlatform\Helpers\DateHelper;
 use CivicPlatform\Helpers\StatusLabelHelper;
+use CivicPlatform\Modules\Threads\Repository\ThreadFieldRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadResponseRepository;
 use CivicPlatform\Modules\Threads\Repository\ThreadRepository;
 use CivicPlatform\Services\Export\ExportManager;
@@ -43,6 +44,7 @@ class ThreadsListPage
      */
     private DateHelper $dates;
     private ThreadResponseRepository $responses;
+    private ThreadFieldRepository $fields;
     private MediaService $media;
     private ExportManager $exports;
 
@@ -50,11 +52,12 @@ class ThreadsListPage
      * @param ThreadRepository $threads Thread repository.
      * @param DateHelper $dates Date helper.
      */
-    public function __construct(ThreadRepository $threads, DateHelper $dates, ThreadResponseRepository $responses, MediaService $media, ?ExportManager $exports = null)
+    public function __construct(ThreadRepository $threads, DateHelper $dates, ThreadResponseRepository $responses, ThreadFieldRepository $fields, MediaService $media, ?ExportManager $exports = null)
     {
         $this->threads = $threads;
         $this->dates = $dates;
         $this->responses = $responses;
+        $this->fields = $fields;
         $this->media = $media;
         $this->exports = $exports ?? new ExportManager();
     }
@@ -81,7 +84,7 @@ class ThreadsListPage
         echo ' <a href="' . esc_url($this->addUrl()) . '" class="page-title-action">' . esc_html__('Add Consultation', 'civic-engagement') . '</a>';
         $this->renderSearchForm($search);
         $ids = array_map(static fn(array $item): int => (int) ($item['id'] ?? 0), $items);
-        $this->renderTable($items, $this->responses->getCountsByThreadIds($ids), $this->media->getCountsByEntityIds('consultation', $ids));
+        $this->renderTable($items, $this->responses->getCountsByThreadIds($ids), $this->fields->getCountsByThreadIds($ids), $this->media->getCountsByEntityIds('consultation', $ids));
         $this->renderPagination($page, $totalPages, $search);
         echo '</div>';
     }
@@ -149,7 +152,7 @@ class ThreadsListPage
      * @param array<int, array<string, mixed>> $items Thread rows.
      * @return void
      */
-    private function renderTable(array $items, array $responseCounts, array $mediaCounts): void
+    private function renderTable(array $items, array $responseCounts, array $fieldCounts, array $mediaCounts): void
     {
         echo '<table class="widefat fixed striped">';
         echo '<thead><tr>';
@@ -170,7 +173,7 @@ class ThreadsListPage
         }
 
         foreach ($items as $item) {
-            $this->renderRow($item, $responseCounts, $mediaCounts);
+            $this->renderRow($item, $responseCounts, $fieldCounts, $mediaCounts);
         }
 
         echo '</tbody>';
@@ -183,21 +186,36 @@ class ThreadsListPage
      * @param array<string, mixed> $item Thread row.
      * @return void
      */
-    private function renderRow(array $item, array $responseCounts, array $mediaCounts): void
+    private function renderRow(array $item, array $responseCounts, array $fieldCounts, array $mediaCounts): void
     {
         $id = isset($item['id']) ? (int) $item['id'] : 0;
+        $fieldCount = (int) ($fieldCounts[$id] ?? 0);
 
         echo '<tr>';
         echo '<td>' . esc_html((string) $id) . '</td>';
         echo '<td>' . esc_html((string) ($item['title'] ?? '')) . '</td>';
         echo '<td>' . esc_html((string) ($item['slug'] ?? '')) . '</td>';
-        echo '<td>' . esc_html(StatusLabelHelper::format($item['status'] ?? '')) . '</td>';
+        echo '<td>' . esc_html($this->statusLabel($item, $fieldCount)) . '</td>';
         echo '<td>' . esc_html(!empty($item['response_enabled']) ? __('Enabled', 'civic-engagement') : __('Disabled', 'civic-engagement')) . '</td>';
         echo '<td>' . esc_html((string) ($mediaCounts[$id] ?? 0)) . '</td>';
         echo '<td>' . esc_html($this->userDisplayName($item['created_by'] ?? 0)) . '</td>';
         echo '<td>' . esc_html($this->dates->formatDateTime($item['created_at'] ?? null)) . '</td>';
-        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | <a href="' . esc_url($this->fieldsUrl($id)) . '">' . esc_html__('Fields', 'civic-engagement') . '</a> | <a href="' . esc_url($this->responsesUrl($id)) . '">' . esc_html(sprintf(__('View Responses (%d)', 'civic-engagement'), (int) ($responseCounts[$id] ?? 0))) . '</a></td>';
+        echo '<td><a href="' . esc_url($this->viewUrl($id)) . '">' . esc_html__('View', 'civic-engagement') . '</a> | <a href="' . esc_url($this->editUrl($id)) . '">' . esc_html__('Edit', 'civic-engagement') . '</a> | ' . $this->fieldsLink($id, $fieldCount) . ' | <a href="' . esc_url($this->responsesUrl($id)) . '">' . esc_html(sprintf(__('View Responses (%d)', 'civic-engagement'), (int) ($responseCounts[$id] ?? 0))) . '</a></td>';
         echo '</tr>';
+    }
+
+    private function statusLabel(array $item, int $fieldCount): string
+    {
+        if ('draft' === (string) ($item['status'] ?? '') && 0 === $fieldCount) {
+            return __('Draft (Incomplete)', 'civic-engagement');
+        }
+
+        return StatusLabelHelper::format($item['status'] ?? '');
+    }
+
+    private function fieldsLink(int $id, int $fieldCount): string
+    {
+        return '<a class="' . esc_attr('count-' . $fieldCount . '-fields') . '" title="' . esc_attr__('Add response fields to configure the questions users will answer.', 'civic-engagement') . '" href="' . esc_url($this->fieldsUrl($id)) . '">' . esc_html(sprintf(__('Fields (%d)', 'civic-engagement'), $fieldCount)) . '</a>';
     }
 
     /**
